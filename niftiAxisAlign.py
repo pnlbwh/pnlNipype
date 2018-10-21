@@ -5,7 +5,7 @@ from plumbum.cmd import cp
 
 import warnings
 import numpy as np
-from numpy import matrix, diag, linalg, vstack
+from numpy import matrix, diag, linalg, vstack, hstack, array
 
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore", category=FutureWarning)
@@ -19,9 +19,9 @@ precision= 17
 
 def get_spcdir_new(hdr_in):
 
-    spcdir_orig= hdr_in.get_sform()[0:3,0:3]
+    spcdir_orig= hdr_in.get_sform()[0:3,0:3].T
 
-    sizes = diag([linalg.norm(spcdir_orig[0, :]), linalg.norm(spcdir_orig[1, :]), linalg.norm(spcdir_orig[2, :])])
+    sizes = diag(hdr_in['pixdim'][1:4])
     spcON = linalg.inv(sizes) @ spcdir_orig
     spcNN = np.zeros([3, 3])
 
@@ -29,11 +29,9 @@ def get_spcdir_new(hdr_in):
         mi = np.argmax(abs(spcON[i, :]))
         spcNN[i, mi] = np.sign(spcON[i, mi])
 
-    R = spcNN * linalg.inv(spcON)
+    R = spcNN @ linalg.inv(spcON)
 
-    # rotation
-    # spcdir_new = matrix.round(sizes @ R @ linalg.inv(sizes) @ spcdir_orig, precision)
-    spcdir_new = sizes @ R @ linalg.inv(sizes) @ spcdir_orig
+    spcdir_new = spcNN.T * sizes
 
     return (spcdir_new, R)
 
@@ -41,64 +39,36 @@ def get_spcdir_new(hdr_in):
 def axis_align_dwi(hdr_in, bvec_file, bval_file, out_prefix):
 
     spcdir_new, R= get_spcdir_new(hdr_in)
-    hdr_out= axis_align_3d(hdr_in, spcdir_new, R)
 
     bvec_rotate(bvec_file, out_prefix+'.bvec', rot_matrix=R)
-
-    '''
-    # read the bvecs
-    with open(bvec_file, 'r') as f:
-        bvecs = [[float(num) for num in line.split(' ')] for line in f.read().split('\n') if line]
-
-    # making 3xN
-    bvecs_T= matrix(list(map(list, zip(*bvecs))))
-
-    # rotate the bvecs
-    bvecs_T= matrix.round(R @ bvecs_T, precision)
-    # bvecs_T = R @ bvecs_T
-
-    # making Nx3 again
-    bvecs = list(map(list, zip(*bvecs_T)))
-
-
-    with open(out_prefix+'.bvec', 'w') as f:
-        f.write(('\n').join((' ').join(str(i) for i in row) for row in bvecs))
-    '''
 
     # rename the bval file
     cp.run([bval_file, out_prefix+'.bval'])
 
-    return hdr_out
+    return spcdir_new
 
-def axis_align_3d(hdr_in, spcdir_new= None, R= None):
+def axis_align_3d(hdr_in):
 
-    if not spcdir_new.any():
-        spcdir_new, R = get_spcdir_new(hdr_in)
+    spcdir_new, _ = get_spcdir_new(hdr_in)
+
+    return spcdir_new
+
+
+def update_hdr(hdr_in, spcdir_new, offset_new):
 
     hdr_out= hdr_in.copy()
 
-    hdr_out['srow_x'][ :3]= spcdir_new[0, :]
-    hdr_out['srow_y'][ :3]= spcdir_new[1, :]
-    hdr_out['srow_z'][ :3]= spcdir_new[2, :]
+    xfrm= vstack((hstack((spcdir_new, array(offset_new))), [0., 0., 0., 1]))
 
-
-    a = 0.50 * np.sqrt(1 + R[0,0] + R[1,1] + R[2,2])
-    hdr_out['quatern_b'] = 0.25 * (R[2,1] - R[1,2]) / a
-    hdr_out['quatern_c'] = 0.25 * (R[0,2] - R[2,0]) / a
-    hdr_out['quatern_d'] = 0.25 * (R[1,0] - R[0,1]) / a
-
-
-    hdr_out['qoffset_x']= hdr_out['srow_x'][3] # spcdir_new[0,3]
-    hdr_out['qoffset_y']= hdr_out['srow_y'][3] # spcdir_new[1,3]
-    hdr_out['qoffset_z']= hdr_out['srow_z'][3] # spcdir_new[2,3]
-
-    # save_image(mri_in.get_data(), hdr_out, out_prefix)
+    hdr_out.set_sform(xfrm)
+    hdr_out.set_qform(xfrm)
 
     return hdr_out
 
+
 def save_image(data, hdr_out, out_prefix):
 
-    xfrm = vstack((hdr_out['srow_x'], hdr_out['srow_y'], hdr_out['srow_z'], [0., 0., 0., 1]))
+    xfrm= hdr_out.get_sform()
 
     mri_out = nib.nifti1.Nifti1Image(data, affine=xfrm, header=hdr_out)
 
@@ -160,41 +130,63 @@ class Xalign(cli.Application):
         hdr= mri.header
         dim= hdr['dim'][0]
 
+        if dim == 4:
+            if not self.bvec_file and not self.bval_file:
+                print('bvec and bvals files not specified, exiting ...')
+                exit(1)
+
+        elif dim == 3:
+            spcdir_new= axis_align_3d(hdr)
+
+        else:
+            print('Invalid image dimension, has to be either 3 or 4')
 
 
-        # axis alignment block ---------------------------------------------------
-        if self.axisAlign:
+        offset_orig= matrix(hdr.get_sform()[0:3, 3]).T
+        spcdir_orig= hdr.get_sform()[0:3, 0:3]
+
+
+        if self.axisAlign and not self.center:
+            # pass spcdir_new and offset_orig
 
             if not self.out_prefix:
                 prefix = self.img_file.split('.')[0] + '-ax'  # a clever way to get prefix including path
 
             if dim == 4:
-                if not self.bvec_file and not self.bval_file:
-                    print('bvec and bvals files not specified, exiting ...')
-                    exit(1)
+                spcdir_new= axis_align_dwi(hdr, self.bvec_file, self.bval_file, prefix)
 
-                hdr_out= axis_align_dwi(hdr, self.bvec_file, self.bval_file, prefix)
-
-            elif dim == 3:
-                hdr_out= axis_align_3d(hdr)
-
-            else:
-                print('Invalid image dimension, has to be either 3 or 4')
+            hdr_out = update_hdr(hdr, spcdir_new, offset_orig)
 
 
+        elif not self.axisAlign and self.center:
+            # pass spcdir_orig and offset_new
 
-        # centering block ---------------------------------------------------------
-        if self.center:
-
-            if not self.out_prefix and not self.axisAlign:
+            if not self.out_prefix:
                 prefix = self.img_file.split('.')[0] + '-ce'  # a clever way to get prefix including path
 
-            else:
+            if dim == 4:
+                spcdir_new= axis_align_dwi(hdr, self.bvec_file, self.bval_file, prefix)
+
+            offset_new = hdr['pixdim'][0] * spcdir_new @ matrix(-(hdr['dim'][1:4] - 1) / 2).T
+            hdr_out = update_hdr(hdr, spcdir_orig, offset_new)
+
+
+        elif self.axisAlign and self.center:
+            # pass spcdir_new and offset_new
+
+            if not self.out_prefix:
                 prefix = self.img_file.split('.')[0] + '-xc'  # a clever way to get prefix including path
 
+            if dim == 4:
+                spcdir_new= axis_align_dwi(hdr, self.bvec_file, self.bval_file, prefix)
 
-            hdr_out= centered_origin(hdr)
+            offset_new = hdr['pixdim'][0] * spcdir_new @ matrix(-(hdr['dim'][1:4] - 1) / 2).T
+            hdr_out = update_hdr(hdr, spcdir_new, offset_new)
 
+
+        else:
+            print('Select axisAlign and or center')
+            exit(1)
 
 
         # write out the modified image
@@ -208,7 +200,10 @@ if __name__ == '__main__':
 ~/Downloads/Dummy-PNL-nipype/niftiAxisAlign.py -i 1001-dwi.nii --bvals 1001-dwi.bval --bvecs 1001-dwi.bvec
 
 
-~/Downloads/Dummy-PNL-nipype/niftiAxisAlign.py -i 5006-dwi-shifted.nii --bvals 5006-dwi.bval --bvecs 5006-dwi.bvec --center
+~/Downloads/Dummy-PNL-nipype/niftiAxisAlign.py -i 5006-dwi-shifted.nii --bvals dwi.bval --bvecs dwi.bvec.rot --center
+~/Downloads/Dummy-PNL-nipype/niftiAxisAlign.py -i 5006-dwi.nii --bvals dwi.bval --bvecs dwi.bvec.rot --axisAlign
+~/Downloads/Dummy-PNL-nipype/niftiAxisAlign.py -i 5006-dwi.nii --bvals 5006-dwi.bval --bvecs 5006-dwi.bvec --axisAlign
+
 
 DWIConvert
 cases=(3005 5006 7010);
@@ -226,12 +221,12 @@ cases=(3005 5006 7010);
 for i in ${cases[@]};
 do  
     cd $i;
-    ~/Downloads/Dummy-PNL-nipype/niftiAxisAlign.py -i 1001-dwi.nii --bvals dwi.bval --bvecs dwi.bvec.rot
+    ~/Downloads/Dummy-PNL-nipype/niftiAxisAlign.py -i $i-dwi.nii --bvals dwi.bval --bvecs dwi.bvec.rot
     cd ..;
 done
 
 
-DWIConvert --inputVolume 5006-dwi-shifted.nrrd -o 5006-dwi-shifted.nii --outputBValues 5006-dwi-shifted.bval \
---outputBVectors 5006-dwi-shifted.bvecs --conversionMode NrrdToFSL
+DWIConvert --inputVolume 5006-dwi.nrrd -o 5006-dwi.nii --outputBValues 5006-dwi.bval \
+--outputBVectors 5006-dwi.bvecs --conversionMode NrrdToFSL
 
 '''
