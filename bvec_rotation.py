@@ -33,6 +33,14 @@ def read_bvecs(bvec_file):
 
     return bvecs
 
+def read_bvals(bval_file):
+
+    # read the bvecs
+    with open(bval_file, 'r') as f:
+        bvals = [float(line) for line in f.read().split('\n') if line]
+
+    return bvals
+
 def write_bvecs(bvec_file, bvecs):
 
     with open(bvec_file, 'w') as f:
