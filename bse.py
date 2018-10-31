@@ -7,8 +7,6 @@ import os
 import nibabel as nib
 import numpy as np
 
-b0_threshold= 45
-
 class App(cli.Application):
     """Extracts the baseline (b0) from a nifti DWI. Assumes
     the diffusion volumes are indexed by the last axis. Chooses the first b0 as the
@@ -31,6 +29,12 @@ class App(cli.Application):
         help= 'Extracted baseline image (default: input_prefix_bse.nii.gz)',
         mandatory=False)
 
+    b0_threshold = cli.SwitchAttr(
+        ['-t', '--threshold'],
+        help= 'Threshold for b0',
+        mandatory=False,
+        default= 45.)
+
     minimum= cli.Flag(['--min'],
                       help= 'turn on this flag to choose the minimum b0 as the baseline image',
                       default= False,
@@ -47,13 +51,15 @@ class App(cli.Application):
         prefix= self.dwi.name.split('.')[0]
         directory= self.dwi.parent
 
+        self.b0_threshold= float(self.b0_threshold)
+
         if self.out is None:
             self.out= os.path.join(directory, prefix+'_bse.nii.gz')
 
         if self.dwi.endswith('.nii') or self.dwi.endswith('.nii.gz'):
 
             bval_file= os.path.join(directory, prefix+'.bval')
-            idx= np.where([bval < b0_threshold for bval in read_bvals(bval_file)])[0]
+            idx= np.where([bval < self.b0_threshold for bval in read_bvals(bval_file)])[0]
 
 
             if len(idx)==1 or (not self.minimum and not self.average):
