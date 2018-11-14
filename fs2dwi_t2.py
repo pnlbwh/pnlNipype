@@ -244,12 +244,10 @@ class WithT2(cli.Application):
 
 
             # rigid registration from t2 to brain.nii.gz
-            print('Registering t2 to brain')
-            pre = tmpdir / 'T2toBrain'
-            T2toBrainAffine = pre + '0GenericAffine.mat'
-            # correct name
+            pre = tmpdir / 'BrainToT2'
+            BrainToT2Affine = pre + '0GenericAffine.mat'
 
-            print('Computing rigid transform from brain.nii.gz to t2')
+            print('Computing rigid registration from brain.nii.gz to t2')
             # check_call(
             #     (' ').join(['antsRegistrationSyNMI.sh', '-d', '3', '-t', 'r', '-m', brain, '-f', t2masked, '-o', pre,
             #                 '-n', N_CPU]), shell=True)
@@ -273,7 +271,7 @@ class WithT2(cli.Application):
 
             print('Registering wmparc to B0 through T2')
             registerFs2Dwi_T2(tmpdir, 'fsbrainToT2ToB0', b0masked, t2masked,
-                              T2toBrainAffine, wmparc, wmparcindwi)
+                              BrainToT2Affine, wmparc, wmparcindwi)
 
             if (dwi_res!=brain_res).any():
                 print('DWI resolution is different from FreeSurfer brain resolution')
@@ -286,7 +284,7 @@ class WithT2(cli.Application):
 
                 print('Registering wmparc to resampled B0')
                 registerFs2Dwi_T2(tmpdir, 'fsbrainToT2ToResampledB0', b0maskedbrain, t2masked,
-                                  T2toBrainAffine, wmparc, wmparcinbrain)
+                                  BrainToT2Affine, wmparc, wmparcinbrain)
 
             # copying images to outDir
             b0masked.copy(self.parent.out)
