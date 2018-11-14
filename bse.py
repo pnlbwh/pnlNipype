@@ -3,8 +3,10 @@
 from plumbum import local, cli, FG
 from plumbum.cmd import fslroi, ImageMath
 from bvec_rotation import read_bvals
-import os
-import nibabel as nib
+import os, warnings
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore", category=FutureWarning)
+    import nibabel as nib
 import numpy as np
 
 class App(cli.Application):
@@ -41,7 +43,8 @@ class App(cli.Application):
                       mandatory= False)
 
     average= cli.Flag(['--avg'],
-                      help= 'turn on this flag to choose the average of all b0 images as the baseline image',
+                      help= '''turn on this flag to choose the average of all b0 images as the baseline image, 
+                            you might want to use this only when eddy/motion correction has been done before''',
                       default= False,
                       mandatory= False)
 

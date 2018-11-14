@@ -28,17 +28,38 @@ def rotate_matrix(bvecs, R):
 def read_bvecs(bvec_file):
 
     # read the bvecs
+    # try:
+    #     with open(bvec_file, 'r') as f:
+    #         bvecs = [[float(num) for num in line.split(' ')] for line in f.read().split('\n') if line]
+    # except:
+    #     with open(bvec_file, 'r') as f:
+    #         bvecs = [[float(num) for num in line.split('\t')] for line in f.read().split('\n') if line]
+
     with open(bvec_file, 'r') as f:
-        bvecs = [[float(num) for num in line.split(' ')] for line in f.read().split('\n') if line]
+        bvecs = [[float(num) for num in line.split()] for line in f.read().split('\n') if line]
+
+    # bvec_file can be 3xN or Nx3
+    # we want to return as Nx3
+    if len(bvecs)==3:
+        bvecs= tranpose(bvecs)
 
     return bvecs
 
 def read_bvals(bval_file):
 
-    # read the bvecs
-    with open(bval_file, 'r') as f:
-        bvals = [float(line) for line in f.read().split('\n') if line]
+    # read the bvals
+    # try:
+    #     with open(bval_file, 'r') as f:
+    #         bvals = [float(line) for line in f.read().split('\n') if line]
+    #
+    # except:
+    #     with open(bval_file, 'r') as f:
+    #         bvals = [float(line) for line in f.read().split(' ') if line]
 
+    with open(bval_file, 'r') as f:
+        bvals = [float(num) for num in f.read().split( )]
+    
+    # bval_file can be 1 line or N lines
     return bvals
 
 def write_bvecs(bvec_file, bvecs):

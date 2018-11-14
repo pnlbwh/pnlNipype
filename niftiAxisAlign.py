@@ -171,7 +171,7 @@ class Xalign(cli.Application):
             hdr_out = update_hdr(hdr, spcdir_orig, offset_new)
 
 
-        elif self.axisAlign and self.center:
+        else: # self.axisAlign and self.center:
             # pass spcdir_new and offset_new
 
             if not self.out_prefix:
@@ -184,9 +184,9 @@ class Xalign(cli.Application):
             hdr_out = update_hdr(hdr, spcdir_new, offset_new)
 
 
-        else:
-            print('Select axisAlign and or center')
-            exit(1)
+        # else:
+        #     print('Select axisAlign and or center')
+        #     exit(1)
 
 
         # write out the modified image
