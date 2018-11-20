@@ -95,8 +95,7 @@ type: short\ndimension: {dim}\nspace: right-anterior-superior')
     if dim==4:
         print('centerings: cell cell cell ???')
         print('kinds: space space space list')
-        res = hdr['pixdim'][1:4]
-        mf = inv(np.diag(res)) @ spc_dir
+        mf = np.eye(3)
         print(f'measurement frame: {matrix_string(mf)}')
     else:
         print('centerings: cell cell cell')
