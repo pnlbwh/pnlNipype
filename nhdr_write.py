@@ -15,7 +15,7 @@ np.set_printoptions(precision= PRECISION)
 def bvec_scaling(bval, bvec, b_max):
     
     if bval:
-        factor= np.sqrt(b_max/bval)
+        factor= np.sqrt(bval/b_max)
         if norm(bvec)!=factor:
             bvec= np.array(bvec)*factor
 
