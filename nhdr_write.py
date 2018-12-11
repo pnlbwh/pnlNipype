@@ -33,7 +33,19 @@ def matrix_string(A):
     A= A.replace('],[',') (')
     return '('+A[2:-2]+')'
     
-    
+def rotation_matrix(hdr):
+
+    b= hdr['quatern_b']
+    c= hdr['quatern_c']
+    d= hdr['quatern_d']
+    a= np.sqrt(1.0-(b*b+c*c+d*d))
+
+    R = np.array([[a*a + b*b - c*c - d*d, 2*b*c - 2*a*d, 2*b*d + 2*a*c],
+                  [2*b*c + 2*a*d, a*a + c*c - b*b - d*d, 2*c*d - 2*a*b],
+                  [2*b*d - 2*a*c, 2*c*d + 2*a*b, a*a + d*d - c*c - b*b]])
+
+    return R
+
 def main():
 
     parser = argparse.ArgumentParser(description='Given path prefix, writes a prefix.nhdr file')
@@ -43,7 +55,7 @@ def main():
     args = parser.parse_args()
     prefix= args.prefix
 
-    nifti_file= prefix.split('/')[-1]+'.nii.gz'
+    nifti_file= prefix+'.nii.gz'
     encoding= 'gzip'
     if not os.path.exists(nifti_file):
         nifti_file= prefix+'.nii'
@@ -52,12 +64,6 @@ def main():
     img= nib.load(nifti_file)
     hdr= img.header
 
-    bval_file= prefix+'.bval'
-    bvec_file= prefix+'.bvec'
-
-    bvecs= read_bvecs(bvec_file)
-    bvals= read_bvals(bval_file)
-    
     nhdr_file=prefix+'.nhdr'
     f= open(nhdr_file,'w')
     console= sys.stdout
@@ -74,9 +80,7 @@ type: short\ndimension: {dim}\nspace: right-anterior-superior')
     sizes= hdr['dim'][1:dim+1]
     print('sizes: {}'.format((' ').join(str(x) for x in sizes)))
 
-    spc_dir= hdr.get_sform()[0:3,0:3].T
-    print(f'space directions: {matrix_string(spc_dir)}')
-
+    spc_dir= hdr.get_qform()[0:3,0:3].T
 
     # most important key
     print('byteskip: -1')
@@ -84,31 +88,39 @@ type: short\ndimension: {dim}\nspace: right-anterior-superior')
     print(f'endian: little\nencoding: {encoding}')
     print('space units: "mm" "mm" "mm"')
 
-
-    spc_orig= hdr.get_sform()[0:3,3]
+    spc_orig= hdr.get_qform()[0:3,3]
     print('space origin: ({})'.format((',').join(str(x) for x in spc_orig)))
 
-    print('data file: ',nifti_file)
-
-
+    print('data file: ', nifti_file)
 
     if dim==4:
+        print(f'space directions: {matrix_string(spc_dir)} none')
         print('centerings: cell cell cell ???')
         print('kinds: space space space list')
-        mf = np.eye(3)
+        # R= rotation_matrix(hdr)
+        # mf = R @ np.diag([1, 1, hdr['pixdim'][0]])
+        mf = spc_dir @ inv(np.diag(hdr['pixdim'][1:4]))
         print(f'measurement frame: {matrix_string(mf)}')
+
+        bval_file = prefix + '.bval'
+        bvec_file = prefix + '.bvec'
+
+        bvecs = read_bvecs(bvec_file)
+        bvals = read_bvals(bval_file)
+
+        print('modality:=DWMRI')
+
+        b_max = max(bvals)
+        print(f'DWMRI_b-value:={b_max}')
+        for ind in range(len(bvals)):
+            scaled_bvec = bvec_scaling(bvals[ind], bvecs[ind], b_max)
+            print(f'DWMRI_gradient_{ind:04}:={scaled_bvec}')
+
     else:
+        print(f'space directions: {matrix_string(spc_dir)}')
         print('centerings: cell cell cell')
         print('kinds: space space space')
 
-    print('modality:=DWMRI')
-    
-
-    b_max= max(bvals)
-    print(f'DWMRI_b-value:={b_max}')
-    for ind in range(len(bvals)):
-        scaled_bvec= bvec_scaling(bvals[ind], bvecs[ind], b_max)
-        print(f'DWMRI_gradient_{ind:04}:={scaled_bvec}')
         
     f.close()
     sys.stdout= console
