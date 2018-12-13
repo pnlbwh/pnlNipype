@@ -74,7 +74,7 @@ class App(cli.Application):
             elif len(idx)>1 and self.average:
 
                 # The following extraction is recommended to get the modified header
-                fslroi[self.dwi, self.out, idx, 1] & FG
+                fslroi[self.dwi, self.out, idx, len(idx)] & FG
 
                 # Load the intermediate bse to get the modified header
                 hdr_out= nib.load(str(self.out)).header
