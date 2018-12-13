@@ -48,24 +48,28 @@ def rotation_matrix(hdr):
 
 def main():
 
-    parser = argparse.ArgumentParser(description='Given path prefix, writes a prefix.nhdr file')
-    parser.add_argument('-p', '--prefix', type=str, required=True,
-                        help='prefix for prefix.nii.gz, prefix.bval, and prefix.bvec files')
+    parser = argparse.ArgumentParser(description='NIFTI to NHDR conversion tool setting byteskip = -1')
+    parser.add_argument('--nifti', type=str, required=True, help='nifti file')
+    parser.add_argument('--bval', type=str, required=True, help='bval file')
+    parser.add_argument('--bvec', type=str, required=True, help='bvec file')
+    parser.add_argument('--nhdr', type=str, required=True, help='output nhdr file')
 
     args = parser.parse_args()
-    prefix= args.prefix
 
-    nifti_file= prefix+'.nii.gz'
-    encoding= 'gzip'
-    if not os.path.exists(nifti_file):
-        nifti_file= prefix+'.nii'
-        encoding= 'raw'
+    if args.nifti.endswith('.gz'):
+        encoding = 'gzip'
+    elif args.nifti.endswith('.nii'):
+        encoding = 'raw'
+    else:
+        raise ValueError('Invalid nifti file')
 
-    img= nib.load(nifti_file)
+    img= nib.load(args.nifti)
     hdr= img.header
 
-    nhdr_file=prefix+'.nhdr'
-    f= open(nhdr_file,'w')
+    if not args.nhdr.endswith('.nhdr'):
+        args.nhdr+='.nhdr'
+
+    f= open(args.nhdr, 'w')
     console= sys.stdout
     sys.stdout= f
     
@@ -91,7 +95,7 @@ type: short\ndimension: {dim}\nspace: right-anterior-superior')
     spc_orig= hdr.get_qform()[0:3,3]
     print('space origin: ({})'.format((',').join(str(x) for x in spc_orig)))
 
-    print('data file: ', nifti_file)
+    print('data file: ', args.nifti)
 
     if dim==4:
         print(f'space directions: {matrix_string(spc_dir)} none')
@@ -102,11 +106,8 @@ type: short\ndimension: {dim}\nspace: right-anterior-superior')
         mf = spc_dir @ inv(np.diag(hdr['pixdim'][1:4]))
         print(f'measurement frame: {matrix_string(mf)}')
 
-        bval_file = prefix + '.bval'
-        bvec_file = prefix + '.bvec'
-
-        bvecs = read_bvecs(bvec_file)
-        bvals = read_bvals(bval_file)
+        bvecs = read_bvecs(args.bvec)
+        bvals = read_bvals(args.bval)
 
         print('modality:=DWMRI')
 

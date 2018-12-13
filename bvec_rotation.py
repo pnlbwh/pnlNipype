@@ -62,6 +62,10 @@ def read_bvals(bval_file):
     # bval_file can be 1 line or N lines
     return bvals
 
+def write_bvals(bval_file, bvals):
+    with open(bval_file, 'w') as f:
+        f.write(('\n').join(str(b) for b in bvals))
+
 def write_bvecs(bvec_file, bvecs):
 
     with open(bvec_file, 'w') as f:
