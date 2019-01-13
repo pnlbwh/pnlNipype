@@ -51,8 +51,8 @@ def main():
 
     parser = argparse.ArgumentParser(description='NIFTI to NHDR conversion tool setting byteskip = -1')
     parser.add_argument('--nifti', type=str, required=True, help='nifti file')
-    parser.add_argument('--bval', type=str, required=True, help='bval file')
-    parser.add_argument('--bvec', type=str, required=True, help='bvec file')
+    parser.add_argument('--bval', type=str, help='bval file')
+    parser.add_argument('--bvec', type=str, help='bvec file')
     parser.add_argument('--nhdr', type=str, required=True, help='output nhdr file')
 
     args = parser.parse_args()
