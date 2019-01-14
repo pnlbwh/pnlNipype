@@ -76,6 +76,7 @@ def main():
     hdr_nifti.set_xyzt_units(xyz= SPACE_UNITS, t= TIME_UNITS)
     hdr_nifti['sform_code']= 1
 
+    hdr_nifti['descrip']= 'pnl-bwh-hms'
     nib.save(img_nifti, prefix+'.nii.gz')
 
 
