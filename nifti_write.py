@@ -45,7 +45,7 @@ def main():
         f_vec= open(prefix+'.bvec', 'w')
         b_max = float(hdr['DWMRI_b-value'])
 
-        for ind in range(hdr['dimension'][grad_axis]):
+        for ind in range(hdr['sizes'][grad_axis]):
             bvec = [float(num) for num in hdr[f'DWMRI_gradient_{ind:04}'].split()]
             L_2= np.linalg.norm(bvec)
             bval= round(L_2 ** 2 * b_max)
