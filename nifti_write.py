@@ -26,6 +26,8 @@ def main():
     hdr= img[1]
     data= img[0]
 
+    SPACE_UNITS = 2
+    TIME_UNITS = 0
     if hdr['dimension']==4:
         axis_elements= hdr['kinds']
         for i in range(4):
@@ -37,27 +39,12 @@ def main():
         if grad_axis!=3:
             data= np.moveaxis(data, grad_axis, 3)
 
-    # automatically sets dim, data_type, pixdim, affine
-    xfrm= np.vstack((np.hstack((hdr['space directions'][:3,:3].T,
-                                np.reshape(hdr['space origin'],(3,1)))),[0,0,0,1]))
-    img_nifti= nib.nifti1.Nifti1Image(data, affine= xfrm)
-    hdr_nifti= img_nifti.header
-
-    # now set xyzt_units, sform_code= 1 (scanner)
-    # https://nifti.nimh.nih.gov/nifti-1/documentation/nifti1fields/nifti1fields_pages/xyzt_units.html
-    # simplification assuming 'mm' and 'sec'
-    hdr_nifti.set_xyzt_units(xyz= 2, t= 8)
-    hdr_nifti['sform_code']= 1
-
-    nib.save(img_nifti, prefix+'.nii.gz')
-
-    # write .bval and .bvec
-    if hdr['dimension'] ==4:
+        # write .bval and .bvec
         f_val= open(prefix+'.bval', 'w')
         f_vec= open(prefix+'.bvec', 'w')
         b_max = float(hdr['DWMRI_b-value'])
 
-        for ind in range(hdr_nifti['dim'][4]):
+        for ind in range(hdr['dimension'][grad_axis]):
             bvec = [float(num) for num in hdr[f'DWMRI_gradient_{ind:04}'].split()]
             L_2= np.linalg.norm(bvec)
             bval= round(L_2 ** 2 * b_max)
@@ -72,6 +59,24 @@ def main():
 
         f_val.close()
         f_vec.close()
+
+
+        TIME_UNITS= 8
+
+
+    # automatically sets dim, data_type, pixdim, affine
+    xfrm= np.vstack((np.hstack((hdr['space directions'][:3,:3].T,
+                                np.reshape(hdr['space origin'],(3,1)))),[0,0,0,1]))
+    img_nifti= nib.nifti1.Nifti1Image(data, affine= xfrm)
+    hdr_nifti= img_nifti.header
+
+    # now set xyzt_units, sform_code= 1 (scanner)
+    # https://nifti.nimh.nih.gov/nifti-1/documentation/nifti1fields/nifti1fields_pages/xyzt_units.html
+    # simplification assuming 'mm' and 'sec'
+    hdr_nifti.set_xyzt_units(xyz= SPACE_UNITS, t= TIME_UNITS)
+    hdr_nifti['sform_code']= 1
+
+    nib.save(img_nifti, prefix+'.nii.gz')
 
 
 
