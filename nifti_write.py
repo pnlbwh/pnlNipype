@@ -26,15 +26,16 @@ def main():
     hdr= img[1]
     data= img[0]
 
-    axis_elements= hdr['kinds']
-    for i in range(4):
-        if axis_elements[i] == 'list' or axis_elements[i] == 'vector':
-            grad_axis= i
-            break
+    if hdr['dimension']==4:
+        axis_elements= hdr['kinds']
+        for i in range(4):
+            if axis_elements[i] == 'list' or axis_elements[i] == 'vector':
+                grad_axis= i
+                break
 
-    # put the gradients along last axis
-    if grad_axis!=3:
-        data= np.moveaxis(data, grad_axis, 3)
+        # put the gradients along last axis
+        if grad_axis!=3:
+            data= np.moveaxis(data, grad_axis, 3)
 
     # automatically sets dim, data_type, pixdim, affine
     xfrm= np.vstack((np.hstack((hdr['space directions'][:3,:3].T,
