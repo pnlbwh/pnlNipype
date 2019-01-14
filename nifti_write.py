@@ -14,10 +14,11 @@ np.set_printoptions(precision= PRECISION)
 
 def main():
 
-    parser = argparse.ArgumentParser(description='NRRD to NIFTI conversion tool setting byteskip = -1')
-    parser.add_argument('-p', '--prefix', type=str, required=True,
-                        help='prefix for .nii.gz, .bval, and .bvec files')
+    parser = argparse.ArgumentParser(description='NRRD to NIFTI conversion tool')
     parser.add_argument('-i', '--input', type=str, required=True, help='input nrrd file')
+    parser.add_argument('-p', '--prefix', type=str, required=True,
+                        help='output prefix for .nii.gz, .bval, and .bvec files')
+
 
     args = parser.parse_args()
     prefix= args.prefix
