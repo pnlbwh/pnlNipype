@@ -45,6 +45,7 @@ def main():
 
     # now set xyzt_units, sform_code= 1 (scanner)
     # https://nifti.nimh.nih.gov/nifti-1/documentation/nifti1fields/nifti1fields_pages/xyzt_units.html
+    # simplification assuming 'mm' and 'sec'
     hdr_nifti.set_xyzt_units(xyz= 2, t= 8)
     hdr_nifti['sform_code']= 1
 
