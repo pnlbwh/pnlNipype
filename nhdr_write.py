@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 import numpy as np
 from numpy.linalg import norm, inv
 from bvec_rotation import read_bvecs, read_bvals
@@ -70,7 +71,7 @@ def main():
     if not args.nhdr.endswith('.nhdr'):
         args.nhdr+='.nhdr'
 
-    f= open(args.nhdr, 'w')
+    f= open(os.path.abspath(args.nhdr), 'w')
     console= sys.stdout
     sys.stdout= f
 

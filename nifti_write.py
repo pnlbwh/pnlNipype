@@ -4,6 +4,7 @@ import nrrd
 import numpy as np
 import argparse
 import warnings
+import os
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore", category=FutureWarning)
     import nibabel as nib
@@ -21,7 +22,7 @@ def main():
 
 
     args = parser.parse_args()
-    prefix= args.prefix
+    prefix= os.path.abspath(args.prefix)
 
     img= nrrd.read(args.input)
     hdr= img[1]
