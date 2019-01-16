@@ -13,6 +13,33 @@ PRECISION= 17
 np.set_printoptions(precision= PRECISION)
 
 
+def _space2ras(space):
+    '''Find the diagonal transform required to transform space to RAS'''
+
+    positive= space.split('-')
+
+    xfrm=[ ]
+    if positive[0] is 'left':
+        xfrm.append(-1)
+    else:
+        xfrm.append(1)
+
+    if positive[1] is 'posterior':
+        xfrm.append(-1)
+    else:
+        xfrm.append(1)
+
+    if positive[2] is 'inferior':
+        xfrm.append(-1)
+    else:
+        xfrm.append(1)
+
+    # return 4x4 diagonal matrix
+    xfrm.append(1)
+    return np.diag(xfrm)
+
+
+
 def main():
 
     parser = argparse.ArgumentParser(description='NRRD to NIFTI conversion tool')
@@ -30,6 +57,13 @@ def main():
 
     SPACE_UNITS = 2
     TIME_UNITS = 0
+
+    SPACE2RAS = _space2ras(hdr['space'])
+    xfrm_nhdr= np.matrix(np.vstack((np.hstack((hdr['space directions'][:3,:3].T,
+                        np.reshape(hdr['space origin'],(3,1)))),[0,0,0,1])))
+    xfrm_nifti= SPACE2RAS @ xfrm_nhdr
+    RAS2IJK= xfrm_nifti.I
+
     if hdr['dimension']==4:
         axis_elements= hdr['kinds']
         for i in range(4):
@@ -46,30 +80,32 @@ def main():
         f_vec= open(prefix+'.bvec', 'w')
         b_max = float(hdr['DWMRI_b-value'])
 
+        mf= np.matrix(np.vstack((np.hstack((hdr['measurement frame'],
+                                            [[0],[0],[0]])),[0,0,0,1])))
         for ind in range(hdr['sizes'][grad_axis]):
             bvec = [float(num) for num in hdr[f'DWMRI_gradient_{ind:04}'].split()]
-            L_2= np.linalg.norm(bvec)
+            L_2= np.linalg.norm(bvec[:3])
             bval= round(L_2 ** 2 * b_max)
 
+            bvec.append(1)
+            bvecINijk= RAS2IJK @ SPACE2RAS @ mf @ np.matrix(bvec).T
+
             if L_2:
-                bvec_norm= bvec/L_2
+                bvec_norm= bvecINijk[:3]/np.linalg.norm(bvecINijk[:3])
             else:
                 bvec_norm= [0, 0, 0]
 
             f_val.write(str(bval)+' ')
-            f_vec.write(('  ').join(str(x) for x in bvec_norm)+'\n')
+            f_vec.write(('  ').join(str(x) for x in np.array(bvec_norm).flatten())+'\n')
 
         f_val.close()
         f_vec.close()
-
 
         TIME_UNITS= 8
 
 
     # automatically sets dim, data_type, pixdim, affine
-    xfrm= np.vstack((np.hstack((hdr['space directions'][:3,:3].T,
-                                np.reshape(hdr['space origin'],(3,1)))),[0,0,0,1]))
-    img_nifti= nib.nifti1.Nifti1Image(data, affine= xfrm)
+    img_nifti= nib.nifti1.Nifti1Image(data, affine= xfrm_nifti)
     hdr_nifti= img_nifti.header
 
     # now set xyzt_units, sform_code= 1 (scanner)
