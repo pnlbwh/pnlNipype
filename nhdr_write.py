@@ -117,7 +117,7 @@ type: {np_to_nrrd[dtype.name]}\ndimension: {dim}\nspace: right-anterior-superior
     sizes= hdr['dim'][1:dim+1]
     print('sizes: {}'.format((' ').join(str(x) for x in sizes)))
 
-    spc_dir= hdr.get_qform()[0:3,0:3].T
+    spc_dir= hdr.get_qform()[0:3,0:3]
 
     # most important key
     print('byteskip: -1')
@@ -133,18 +133,19 @@ type: {np_to_nrrd[dtype.name]}\ndimension: {dim}\nspace: right-anterior-superior
     print('data file: ', args.nifti)
 
     if dim==4:
-        print(f'space directions: {matrix_string(spc_dir)} none')
+        print(f'space directions: {matrix_string(spc_dir.T)} none')
         print('centerings: cell cell cell ???')
         print('kinds: space space space list')
 
-        affine_det= np.linalg.det(hdr.get_qform())
-        if affine_det < 0:
-            mf = np.eye(3, dtype= 'int')
-        elif affine_det > 0:
-            mf = np.array([[-1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype= 'int')
+        # affine_det= np.linalg.det(hdr.get_qform())
+        # if affine_det < 0:
+        #     mf = np.eye(3, dtype= 'int')
+        # elif affine_det > 0:
+        #     mf = np.array([[-1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype= 'int')
 
         # mf = spc_dir @ inv(np.diag(hdr['pixdim'][1:4]))
-        print(f'measurement frame: {matrix_string(mf)}')
+        mf = spc_dir / hdr['pixdim'][1:4]
+        print(f'measurement frame: {matrix_string(mf.T)}')
 
         bvecs = read_bvecs(args.bvec)
         bvals = read_bvals(args.bval)
