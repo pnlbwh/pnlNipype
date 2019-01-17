@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
-import os
 import numpy as np
 from numpy.linalg import norm, inv
-from bvec_rotation import read_bvecs, read_bvals
 import argparse
 import os, warnings, sys
 with warnings.catch_warnings():
@@ -12,6 +10,35 @@ with warnings.catch_warnings():
 
 PRECISION= 17
 np.set_printoptions(precision= PRECISION)
+
+
+def read_bvecs(bvec_file):
+
+    with open(bvec_file, 'r') as f:
+        bvecs = [[float(num) for num in line.split()] for line in f.read().split('\n') if line]
+
+    # bvec_file can be 3xN or Nx3
+    # we want to return as Nx3
+    if len(bvecs) == 3:
+        bvecs = tranpose(bvecs)
+
+    return bvecs
+
+
+def read_bvals(bval_file):
+
+    with open(bval_file, 'r') as f:
+        bvals = [float(num) for num in f.read().split()]
+
+    # bval_file can be 1 line or N lines
+    return bvals
+
+def tranpose(bvecs):
+
+    # bvecs_T = matrix(list(map(list, zip(*bvecs))))
+    bvecs_T = list(map(list, zip(*bvecs)))
+
+    return bvecs_T
 
 def bvec_scaling(bval, bvec, b_max):
     
@@ -34,19 +61,6 @@ def matrix_string(A):
     A= A.replace('],[',') (')
     return '('+A[2:-2]+')'
     
-def rotation_matrix(hdr):
-
-    b= hdr['quatern_b']
-    c= hdr['quatern_c']
-    d= hdr['quatern_d']
-    a= np.sqrt(1.0-(b*b+c*c+d*d))
-
-    R = np.array([[a*a + b*b - c*c - d*d, 2*b*c - 2*a*d, 2*b*d + 2*a*c],
-                  [2*b*c + 2*a*d, a*a + c*c - b*b - d*d, 2*c*d - 2*a*b],
-                  [2*b*d - 2*a*c, 2*c*d + 2*a*b, a*a + d*d - c*c - b*b]])
-
-    return R
-
 
 def main():
 
@@ -54,7 +68,7 @@ def main():
     parser.add_argument('--nifti', type=str, required=True, help='nifti file')
     parser.add_argument('--bval', type=str, help='bval file')
     parser.add_argument('--bvec', type=str, help='bvec file')
-    parser.add_argument('--nhdr', type=str, required=True, help='output nhdr file')
+    parser.add_argument('--nhdr', type=str, help='output nhdr file')
 
     args = parser.parse_args()
 
@@ -68,8 +82,12 @@ def main():
     img= nib.load(args.nifti)
     hdr= img.header
 
-    if not args.nhdr.endswith('.nhdr'):
-        args.nhdr+='.nhdr'
+    if not args.nhdr:
+        args.nhdr= os.path.abspath(args.nifti).split('.')[0]
+    elif not args.nhdr.endswith('nhdr'):
+        raise AttributeError('Output file must be nhdr')
+    else:
+        args.nhdr= os.path.abspath(args.nhdr)
 
     f= open(os.path.abspath(args.nhdr), 'w')
     console= sys.stdout
@@ -118,9 +136,14 @@ type: {np_to_nrrd[dtype.name]}\ndimension: {dim}\nspace: right-anterior-superior
         print(f'space directions: {matrix_string(spc_dir)} none')
         print('centerings: cell cell cell ???')
         print('kinds: space space space list')
-        # R= rotation_matrix(hdr)
-        # mf = R @ np.diag([1, 1, hdr['pixdim'][0]])
-        mf = spc_dir @ inv(np.diag(hdr['pixdim'][1:4]))
+
+        affine_det= np.linalg.det(hdr.get_qform())
+        if affine_det < 0:
+            mf = np.eye(3, dtype= 'int')
+        elif affine_det > 0:
+            mf = np.array([[-1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype= 'int')
+
+        # mf = spc_dir @ inv(np.diag(hdr['pixdim'][1:4]))
         print(f'measurement frame: {matrix_string(mf)}')
 
         bvecs = read_bvecs(args.bvec)

@@ -44,12 +44,15 @@ def main():
 
     parser = argparse.ArgumentParser(description='NRRD to NIFTI conversion tool')
     parser.add_argument('-i', '--input', type=str, required=True, help='input nrrd file')
-    parser.add_argument('-p', '--prefix', type=str, required=True,
-                        help='output prefix for .nii.gz, .bval, and .bvec files')
+    parser.add_argument('-p', '--prefix', type=str,
+                        help='output prefix for .nii.gz, .bval, and .bvec files (default: input prefix)')
 
 
     args = parser.parse_args()
-    prefix= os.path.abspath(args.prefix)
+    if args.prefix:
+        prefix= os.path.abspath(args.prefix)
+    else:
+        prefix= os.path.abspath(args.input).split('.')[0]
 
     img= nrrd.read(args.input)
     hdr= img[1]
@@ -62,7 +65,7 @@ def main():
     xfrm_nhdr= np.matrix(np.vstack((np.hstack((hdr['space directions'][:3,:3].T,
                         np.reshape(hdr['space origin'],(3,1)))),[0,0,0,1])))
     xfrm_nifti= SPACE2RAS @ xfrm_nhdr
-    RAS2IJK= xfrm_nifti.I
+    # RAS2IJK= xfrm_nifti.I
 
     if hdr['dimension']==4:
         axis_elements= hdr['kinds']
@@ -88,10 +91,13 @@ def main():
             bval= round(L_2 ** 2 * b_max)
 
             bvec.append(1)
-            bvecINijk= RAS2IJK @ SPACE2RAS @ mf @ np.matrix(bvec).T
+            # bvecINijk= RAS2IJK @ SPACE2RAS @ mf @ np.matrix(bvec).T
+            # simplified below
+            bvecINijk= xfrm_nhdr.T @ mf @ np.matrix(bvec).T
 
+            L_2= np.linalg.norm(bvecINijk[:3])
             if L_2:
-                bvec_norm= bvecINijk[:3]/np.linalg.norm(bvecINijk[:3])
+                bvec_norm= bvecINijk[:3]/L_2
             else:
                 bvec_norm= [0, 0, 0]
 
@@ -108,11 +114,12 @@ def main():
     img_nifti= nib.nifti1.Nifti1Image(data, affine= xfrm_nifti)
     hdr_nifti= img_nifti.header
 
-    # now set xyzt_units, sform_code= 1 (scanner)
+    # now set xyzt_units, sform_code= qform_code= 2 (aligned)
     # https://nifti.nimh.nih.gov/nifti-1/documentation/nifti1fields/nifti1fields_pages/xyzt_units.html
     # simplification assuming 'mm' and 'sec'
     hdr_nifti.set_xyzt_units(xyz= SPACE_UNITS, t= TIME_UNITS)
-    hdr_nifti['sform_code']= 1
+    hdr_nifti['qform_code'] = 2
+    hdr_nifti['sform_code']= 2
 
     hdr_nifti['descrip']= 'pnl-bwh-hms'
     nib.save(img_nifti, prefix+'.nii.gz')
