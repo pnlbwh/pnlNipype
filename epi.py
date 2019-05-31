@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-#!/usr/bin/env python
 from __future__ import print_function
 from os import getpid
 from plumbum import local, cli
