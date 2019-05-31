@@ -169,7 +169,7 @@ class Direct(cli.Application):
             if (dwi_res!=brain_res).any():
                 print('DWI resolution is different from FreeSurfer brain resolution')
                 print('wmparc wil be registered to both DWI and brain resolution')
-                print('Check output files wmparcindwi.nii.gz and wmparcinbrain.nii.gz')
+                print('Check output files wmparcInDwi.nii.gz and wmparcInBrain.nii.gz')
 
                 print('Resampling B0 to brain resolution')
 
@@ -276,7 +276,7 @@ class WithT2(cli.Application):
             if (dwi_res!=brain_res).any():
                 print('DWI resolution is different from FreeSurfer brain resolution')
                 print('wmparc wil be registered to both DWI and brain resolution')
-                print('Check output files wmparcindwi.nii.gz and wmparcinbrain.nii.gz')
+                print('Check output files wmparcInDwi.nii.gz and wmparcInBrain.nii.gz')
 
                 print('Resampling B0 to brain resolution')
 
