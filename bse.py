@@ -62,32 +62,26 @@ class App(cli.Application):
         if self.dwi.endswith('.nii') or self.dwi.endswith('.nii.gz'):
 
             bval_file= os.path.join(directory, prefix+'.bval')
-            idx= np.where([bval < self.b0_threshold for bval in read_bvals(bval_file)])[0]
+            bvals= read_bvals(bval_file)
+            idx= np.where([bval < self.b0_threshold for bval in bvals])[0]
 
 
             if len(idx)==1 or (not self.minimum and not self.average):
                 fslroi[self.dwi, self.out, idx, 1] & FG
 
             elif len(idx)>1 and self.minimum:
-                fslroi[self.dwi, self.out, idx, idx.index(min(idx))] & FG
+                fslroi[self.dwi, self.out, idx, np.argsort(bvals)[0]] & FG
 
             elif len(idx)>1 and self.average:
-
-                # The following extraction is recommended to get the modified header
-                fslroi[self.dwi, self.out, idx, len(idx)] & FG
-
-                # Load the intermediate bse to get the modified header
-                hdr_out= nib.load(str(self.out)).header
-
                 # Load the given dwi to get image data
-                dwi= nib.load(str(self.dwi))
+                dwi= nib.load(self.dwi._path)
+                hdr= dwi.header
                 mri= dwi.get_data()
 
                 avg_bse= np.mean(mri[:,:,:,idx], axis= 3)
 
                 # Now write back the average bse
-                xfrm= hdr_out.get_sform()
-                mri_out = nib.nifti1.Nifti1Image(avg_bse, affine=xfrm, header=hdr_out)
+                mri_out = nib.nifti1.Nifti1Image(avg_bse, affine=dwi.affine, header=hdr)
                 nib.save(mri_out, self.out)
 
             else:
