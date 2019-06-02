@@ -60,8 +60,6 @@ def registerFs2Dwi_T2(tmpdir, namePrefix, b0masked, t2masked, T2toBrainAffine, w
     print('Made ' + wmparc_out)
 
 
-
-
 class FsToDwi(cli.Application):
     """Registers Freesurfer labelmap to DWI space."""
 
@@ -188,6 +186,8 @@ class Direct(cli.Application):
                 wmparcinbrain.copy(self.parent.out)
 
 
+        print('See output files in ', self.parent.out._path)
+
 @FsToDwi.subcommand("witht2")
 class WithT2(cli.Application):
     """Registration from Freesurfer to T2 to B0."""
@@ -294,7 +294,7 @@ class WithT2(cli.Application):
                 b0maskedbrain.copy(self.parent.out)
                 wmparcinbrain.copy(self.parent.out)
 
-
+        print('See output files in ', self.parent.out._path)
 
 if __name__ == '__main__':
     FsToDwi.run()
