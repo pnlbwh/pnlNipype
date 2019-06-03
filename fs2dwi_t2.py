@@ -300,24 +300,3 @@ if __name__ == '__main__':
     FsToDwi.run()
 
 
-'''
-~/Downloads/Dummy-PNL-nipype/fs2dwi_t2.py \
--f /home/tb571/Downloads/pnlpipe/_data/003_GNX_007/FreeSurferUsingMask-003_GNX_007-1037ba322b \
---dwimask /home/tb571/Downloads/INTRuST/003_GNX_007/raw/003_GNX_007-dwi_mask.nii.gz \
---dwi /home/tb571/Downloads/INTRuST/003_GNX_007/raw/003_GNX_007-dwi.nii.gz \
--o /home/tb571/Downloads/INTRuST/003_GNX_007/raw/fs2dwi_direct \
---force \
-direct
-
-
-~/Downloads/Dummy-PNL-nipype/fs2dwi_t2.py \
--f /home/tb571/Downloads/pnlpipe/_data/003_GNX_007/FreeSurferUsingMask-003_GNX_007-1037ba322b \
---dwimask /home/tb571/Downloads/INTRuST/003_GNX_007/raw/003_GNX_007-dwi_mask.nii.gz \
---dwi /home/tb571/Downloads/INTRuST/003_GNX_007/raw/003_GNX_007-dwi.nii.gz \
--o /home/tb571/Downloads/INTRuST/003_GNX_007/raw/fs2dwi_witht2 \
---force \
-witht2 \
---t2 /home/tb571/Downloads/INTRuST/003_GNX_007/raw/003_GNX_007-t2w.nhdr \
---t2mask /home/tb571/Downloads/INTRuST/003_GNX_007/raw/003_GNX_007-t2w-raw-mask.nrrd
-
-'''
