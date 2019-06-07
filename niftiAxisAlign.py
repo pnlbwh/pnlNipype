@@ -12,7 +12,6 @@ with warnings.catch_warnings():
     import nibabel as nib
 
 from bvec_rotation import bvec_rotate
-from niftiCenter import centered_origin
 
 precision= 17
 
@@ -150,10 +149,10 @@ class Xalign(cli.Application):
             # pass spcdir_new and offset_orig
 
             if not self.out_prefix:
-                prefix = self.img_file.split('.')[0] + '-ax'  # a clever way to get prefix including path
+                self.out_prefix = self.img_file.split('.')[0] + '-ax'  # a clever way to get prefix including path
 
             if dim == 4:
-                spcdir_new= axis_align_dwi(hdr, self.bvec_file, self.bval_file, prefix)
+                spcdir_new= axis_align_dwi(hdr, self.bvec_file, self.bval_file, self.out_prefix)
 
             hdr_out = update_hdr(hdr, spcdir_new, offset_orig)
 
@@ -162,10 +161,10 @@ class Xalign(cli.Application):
             # pass spcdir_orig and offset_new
 
             if not self.out_prefix:
-                prefix = self.img_file.split('.')[0] + '-ce'  # a clever way to get prefix including path
+                self.out_prefix = self.img_file.split('.')[0] + '-ce'  # a clever way to get prefix including path
 
             if dim == 4:
-                spcdir_new= axis_align_dwi(hdr, self.bvec_file, self.bval_file, prefix)
+                spcdir_new= axis_align_dwi(hdr, self.bvec_file, self.bval_file, self.out_prefix)
 
             offset_new = hdr['pixdim'][0] * spcdir_new @ matrix(-(hdr['dim'][1:4] - 1) / 2).T
             hdr_out = update_hdr(hdr, spcdir_orig, offset_new)
@@ -175,10 +174,10 @@ class Xalign(cli.Application):
             # pass spcdir_new and offset_new
 
             if not self.out_prefix:
-                prefix = self.img_file.split('.')[0] + '-xc'  # a clever way to get prefix including path
+                self.out_prefix = self.img_file.split('.')[0] + '-xc'  # a clever way to get prefix including path
 
             if dim == 4:
-                spcdir_new= axis_align_dwi(hdr, self.bvec_file, self.bval_file, prefix)
+                spcdir_new= axis_align_dwi(hdr, self.bvec_file, self.bval_file, self.out_prefix)
 
             offset_new = hdr['pixdim'][0] * spcdir_new @ matrix(-(hdr['dim'][1:4] - 1) / 2).T
             hdr_out = update_hdr(hdr, spcdir_new, offset_new)
@@ -190,7 +189,7 @@ class Xalign(cli.Application):
 
 
         # write out the modified image
-        save_image(mri.get_data(), hdr_out, prefix)
+        save_image(mri.get_data(), hdr_out, self.out_prefix)
 
 
 if __name__ == '__main__':
