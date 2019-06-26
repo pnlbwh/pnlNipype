@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 
-from plumbum import local, cli, FG
+from plumbum import cli, FG
 from plumbum.cmd import fslroi, ImageMath
-from bvec_rotation import read_bvals
-import os, warnings
-with warnings.catch_warnings():
-    warnings.filterwarnings("ignore", category=FutureWarning)
-    import nibabel as nib
+from conversion import read_bvals
+import os
+from util import load_nifti, save_nifti
+
 import numpy as np
 
 class App(cli.Application):
@@ -17,36 +16,42 @@ class App(cli.Application):
     dwimask = cli.SwitchAttr(
         ['-m', '--mask'],
         cli.ExistingFile,
-        help='DWI nifti mask, if mask is provided, then baseline image is masked',
+        help='mask of the DWI in nifti format; if mask is provided, then baseline image is masked',
         mandatory=False)
 
     dwi = cli.SwitchAttr(
-        ['-i', '--infile'],
+        ['-i', '--input'],
         cli.ExistingFile,
-        help='DWI nifti image',
+        help='DWI in nifti format',
         mandatory=True)
 
     out = cli.SwitchAttr(
-        ['-o', '--outfile'],
-        help= 'Extracted baseline image (default: input_prefix_bse.nii.gz)',
+        ['-o', '--output'],
+        help= 'extracted baseline image (default: inPrefix_bse.nii.gz)',
         mandatory=False)
 
     b0_threshold = cli.SwitchAttr(
         ['-t', '--threshold'],
-        help= 'Threshold for b0',
+        help= 'threshold for b0',
         mandatory=False,
         default= 45.)
 
     minimum= cli.Flag(['--min'],
-                      help= 'turn on this flag to choose the minimum b0 as the baseline image',
-                      default= False,
-                      mandatory= False)
+        help= 'turn on this flag to choose minimum bvalue volume as the baseline image',
+        default= False,
+        mandatory= False)
 
     average= cli.Flag(['--avg'],
-                      help= '''turn on this flag to choose the average of all b0 images as the baseline image, 
-                            you might want to use this only when eddy/motion correction has been done before''',
-                      default= False,
-                      mandatory= False)
+        help= '''turn on this flag to choose the average of all bvalue<threshold volumes as the baseline image, 
+              you might want to use this only when eddy/motion correction has been done before''',
+        default= False,
+        mandatory= False)
+
+    all= cli.Flag(['--all'],
+        help= '''turn on this flag to choose all bvalue<threshold volumes as the baseline image, 
+              this is an useful option if you want to feed B0 into topup/eddy_openmp''',
+        default= False,
+        mandatory= False)
 
 
     def main(self):
@@ -66,23 +71,30 @@ class App(cli.Application):
             idx= np.where([bval < self.b0_threshold for bval in bvals])[0]
 
 
-            if len(idx)==1 or (not self.minimum and not self.average):
-                fslroi[self.dwi, self.out, idx, 1] & FG
+            if len(idx)>1:
 
-            elif len(idx)>1 and self.minimum:
-                fslroi[self.dwi, self.out, idx, np.argsort(bvals)[0]] & FG
+                # default is the first b0
+                if not (self.minimum or self.average or self.all):
+                    fslroi[self.dwi, self.out, idx, 1] & FG
 
-            elif len(idx)>1 and self.average:
-                # Load the given dwi to get image data
-                dwi= nib.load(self.dwi._path)
-                hdr= dwi.header
-                mri= dwi.get_data()
+                elif self.minimum:
+                    fslroi[self.dwi, self.out, idx, np.argsort(bvals)[0]] & FG
 
-                avg_bse= np.mean(mri[:,:,:,idx], axis= 3)
+                elif self.average:
+                    # Load the given dwi to get image data
+                    dwi= load_nifti(self.dwi._path)
+                    hdr= dwi.header
+                    mri= dwi.get_data()
 
-                # Now write back the average bse
-                mri_out = nib.nifti1.Nifti1Image(avg_bse, affine=dwi.affine, header=hdr)
-                nib.save(mri_out, self.out)
+                    avg_bse= np.mean(mri[:,:,:,idx], axis= 3)
+
+                    # Now write back the average bse
+                    save_nifti(self.out, avg_bse, dwi.affine, hdr)
+
+
+                elif self.all:
+                    fslroi[self.dwi, self.out, idx, len(idx)] & FG
+
 
             else:
                 raise Exception('No b0 image found. Check the bval file.')
