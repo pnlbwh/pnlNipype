@@ -1,0 +1,93 @@
+# =============== provide advanced argument in the hash box for each command ===============
+
+# provide one of the advanced arguments for topup in one line
+# Example:
+# topup: --subsamp=2 --scale=1 --miter=2 ...
+
+
+'''
+	--logout	Name of log-file
+	--warpres	(approximate) resolution (in mm) of warp basis for the different sub-sampling levels, default 10
+	--subsamp	sub-sampling scheme, default 1
+	--fwhm		FWHM (in mm) of gaussian smoothing kernel, default 8
+	--config	Name of config file specifying command line arguments
+	--miter		Max # of non-linear iterations, default 5
+	--lambda	Weight of regularisation, default depending on --ssqlambda and --regmod switches. See user documetation.
+	--ssqlambda	If set (=1), lambda is weighted by current ssq, default 1
+	--regmod	Model for regularisation of warp-field [membrane_energy bending_energy], default bending_energy
+	--estmov	Estimate movements if set, default 1 (true)
+	--minmet	Minimisation method 0=Levenberg-Marquardt, 1=Scaled Conjugate Gradient, default 0 (LM)
+	--splineorder	Order of spline, 2->Qadratic spline, 3->Cubic spline. Default=3
+	--numprec	Precision for representing Hessian, double or float. Default double
+	--interp	Image interpolation model, linear or spline. Default spline
+	--scale		If set (=1), the images are individually scaled to a common mean, default 0 (false)
+	--regrid		If set (=1), the calculations are done in a different grid, default 1 (true)
+'''
+
+
+#########################
+$ topup:
+#########################
+
+
+
+# provide one of the advanced arguments for applytopup in one line
+# Example:
+# applytoup: --method jac --interp spline ...
+
+
+'''
+	-m,--method	Use jacobian modulation (jac) or least-squares resampling (lsr), default=lsr.
+	-n,--interp	interpolation method {trilinear,spline}, default=spline
+	-d,--datatype	Force output data type [char short int float double].
+'''
+
+#########################
+$ applytopup:
+#########################
+
+
+
+
+# provide one of the advanced arguments for eddy_openmp in one line
+# Example:
+# eddy_openmp: --fwhm=0.1 --niter=2
+
+'''
+    --mb	Multi-band factor
+    --mb_offs	Multi-band offset (-1 if bottom slice removed, 1 if top slice removed)
+    --slspec	Name of text file completely specifying slice/group acuistion
+    --mporder	Order of slice-to-vol movement model
+    --s2v_lambda	Regularisation weight for slice-to-vol movement. (default 1, reasonable range 1--10
+    --topup	Base name for output files from topup
+    --field	Name of file with susceptibility field (in Hz)
+    --field_mat	Name of rigid body transform for susceptibility field
+    --flm	First level EC model (movement/linear/quadratic/cubic, default quadratic)
+    --slm	Second level EC model (none/linear/quadratic, default none)
+    --fwhm	FWHM for conditioning filter when estimating the parameters (default 0)
+    --niter	Number of iterations (default 5)
+    --s2v_niter	Number of iterations for slice-to-vol (default 5)
+    --cnr_maps	Write shell-wise cnr-maps
+    --residuals	Write residuals (between GP and observations)
+    --fep	Fill empty planes in x- or y-directions
+    --interp	Interpolation model for estimation step (spline/trilinear, default spline)
+    --s2v_interp	Slice-to-vol interpolation model for estimation step (spline/trilinear, default trilinear)
+    --resamp	Final resampling method (jac/lsr, default jac)
+    --nvoxhp	# of voxels used to estimate the hyperparameters (default 1000)
+    --initrand	Resets rand for when selecting voxels (default false)
+    --ff	Fudge factor for hyperparameter error variance (default 10.0)
+    --repol	Detect and replace outlier slices
+    --ol_nstd	Number of std off to qualify as outlier (default 4)
+    --ol_nvox	Min # of voxels in a slice for inclusion in outlier detection (default 250)
+    --ol_type	Type of outliers, slicewise (sw), groupwise (gw) or both (both). (default sw)
+    --ol_pos	Consider both positive and negative outliers if set (default false)
+    --ol_sqr	Consider outliers among sums-of-squared differences if set (default false)
+    --dont_sep_offs_move	Do NOT attempt to separate field offset from subject movement (default false)
+    --dont_peas	Do NOT perform a post-eddy alignment of shells (default false)
+    --data_is_shelled	Assume, don't check, that data is shelled (default false)
+'''
+
+#########################
+$ eddy_openmp: --data_is_shelled
+#########################
+
