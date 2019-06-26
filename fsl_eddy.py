@@ -1,58 +1,46 @@
 #!/usr/bin/env python
 
-from plumbum import cli
-from plumbum.cmd import eddy_openmp, bet, rm
-import os
+from plumbum import cli, FG
+from plumbum.cmd import eddy_openmp
+from bet_mask import bet_mask
+from util import BET_THRESHOLD, logfmt, pjoin, eddy_openmp_params
+from shutil import copyfile
 
-def log(msg, f):
-    print(msg)
-    f.write(msg+'\n')
-
-def run_command(command, arguments, logfile):
-
-    command_line= f'{command}.run({arguments}, retcode=None)'
-
-    # log the command
-    log(command_line, logfile)
-
-    # execute the command
-    retcode, stdout, stderr= eval(command_line)
-    if retcode==0:
-        log(stdout, logfile)
-
-    else:
-        log(f'{command_line} failed.', logfile)
-        log(stderr, logfile)
+import logging
+logger = logging.getLogger()
+logging.basicConfig(level=logging.DEBUG, format=logfmt(__file__))
 
 
 
 class Eddy(cli.Application):
-    '''Eddy correction using eddy_openmp command in fsl.
-    For more info, see 'https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/eddy/UsersGuide
-    or type eddy_openmp or eddy_cuda.
+    '''Eddy correction using eddy_openmp command in fsl
+    For more info, see https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/eddy/UsersGuide
+    You can also view the help message:
+    eddy_openmp
     '''
 
     dwi_file= cli.SwitchAttr(
         ['--dwi'],
         cli.ExistingFile,
-        help='dwi.nii image)',
+        help='nifti DWI image)',
         mandatory=True)
 
     bvecs_file= cli.SwitchAttr(
         ['--bvecs'],
         cli.ExistingFile,
-        help='bvecs file of the dwi.nii)',
+        help='bvecs file of the DWI)',
         mandatory=True)
 
     bvals_file= cli.SwitchAttr(
         ['--bvals'],
         cli.ExistingFile,
-        help='bvals file of the dwi.nii)',
+        help='bvals file of the DWI)',
         mandatory=True)
 
     b0_brain_mask= cli.SwitchAttr(
         ['--mask'],
-        help='mask for the dwi.nii. If not provided, then a mask is created using fsl bet',
+        cli.ExistingFile,
+        help='mask for the DWI; if not provided, a mask is created using fsl bet',
         mandatory=False)
 
     acqparams_file= cli.SwitchAttr(
@@ -64,69 +52,52 @@ class Eddy(cli.Application):
     index_file= cli.SwitchAttr(
         ['--index'],
         cli.ExistingFile,
-        help='mapping file for (each gradient --> acquisition parameters) (.txt)',
+        help='mapping file (.txt) for each gradient --> acquisition parameters',
         mandatory=True)
 
-
-    betThreshold= cli.SwitchAttr(
-        ['--betThreshold'],
-        help='Threshold for bet mask creation',
+    betThreshold = cli.SwitchAttr(
+        '-f',
+        help= 'threshold for fsl bet mask',
         mandatory=False,
-        default='0.3')
+        default= BET_THRESHOLD)
+
+    outDir= cli.SwitchAttr(
+        ['--out'],
+        cli.NonexistentPath,
+        help='output directory',
+        mandatory=True)
+
 
 
     def main(self):
 
-        self.dwi_file= str(self.dwi_file)
-        self.bvals_file= str(self.bvals_file)
-        self.bvals_file= str(self.bvals_file)
-        self.acqparams_file= str(self.acqparams_file)
-        self.index_file= str(self.index_file)
-        self.b0_brain_mask= str(self.b0_brain_mask)
 
-        prefix= self.dwi_file.split('.')[0]
-        directory = os.path.join(os.path.dirname(self.dwi_file), prefix+'_eddy')
+        prefix= self.dwi_file.name.split('.')[0]
+        outPrefix = pjoin(self.outDir._path, prefix+'_Ed')
 
-        # if output directory exists, delete and re-create
-        if os.path.exists(directory):
-            rm.run(['-r', directory])
-
-
-        logfile= open(os.path.join(directory, prefix+ '-log.txt'), 'w')
 
         if self.b0_brain_mask=='None':
-            log('Mask not provided, creating mask ...', logfile)
-            command= 'bet'
-            self.b0_brain_mask = os.path.join(directory, prefix+'_mask.nii.gz')
-            arguments=[self.dwi_file, prefix, '-m', '-n', '-f', self.betThreshold]
-            run_command(command, arguments, logfile)
+            logging.info('Mask not provided, creating mask ...')
 
-        arguments= [f'--imain={self.dwi_file}',
+            self.b0_brain_mask = outPrefix + '_mask.nii.gz'
+
+            bet_mask(self.dwi_file, self.b0_brain_mask, 4, bvalFile= self.bvals_file, BET_THRESHOLD= self.betThreshold)
+
+
+        eddy_openmp[f'--imain={self.dwi_file}',
                     f'--mask={self.b0_brain_mask}',
                     f'--acqp={self.acqparams_file}',
                     f'--index={self.index_file}',
                     f'--bvecs={self.bvecs_file}',
                     f'--bvals={self.bvals_file}',
-                    f'--out={directory+prefix}',
-                    '--data_is_shelled'
-                    '--verbose'] # We should be able to see output
+                    f'--out={outPrefix}',
+                    '--verbose',
+                    eddy_openmp_params.split()] & FG
 
-        command= 'eddy_openmp'
 
-        run_command(command, arguments, logfile)
-
-        logfile.close()
+        # copy bval,bvec to have same prefix as that of eddy corrected volume
+        copyfile(outPrefix + '.eddy_rotated_bvecs', outPrefix + '.bvec')
+        copyfile(self.bvals_file, outPrefix + '.bval')
 
 if __name__== '__main__':
     Eddy.run()
-
-
-'''
-cd /home/tb571/Downloads/Dummy-PNL-nipype/temp_files \
-/home/tb571/Downloads/Dummy-PNL-nipype/fsl_eddy.py \
---dwi 5006-dwi-xc.nii \
---bvals 5006-dwi-xc.bval \
---bvecs 5006-dwi-xc.bvec \
---acqp acqparams.txt \
---index index.txt 
-'''
