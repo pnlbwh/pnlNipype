@@ -7,11 +7,9 @@ import warnings
 import numpy as np
 from numpy import matrix, diag, linalg, vstack, hstack, array
 
-with warnings.catch_warnings():
-    warnings.filterwarnings("ignore", category=FutureWarning)
-    import nibabel as nib
+from util import load_nifti
 
-from bvec_rotation import bvec_rotate
+from conversion.bval_bvec_io import bvec_rotate
 
 precision= 17
 
@@ -76,7 +74,7 @@ def save_image(data, hdr_out, out_prefix):
 
 
 class Xalign(cli.Application):
-    '''Axis alignment of NIFTI image'''
+    '''Axis alignment and centering of a 3D/4D NIFTI image'''
 
     img_file = cli.SwitchAttr(
         ['-i', '--input'],
@@ -117,10 +115,9 @@ class Xalign(cli.Application):
 
     def main(self):
 
-        self.img_file= str(self.img_file)
 
         if self.img_file.endswith('.nii') or self.img_file.endswith('.nii.gz'):
-            mri= nib.load(self.img_file)
+            mri= load_nifti(self.img_file._path)
         else:
             print('Invalid image format, accepts nifti only')
             exit(1)
@@ -183,10 +180,6 @@ class Xalign(cli.Application):
             hdr_out = update_hdr(hdr, spcdir_new, offset_new)
 
 
-        # else:
-        #     print('Select axisAlign and or center')
-        #     exit(1)
-
 
         # write out the modified image
         save_image(mri.get_data(), hdr_out, self.out_prefix)
@@ -195,37 +188,3 @@ class Xalign(cli.Application):
 if __name__ == '__main__':
     Xalign.run()
 
-'''
-~/Downloads/Dummy-PNL-nipype/niftiAxisAlign.py -i 1001-dwi.nii --bvals 1001-dwi.bval --bvecs 1001-dwi.bvec
-
-
-~/Downloads/Dummy-PNL-nipype/niftiAxisAlign.py -i 5006-dwi-shifted.nii --bvals dwi.bval --bvecs dwi.bvec.rot --center
-~/Downloads/Dummy-PNL-nipype/niftiAxisAlign.py -i 5006-dwi.nii --bvals dwi.bval --bvecs dwi.bvec.rot --axisAlign
-~/Downloads/Dummy-PNL-nipype/niftiAxisAlign.py -i 5006-dwi.nii --bvals 5006-dwi.bval --bvecs 5006-dwi.bvec --axisAlign
-
-
-DWIConvert
-cases=(3005 5006 7010);
-for i in ${cases[@]};
-do  
-    cd $i;
-    DWIConvert --inputVolume $i-dwi.nrrd -o $i-dwi.nii --outputBValues dwi.bval --outputBVectors dwi.bvecs \
-    --conversionMode NrrdToFSL;
-    cd ..;
-done
-
-
-
-cases=(3005 5006 7010);
-for i in ${cases[@]};
-do  
-    cd $i;
-    ~/Downloads/Dummy-PNL-nipype/niftiAxisAlign.py -i $i-dwi.nii --bvals dwi.bval --bvecs dwi.bvec.rot
-    cd ..;
-done
-
-
-DWIConvert --inputVolume 5006-dwi.nrrd -o 5006-dwi.nii --outputBValues 5006-dwi.bval \
---outputBVectors 5006-dwi.bvecs --conversionMode NrrdToFSL
-
-'''

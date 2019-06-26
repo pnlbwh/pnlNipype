@@ -13,26 +13,24 @@ class App(cli.Application):
         mandatory=True)
 
     img = cli.SwitchAttr(
-        ['-i', '--infile'],
+        ['-i', '--input'],
         cli.ExistingFile,
-        help='nifti image, 3D or 4D image',
+        help='nifti image, 3D/4D image',
         mandatory=True)
 
     out = cli.SwitchAttr(
-        ['-o', '--outfile'],
-        help= 'Extracted baseline image (default: input_prefix_bse.nii.gz)',
+        ['-o', '--output'],
+        help= 'Masked input image',
         mandatory=True)
 
     dim= cli.SwitchAttr(
         ['-d', '--dimension'],
-        help= 'Input image dimension: 3D or 4D',
+        help= 'Input image dimension: 3/4',
         mandatory=True)
 
     def main(self):
 
-
         ImageMath(self.dim, self.out, 'm', self.img, self.mask)
-
 
 
 if __name__ == '__main__':
