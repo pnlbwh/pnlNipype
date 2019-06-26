@@ -2,8 +2,9 @@
 
 from plumbum import cli, FG, local
 from plumbum.cmd import topup, applytopup, eddy_openmp, fslmaths, rm, fslmerge, cat
-from util import BET_THRESHOLD, TemporaryDirectory, logfmt, load_nifti, FILEDIR
-from os.path import join as pjoin, exists, abspath, dirname, basename
+from util import BET_THRESHOLD, TemporaryDirectory, logfmt, load_nifti, FILEDIR, \
+    topup_params, applytopup_params, eddy_openmp_params
+from os.path import join as pjoin, abspath, basename
 from subprocess import check_call
 from os import environ
 from shutil import copyfile
@@ -144,21 +145,6 @@ class TopupEddyEpi(cli.Application):
 
 
     def main(self):
-
-
-        # read the configuration file:
-        with open(pjoin(FILEDIR,'eddy_config.txt')) as f:
-            content= f.read().split('\n')
-            for line in content:
-
-                if '$ topup:' in line:
-                    topup_params= line.split(':')[1]
-
-                elif '$ applytopup:' in line:
-                    applytopup_params= line.split(':')[1]
-
-                elif '$ eddy_openmp:' in line:
-                    eddy_openmp_params= line.split(':')[1]
 
 
         temp= self.dwi_file.split(',')
@@ -309,7 +295,7 @@ class TopupEddyEpi(cli.Application):
                     f.write('1\n')
 
 
-            outPrefix = tmpdir / basename(primaryVol).split('.')[0] + '_Ed'
+            outPrefix = tmpdir / basename(primaryVol).split('.')[0] + '_Ep_Ed'
 
             temp = self.whichVol.split(',')
             if len(temp)==1 and temp[0]=='1':
