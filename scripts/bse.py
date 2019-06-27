@@ -25,6 +25,12 @@ class App(cli.Application):
         help='DWI in nifti format',
         mandatory=True)
 
+    bval_file = cli.SwitchAttr(
+        '--bval',
+        cli.ExistingFile,
+        help='bval file, default: dwiPrefix.bval')
+
+
     out = cli.SwitchAttr(
         ['-o', '--output'],
         help= 'extracted baseline image (default: inPrefix_bse.nii.gz)',
@@ -66,8 +72,10 @@ class App(cli.Application):
 
         if self.dwi.endswith('.nii') or self.dwi.endswith('.nii.gz'):
 
-            bval_file= os.path.join(directory, prefix+'.bval')
-            bvals= read_bvals(bval_file)
+            if not self.bval_file:
+                self.bval_file= os.path.join(directory, prefix+'.bval')
+
+            bvals= read_bvals(self.bval_file)
             idx= np.where([bval < self.b0_threshold for bval in bvals])[0]
 
 

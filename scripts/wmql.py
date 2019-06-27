@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from __future__ import print_function
-from util import logfmt, TemporaryDirectory, FILEDIR, pjoin
+from util import logfmt, TemporaryDirectory, FILEDIR, pjoin, N_PROC
 from plumbum import local, cli, FG
 from subprocess import check_call
 from multiprocessing import Pool
@@ -42,7 +42,7 @@ class App(cli.Application):
 
     nproc = cli.SwitchAttr(
         ['-n', '--nproc'], help='''number of threads to use, if other processes in your computer 
-        becomes sluggish/you run into memory error, reduce --nproc''', default= 8)
+        becomes sluggish/you run into memory error, reduce --nproc''', default= N_PROC)
 
 
     def main(self):

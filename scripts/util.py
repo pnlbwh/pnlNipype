@@ -16,6 +16,7 @@ ROOTDIR= dirname(LIBDIR)
 BET_THRESHOLD = '0.25'
 B0_THRESHOLD = 50
 ANTSREG_THREADS = '4'
+N_PROC = '4'
 
 TMPDIR= local.path(pjoin(os.environ['HOME'],'tmp'))
 if not TMPDIR.exists():

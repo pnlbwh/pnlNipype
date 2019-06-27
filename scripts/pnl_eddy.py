@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 from os import getpid
-from util import logfmt, TemporaryDirectory, pjoin, FILEDIR
+from util import logfmt, TemporaryDirectory, pjoin, FILEDIR, N_PROC
 from plumbum import local, cli, FG
 from plumbum.cmd import ls, flirt, fslmerge, tar, fslsplit
 import numpy as np
@@ -42,7 +42,7 @@ class App(cli.Application):
     overwrite = cli.Flag('--force', default=False, help='Force overwrite')
     nproc = cli.SwitchAttr(
         ['-n', '--nproc'], help='''number of threads to use, if other processes in your computer 
-        becomes sluggish/you run into memory error, reduce --nproc''', default= 8)
+        becomes sluggish/you run into memory error, reduce --nproc''', default= N_PROC)
 
     def main(self):
         self.out = local.path(self.out)
