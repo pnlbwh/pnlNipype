@@ -6,7 +6,7 @@ from plumbum import local, cli
 from plumbum.cmd import antsApplyTransforms, antsRegistration, fslmaths, WarpTimeSeriesImageMultiTransform
 from fs2dwi import rigid_registration
 from subprocess import check_call
-from util import logfmt, TemporaryDirectory, FILEDIR, pjoin
+from util import logfmt, TemporaryDirectory, FILEDIR, pjoin, N_PROC
 import sys
 
 import logging
@@ -56,7 +56,7 @@ class App(cli.Application):
 
     nproc = cli.SwitchAttr(
             ['-n', '--nproc'], help='''number of threads to use, if other processes in your computer 
-            becomes sluggish/you run into memory error, reduce --nproc''', default= '8')
+            becomes sluggish/you run into memory error, reduce --nproc''', default= N_PROC)
 
     def main(self):
         if not self.force and self.out.exists():

@@ -10,7 +10,7 @@ import multiprocessing
 from math import exp
 from conversion.antsUtil import antsReg
 
-from util import save_nifti, TemporaryDirectory, load_nifti, N_CPU
+from util import save_nifti, TemporaryDirectory, load_nifti, N_CPU, N_PROC
 
 SCRIPTDIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -300,7 +300,7 @@ class AtlasArgs(cli.Application):
         mandatory=True)
     threads= cli.SwitchAttr(['-n', '--nproc'],
         help='number of processes/threads to use (-1 for all available)',
-        default= 8)
+        default= N_PROC)
 
     def main(self):
         images = self.images.split()

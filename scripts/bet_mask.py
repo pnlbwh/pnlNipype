@@ -44,6 +44,11 @@ class App(cli.Application):
         help='input 3D/4D nifti image',
         mandatory=True)
 
+    bval_file = cli.SwitchAttr(
+        '--bval',
+        cli.ExistingFile,
+        help='bval file for 4D DWI, default: inputPrefix.bval')
+
     out = cli.SwitchAttr(
         ['-o', '--outPrefix'],
         help='prefix for output brain mask (default: input prefix), output file is named as prefix_mask.nii.gz',
@@ -70,8 +75,10 @@ class App(cli.Application):
         dim= load_nifti(self.img._path).header['dim'][0]
 
         if dim==4:
-            bvalFile = os.path.join(directory, prefix + '.bval')
-            bet_mask(self.img._path, self.out, 4, bvalFile, thr= self.bet_threshold)
+            if not self.bval_file:
+                self.bval_file = os.path.join(directory, prefix + '.bval')
+
+            bet_mask(self.img._path, self.out, 4, self.bval_file, thr= self.bet_threshold)
 
         else:
             bet_mask(self.img._path, self.out, 3, thr= self.bet_threshold)
