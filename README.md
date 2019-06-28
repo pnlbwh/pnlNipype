@@ -8,6 +8,30 @@ Developed by Tashrif Billah, Sylvain Bouix, and Yogesh Rathi, Brigham and Women'
 Table of Contents
 =================
 
+   * [Table of Contents](#table-of-contents)
+   * [Citation](#citation)
+   * [Introduction](#introduction)
+   * [Dependencies](#dependencies)
+   * [Installation](#installation)
+      * [1. Install prerequisites](#1-install-prerequisites)
+         * [Check system architecture](#check-system-architecture)
+         * [Python 3](#python-3)
+         * [FreeSurfer](#freesurfer)
+         * [FSL](#fsl)
+         * [ANTs](#ants)
+         * [dcm2niix](#dcm2niix)
+      * [2. Install pipeline](#2-install-pipeline)
+      * [3. Configure your environment](#3-configure-your-environment)
+      * [4. Tests](#4-tests)
+         * [i. Preliminary](#i-preliminary)
+         * [ii. Detailed](#ii-detailed)
+   * [Multiprocessing](#multiprocessing)
+   * [Pipeline scripts overview](#pipeline-scripts-overview)
+   * [Global bashrc](#global-bashrc)
+   * [Documentation](#documentation)
+   * [Support](#support)
+
+Table of Contents created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 
 # Citation
@@ -30,8 +54,9 @@ each node represents an output, and the arrows represent dependencies:
 
 
 
-# Dependencies:
+# Dependencies
 
+* dcm2niix
 * ANTs == 2.3.0
 * freesurfer >= 5.0.3 
 * FSL >= 5.0.3
@@ -74,7 +99,10 @@ Follow the [instruction](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FslInstallation)
 You can build ANTs from [source](https://github.com/ANTsX/ANTs). Additionally, you should define [ANTSPATH](https://github.com/ANTsX/ANTs/wiki/Compiling-ANTs-on-Linux-and-Mac-OS#set-path-and-antspath)
 
 
+### dcm2niix
 
+dcm2niix executable will create NIFTI file from DICOM. The pipeline uses a reliable converter dcm2niix. 
+Building of dcm2niix is very straightforward and reliable. Follow [this](https://github.com/rordenlab/dcm2niix#build-command-line-version-with-cmake-linux-macos-windows) instruction to build dcm2niix.
 
 ## 2. Install pipeline
 
@@ -94,11 +122,13 @@ Now that you have installed the prerequisite software, you are ready to install 
     source $FREESURFER_HOME/SetUpFreeSurfer.sh
     export ANTSPATH=/path/to/ANTs/bin/
     export PATH=$ANTSPATH:ANTs/Scripts:$PATH   # define ANTSPATH and export ANTs scripts in your path
-
+    export PATH=~/dcm2niix/build/bin
+    
+    
 *(If you would like, you may edit your [bashrc](#global-bashrc) to have environment automatically setup
 every time you open a new terminal)*
 
-## 3. Tests
+## 4. Tests
 
 ### i. Preliminary
 
@@ -128,7 +158,7 @@ python multiprocessing capability:
     antsApplyTransformsDWI.py
      
      
-You may specify `N_PROC` parameter in `lib/util.py` for default number of processes to be used across scripts in the pipeline.
+You may specify `N_PROC` parameter in [scripts/util.py](scripts/util.py) for default number of processes to be used across scripts in the pipeline.
 
     N_PROC = '4'
     
@@ -191,7 +221,7 @@ This table summarizes the scripts in `pnlNipype/scripts/`:
 
 
 
-### Global bashrc
+# Global bashrc
 
 If you want your terminal to have the scripts automatically discoverable and environment ready to go,
 you may put the following lines in your bashrc:
@@ -205,14 +235,14 @@ you may put the following lines in your bashrc:
     export $PATH=$PATH:/absolute/path/to/pnlNipype/scripts
     export ANTSPATH=/path/to/ANTs/bin/
     export PATH=$ANTSPATH:ANTs/Scripts:$PATH   # define ANTSPATH and export ANTs scripts in your path
-
+    export PATH=~/dcm2niix/build/bin
 
 # Documentation
 
 See the [Tutorial](TUTORIAL.md) for workflow and function of each script.
 
 
-## Support
+# Support
 
 Create an issue at https://github.com/pnlbwh/pnlNipype/issues . We shall get back to you as early as possible.
 
