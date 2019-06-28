@@ -3,11 +3,10 @@
 from plumbum import cli
 from plumbum.cmd import cp
 
-import warnings
 import numpy as np
 from numpy import matrix, diag, linalg, vstack, hstack, array
 
-from util import load_nifti
+from util import load_nifti, save_nifti
 
 from conversion.bval_bvec_io import bvec_rotate
 
@@ -61,16 +60,6 @@ def update_hdr(hdr_in, spcdir_new, offset_new):
     hdr_out.set_qform(xfrm)
 
     return hdr_out
-
-
-def save_image(data, hdr_out, out_prefix):
-
-    xfrm= hdr_out.get_sform()
-
-    mri_out = nib.nifti1.Nifti1Image(data, affine=xfrm, header=hdr_out)
-
-    nib.save(mri_out, out_prefix+'.nii.gz')
-
 
 
 class Xalign(cli.Application):
@@ -182,7 +171,7 @@ class Xalign(cli.Application):
 
 
         # write out the modified image
-        save_image(mri.get_data(), hdr_out, self.out_prefix)
+        save_nifti(self.out_prefix+'.nii.gz', mri.get_data(), hdr_out.get_best_affine(), hdr_out)
 
 
 if __name__ == '__main__':
