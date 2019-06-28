@@ -1,0 +1,11 @@
+ipython
+plumbum
+future
+numpy
+pandas
+vtk
+nibabel
+psutil
+python_log_indenter
+pynrrd
+git+https://github.com/pnlbwh/conversion.git
