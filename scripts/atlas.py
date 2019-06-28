@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from __future__ import print_function
-from util import logfmt
 from plumbum import local, cli, FG
 from plumbum.cmd import ComposeMultiTransform, antsApplyTransforms, MeasureImageSimilarity
 from itertools import zip_longest
@@ -9,8 +8,7 @@ import sys, os
 import multiprocessing
 from math import exp
 from conversion.antsUtil import antsReg
-
-from util import save_nifti, TemporaryDirectory, load_nifti, N_CPU, N_PROC
+from util import logfmt, save_nifti, TemporaryDirectory, load_nifti, N_CPU, N_PROC
 
 SCRIPTDIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -256,7 +254,7 @@ def makeAtlases(target, trainingTable, outdir, fusion, threads):
     pool.join()
 
 class Atlas(cli.Application):
-    """Makes atlas image/labelmap pairs for a target image. Option to merge labelmaps via averaging (MABS)
+    """Makes atlas image/labelmap pairs for a target image. Option to merge labelmaps via averaging
     or AntsJointFusion."""
 
     def main(self, *args):
@@ -270,7 +268,7 @@ class Atlas(cli.Application):
 
 @Atlas.subcommand("args")
 class AtlasArgs(cli.Application):
-    """Specify training images and labelmaps via commandline arguments."""
+    """Specify training images and labelmaps via command line arguments."""
 
     target = cli.SwitchAttr(
         ['-t', '--target'],
@@ -357,7 +355,7 @@ class AtlasCsv(cli.Application):
         ['-o', '--outDir'], help='output directory', mandatory=True)
     threads= cli.SwitchAttr(['-n', '--nproc'],
         help='number of processes/threads to use (-1 for all available)',
-        default= 8)
+        default= N_PROC)
 
     @cli.positional(cli.ExistingFile)
     def main(self, csvFile):
