@@ -31,8 +31,7 @@ def _Register_vol(volnii):
     return volnii
 
 class App(cli.Application):
-    '''Eddy current correction. The NRRD DWI must have volumes stacked along
-    the last axis. If not, use `unu permute` to shuffle the axes.'''
+    '''Eddy current correction.'''
 
     debug = cli.Flag('-d', help='Debug, saves registrations to eddy-debug-<pid>')
     dwi = cli.SwitchAttr('-i', cli.ExistingFile, help='DWI in nifti', mandatory= True)
