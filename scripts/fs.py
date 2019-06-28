@@ -100,21 +100,13 @@ class App(cli.Application):
 
             if int(self.ncpu)>1:
 
-                # if self.t2:
-                #     bash['-c', 'recon-all -s '+subjid+' -i '+t1+' -T2 ' +t2+' -autorecon1 ' +skullstrip+' -parallel -openmp '+self.ncpu] & FG
-                # else:
-                #     bash['-c', 'recon-all -s '+subjid+ ' -i '+t1+' -autorecon1 '+skullstrip+' -parallel -openmp '+self.ncpu] & FG
-                # (tmpdir / subjid / 'mri/T1.mgz').copy(tmpdir / subjid / 'mri/brainmask.mgz')
-                # bash['-c', 'recon-all -autorecon2 -subjid '+subjid+' -parallel -openmp '+self.ncpu] & FG
-                # bash['-c', 'recon-all -autorecon3 -subjid '+subjid+' -parallel -openmp '+self.ncpu] & FG
-
                 if self.t2:
-                    bash['-c', 'recon-all -s '+subjid+' -i '+t1+' -T2 ' +t2+' -autorecon1 ' +skullstrip+' -parallel'] & FG
+                    bash['-c', 'recon-all -s '+subjid+' -i '+t1+' -T2 ' +t2+' -autorecon1 ' +skullstrip+' -parallel -openmp '+self.ncpu] & FG
                 else:
-                    bash['-c', 'recon-all -s '+subjid+ ' -i '+t1+' -autorecon1 '+skullstrip+' -parallel'] & FG
+                    bash['-c', 'recon-all -s '+subjid+ ' -i '+t1+' -autorecon1 '+skullstrip+' -parallel -openmp '+self.ncpu] & FG
                 (tmpdir / subjid / 'mri/T1.mgz').copy(tmpdir / subjid / 'mri/brainmask.mgz')
-                bash['-c', 'recon-all -autorecon2 -subjid '+subjid+' -parallel'] & FG
-                bash['-c', 'recon-all -autorecon3 -subjid '+subjid+' -parallel'] & FG
+                bash['-c', 'recon-all -autorecon2 -subjid '+subjid+' -parallel -openmp '+self.ncpu] & FG
+                bash['-c', 'recon-all -autorecon3 -subjid '+subjid+' -parallel -openmp '+self.ncpu] & FG
 
             else: # intentionally writing a separate block omitting parallelization attributes
                 if self.t2:
