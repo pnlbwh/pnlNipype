@@ -15,6 +15,8 @@ logging.basicConfig(level=logging.DEBUG, format=logfmt(__file__))
 
 
 class App(cli.Application):
+    'Epi distortion correction.'
+
 
     debug = cli.Flag(
             ['-d', '--debug'],
