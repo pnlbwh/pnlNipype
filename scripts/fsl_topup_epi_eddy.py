@@ -95,7 +95,7 @@ class TopupEddyEpi(cli.Application):
 
     whichVol= cli.SwitchAttr(
         ['--whichVol'],
-        help='which volume(s) to correct through eddy: 1(only primary4D) or 1,2(primary4D+secondary4D)',
+        help='which volume(s) to correct through eddy: 1(only primary4D) or 1,2(primary4D+secondary4D/3D)',
         mandatory=False,
         default=True)
 
@@ -143,22 +143,28 @@ class TopupEddyEpi(cli.Application):
 
 
         temp= self.bvals_file.split(',')
-        primaryBval= abspath(temp[0])
+        if len(temp)>1:
+            primaryBval= abspath(temp[0])
         if len(temp)==2:
             secondaryBval= abspath(temp[1])
         elif len(temp)==1 and dim2==4:
             secondaryBval= primaryBval
-        else:
+        elif len(temp)==1 and dim2==3:
             secondaryBval=[]
+        elif len(temp)==0:
+            raise AttributeError('--bvals are required')
 
         temp= self.bvecs_file.split(',')
-        primaryBvec= abspath(temp[0])
+        if len(temp)>1:
+            primaryBvec= abspath(temp[0])
         if len(temp)==2:
             secondaryBvec= abspath(temp[1])
         elif len(temp) == 1 and dim2 == 4:
             secondaryBvec = primaryBvec
-        else:
+        elif len(temp)==1 and dim2==3:
             secondaryBvec=[]
+        else:
+            raise AttributeError('--bvecs are required')
 
 
 
