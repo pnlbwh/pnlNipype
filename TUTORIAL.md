@@ -82,7 +82,7 @@ important. You can use the following script for this purpose:
     Axis alignment and centering of a 3D/4D NIFTI image
     
     Usage:
-        niftiAlign.py [SWITCHES] 
+        align.py [SWITCHES] 
     
     Switches:
         --axisAlign                         turn on for axis alignment
@@ -95,7 +95,7 @@ important. You can use the following script for this purpose:
 
 Example usage:
 
-    ./niftiAlign.py -i dwiNifti --bval bvalFile --bvec bvecFile -o nifti-xc
+    ./niftiAlign.py -i dwiNifti --bvals bvalFile --bvecs bvecFile -o nifti-xc
     ./niftiAlign.py -i t1Nifti --center
     ./niftiAlign.py -i t2Nifti --axisAlign
     
@@ -265,7 +265,7 @@ and edit it if necessary. The following is a generalized script for creating FSL
         bet_mask.py [SWITCHES] 
     
     Switches:
-        --bval VALUE:ExistingFile           bval file for 4D DWI, default: inputPrefix.bval
+        --bvals VALUE:ExistingFile           bval file for 4D DWI, default: inputPrefix.bval
         -f VALUE:str                        threshold for fsl bet mask; the default is 0.25
         -i, --input VALUE:ExistingFile      input 3D/4D nifti image; required
         -o, --outPrefix VALUE:str           prefix for output brain mask (default: input prefix), output file is named
@@ -274,7 +274,7 @@ and edit it if necessary. The following is a generalized script for creating FSL
 
 Example usage:
 
-    ./bet_mask.py -i dwiNifti --bval bvalFile
+    ./bet_mask.py -i dwiNifti --bvals bvalFile
     ./bet_mask.py -i t1Nifti -o t1bet
 
 For 4D diffusion weighted image, bet mask is created from first B0 image image. For 3D structural image, 
@@ -403,8 +403,8 @@ applies the transform to appropriately rotate the corresponding bvecs.
         pnl_eddy.py [SWITCHES]
     
     Switches:
-        --bval VALUE:ExistingFile      bval file for DWI; required
-        --bvec VALUE:ExistingFile      bvec file for DWI; required
+        --bvals VALUE:ExistingFile      bval file for DWI; required
+        --bvecs VALUE:ExistingFile      bvec file for DWI; required
         -d                             Debug, saves registrations to eddy-debug-<pid>
         --force                        Force overwrite
         -i VALUE:ExistingFile          DWI in nifti; required
@@ -416,7 +416,7 @@ applies the transform to appropriately rotate the corresponding bvecs.
 
 Example usage:
     
-    ./pnl_eddy.py -i dwiNifti --bval bvalFile --bvec bvecFile -o dwiNifti-Ed        
+    ./pnl_eddy.py -i dwiNifti --bvals bvalFile --bvecs bvecFile -o dwiNifti-Ed        
         
 
 ## ii. Using FSL eddy
@@ -473,7 +473,7 @@ should look like the following:
     
 Then, you can run *fsl_eddy.py* as follows:
 
-    ./fsl_eddy.py --dwi dwiNifti --mask maskNifti --bval bvalFile --bvec bvecFile --acqp acqparams.txt --index index.txt --out /tmp/Eddy/
+    ./fsl_eddy.py --dwi dwiNifti --mask maskNifti --bvals bvalFile --bvecs bvecFile --acqp acqparams.txt --index index.txt --out /tmp/Eddy/
 
 
 
@@ -657,8 +657,8 @@ Putting them all together, example usage:
         ukf.py [SWITCHES]
     
     Switches:
-        --bval VALUE:ExistingFile      bval file for DWI; required
-        --bvec VALUE:ExistingFile      bvec file for DWI; required
+        --bvals VALUE:ExistingFile      bval file for DWI; required
+        --bvecs VALUE:ExistingFile      bvec file for DWI; required
         -i VALUE:ExistingFile          DWI in nifti; required
         -m VALUE:ExistingFile          mask of the DWI in nifti; required
         -o VALUE:str                   output tract file (.vtk); required
@@ -673,7 +673,7 @@ Putting them all together, example usage:
 
 The minimal usual would be:
 
-    ./ukf.py -i dwiNifti --bval bvalFile --bvec bvecFile -m maskNifti -o /tmp/tracts.vtk
+    ./ukf.py -i dwiNifti --bvals bvalFile --bvecs bvecFile -m maskNifti -o /tmp/tracts.vtk
     
 However, you can give any additional paramaters with `--params`.
 
