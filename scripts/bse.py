@@ -26,7 +26,7 @@ class App(cli.Application):
         mandatory=True)
 
     bval_file = cli.SwitchAttr(
-        '--bval',
+        '--bvals',
         cli.ExistingFile,
         help='bval file, default: dwiPrefix.bval')
 

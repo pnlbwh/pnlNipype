@@ -35,8 +35,8 @@ class App(cli.Application):
 
     debug = cli.Flag('-d', help='Debug, saves registrations to eddy-debug-<pid>')
     dwi = cli.SwitchAttr('-i', cli.ExistingFile, help='DWI in nifti', mandatory= True)
-    bvalFile = cli.SwitchAttr('--bval', cli.ExistingFile, help='bval file for DWI', mandatory= True)
-    bvecFile = cli.SwitchAttr('--bvec', cli.ExistingFile, help='bvec file for DWI', mandatory= True)
+    bvalFile = cli.SwitchAttr('--bvals', cli.ExistingFile, help='bval file for DWI', mandatory= True)
+    bvecFile = cli.SwitchAttr('--bvecs', cli.ExistingFile, help='bvec file for DWI', mandatory= True)
     out = cli.SwitchAttr('-o', help='Prefix for eddy corrected DWI', mandatory= True)
     overwrite = cli.Flag('--force', default=False, help='Force overwrite')
     nproc = cli.SwitchAttr(

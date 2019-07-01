@@ -19,9 +19,9 @@ logging.basicConfig(level=logging.DEBUG, format=logfmt(__file__))
 def obtainB0(inVol, bvalFile, outVol, num_b0):
 
     if num_b0 == '1':
-        check_call((' ').join([pjoin(FILEDIR,'bse.py'), '-i', inVol, '--bval', bvalFile, '-o', outVol]), shell=True)
+        check_call((' ').join([pjoin(FILEDIR,'bse.py'), '-i', inVol, '--bvals', bvalFile, '-o', outVol]), shell=True)
     elif num_b0 == '-1':
-        check_call((' ').join([pjoin(FILEDIR,'bse.py'), '-i', inVol, '--bval', bvalFile, '-o', outVol, '--all']), shell=True)
+        check_call((' ').join([pjoin(FILEDIR,'bse.py'), '-i', inVol, '--bvals', bvalFile, '-o', outVol, '--all']), shell=True)
     else:
         raise ValueError('Invalid --numb0')
 
