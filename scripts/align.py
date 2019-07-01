@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
 from plumbum import cli
-from plumbum.cmd import cp
-
 import numpy as np
 from numpy import matrix, diag, linalg, vstack, hstack, array
 
@@ -39,7 +37,7 @@ def axis_align_dwi(hdr_in, bvec_file, bval_file, out_prefix):
     bvec_rotate(bvec_file, out_prefix+'.bvec', rot_matrix=R)
 
     # rename the bval file
-    cp.run([bval_file, out_prefix+'.bval'])
+    bval_file.copy(out_prefix+'.bval')
 
     return spcdir_new
 
@@ -152,6 +150,12 @@ class Xalign(cli.Application):
 
             offset_new = -spcdir_orig @ matrix((hdr['dim'][1:4] - 1) / 2).T
             hdr_out = update_hdr(hdr, spcdir_orig, offset_new)
+
+
+            # rename the bval file
+            self.bval_file.copy(self.out_prefix + '.bval')
+            # rename the bvec file
+            self.bvec_file.copy(self.out_prefix + '.bvec')
 
 
         else: # self.axisAlign and self.center:
