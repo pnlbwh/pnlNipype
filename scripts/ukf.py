@@ -23,8 +23,8 @@ class App(cli.Application):
 
     dwi = cli.SwitchAttr('-i', cli.ExistingFile, help='DWI in nifti', mandatory= True)
     dwimask = cli.SwitchAttr('-m', cli.ExistingFile, help='mask of the DWI in nifti', mandatory=True)
-    bvalFile = cli.SwitchAttr('--bval', cli.ExistingFile, help='bval file for DWI', mandatory= True)
-    bvecFile = cli.SwitchAttr('--bvec', cli.ExistingFile, help='bvec file for DWI', mandatory= True)
+    bvalFile = cli.SwitchAttr('--bvals', cli.ExistingFile, help='bval file for DWI', mandatory= True)
+    bvecFile = cli.SwitchAttr('--bvecs', cli.ExistingFile, help='bvec file for DWI', mandatory= True)
     out = cli.SwitchAttr('-o', help='output tract file (.vtk)', mandatory= True)
 
     givenParams = cli.SwitchAttr('--params',
