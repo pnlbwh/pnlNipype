@@ -15,7 +15,7 @@ precision= 17
 
 def get_spcdir_new(hdr_in):
 
-    spcdir_orig= hdr_in.get_sform()[0:3,0:3].T
+    spcdir_orig= hdr_in.get_best_affine()[0:3,0:3].T
 
     sizes = diag(hdr_in['pixdim'][1:4])
     spcON = linalg.inv(sizes) @ spcdir_orig
@@ -56,9 +56,9 @@ def update_hdr(hdr_in, spcdir_new, offset_new):
 
     xfrm= vstack((hstack((spcdir_new, array(offset_new))), [0., 0., 0., 1]))
 
-    hdr_out.set_sform(xfrm)
-    hdr_out.set_qform(xfrm)
-
+    hdr_out.set_sform(xfrm, code= 'aligned')
+    hdr_out.set_qform(xfrm, code= 'aligned')
+    
     return hdr_out
 
 
@@ -127,8 +127,8 @@ class Xalign(cli.Application):
             print('Invalid image dimension, has to be either 3 or 4')
 
 
-        offset_orig= matrix(hdr.get_sform()[0:3, 3]).T
-        spcdir_orig= hdr.get_sform()[0:3, 0:3]
+        offset_orig= matrix(hdr.get_best_affine()[0:3, 3]).T
+        spcdir_orig= hdr.get_best_affine()[0:3, 0:3]
 
 
         if self.axisAlign and not self.center:
@@ -149,10 +149,8 @@ class Xalign(cli.Application):
             if not self.out_prefix:
                 self.out_prefix = self.img_file.split('.')[0] + '-ce'  # a clever way to get prefix including path
 
-            if dim == 4:
-                spcdir_new= axis_align_dwi(hdr, self.bvec_file, self.bval_file, self.out_prefix)
 
-            offset_new = hdr['pixdim'][0] * spcdir_new @ matrix(-(hdr['dim'][1:4] - 1) / 2).T
+            offset_new = -spcdir_orig @ matrix((hdr['dim'][1:4] - 1) / 2).T
             hdr_out = update_hdr(hdr, spcdir_orig, offset_new)
 
 
@@ -165,7 +163,7 @@ class Xalign(cli.Application):
             if dim == 4:
                 spcdir_new= axis_align_dwi(hdr, self.bvec_file, self.bval_file, self.out_prefix)
 
-            offset_new = hdr['pixdim'][0] * spcdir_new @ matrix(-(hdr['dim'][1:4] - 1) / 2).T
+            offset_new = -spcdir_new @ matrix((hdr['dim'][1:4] - 1) / 2).T
             hdr_out = update_hdr(hdr, spcdir_new, offset_new)
 
 
