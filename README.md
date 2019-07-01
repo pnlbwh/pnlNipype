@@ -218,7 +218,10 @@ This table summarizes the scripts in `pnlNipype/scripts/`:
 | Tractography       |  **wmql.py**                       |  simple wrapper for tract_querier                                     |
 
 
-
+The above executables are available as soft links in `pnlNipype/exec` directory as well. So, you can also do:
+    
+    cd pnlNipype/exec
+    ./nifti_bse -h
 
 
 # Global bashrc
