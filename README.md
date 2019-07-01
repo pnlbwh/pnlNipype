@@ -196,7 +196,7 @@ This table summarizes the scripts in `pnlNipype/scripts/`:
 
 | Category           |  Script                            |  Function                                                             |
 |--------------------|------------------------------------|-----------------------------------------------------------------------|
-| General            |  **niftiAlign.py**                 |  axis aligns and centers an image                                     |
+| General            |  **align.py**                      |  axis aligns and centers an image                                     |
 | General            |  **bet_mask.py**                   |  masks a 3D/4D MRI using FSL bet                                      |
 | General            |  **masking.py**                    |  skullstrips by applying a labelmap mask                              |
 | -                  |  -                                 |  -                                                                    |

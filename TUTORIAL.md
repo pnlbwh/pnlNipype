@@ -77,7 +77,7 @@ hand, centering ensures the origin is set at half the image size across all axes
 There may be a neuroimaging software that fails if oblique/shifted MRI is provided. So, axis alignment and centering is 
 important. You can use the following script for this purpose:
 
-> ./niftiAlign.py -h
+> ./align.py -h
 
     Axis alignment and centering of a 3D/4D NIFTI image
     
