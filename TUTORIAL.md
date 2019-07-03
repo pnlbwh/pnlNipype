@@ -173,76 +173,74 @@ space of the target T1/T2 image. The set of candidate masks (or labelmaps) are f
 
 
 > ./atlas.py --help-all
-
-
+    
     Makes atlas image/labelmap pairs for a target image. Option to merge labelmaps via averaging
     or AntsJointFusion.
-    
+
     Usage:
         atlas.py [SWITCHES] [SUBCOMMAND [SWITCHES]] args...
 
     Sub-commands:
-        args               Specify training images and labelmaps via command line arguments.; see 'atlas.py args
-                           --help' for more info
-        csv                Specify training images and labelmaps via a csv file. Put the images with any header in the
-                           first column, and labelmaps with proper headers in the consecutive columns. The headers in
-                           the labelmap columns will be used to name the generated atlas labelmaps.; see 'atlas.py csv
-                           --help' for more info
+        args               Specify training images and labelmaps via command line arguments.; see 'atlas.py args --help' for more info
+        csv                Specify training images and labelmaps via a csv file. Put the images with any header in the first column, and
+                           labelmaps with proper headers in the consecutive columns. The headers in the labelmap columns will be used to
+                           name the generated atlas labelmaps.; see 'atlas.py csv --help' for more info
     
     
-    ======================================================================    
+    ======================================================================
     
     Specify training images and labelmaps via command line arguments.
-    
+
     Usage:
-        atlas.py args [SWITCHES] 
-    
+        atlas.py args [SWITCHES]
+
     Switches:
-        --fusion VALUE:{'avg', 'wavg', 'antsJointFusion'}      Also create predicted labelmap(s) by combining the
-                                                               atlas labelmaps: avg is naive mathematical average,
-                                                               wavg is weighted average where weights are computed
-                                                               from MI between the warped atlases and target image,
-                                                               antsJointFusion is local weighted averaging; the
-                                                               default is wavg
-        -i, --images VALUE:str                                 list of images in quotations, e.g. "img1.nrrd
-                                                               img2.nrrd"; required
-        -l, --labels VALUE:str                                 list of labelmap images in quotations, e.g. "mask1.nrrd
-                                                               mask2.nrrd cingr1.nrrd cingr2.nrrd"; required
-        -n, --nproc VALUE:str                                  number of processes/threads to use (-1 for all
-                                                               available); the default is 4
-        --names VALUE:str                                      list of names for generated labelmaps, e.g. "atlasmask
-                                                               atlascingr"; required
-        -o, --out VALUE:str                                    output directory; required
+        -d                                                     Debug mode, saves intermediate labelmaps to atlas-debug-<pid> in output
+                                                               directory
+        --fusion VALUE:{'avg', 'wavg', 'antsJointFusion'}      Also create predicted labelmap(s) by combining the atlas labelmaps: avg
+                                                               is naive mathematical average, wavg is weighted average where weights are
+                                                               computed from MI between the warped atlases and target image,
+                                                               antsJointFusion is local weighted averaging; the default is wavg
+        -i, --images VALUE:str                                 list of images in quotations, e.g. "img1.nrrd img2.nrrd"; required
+        -l, --labels VALUE:str                                 list of labelmap images in quotations, e.g. "mask1.nrrd mask2.nrrd
+                                                               cingr1.nrrd cingr2.nrrd"; required
+        -n, --nproc VALUE:str                                  number of processes/threads to use (-1 for all available); the default is
+                                                               4
+        --names VALUE:str                                      list of names for generated labelmaps, e.g. "atlasmask atlascingr";
+                                                               required
+        -o, --outPrefix VALUE:str                              output prefix, output labelmaps are saved as outPrefix-mask.nii.gz,
+                                                               outPrefix-cingr.nii.gz, ...; required
         -t, --target VALUE:ExistingFile                        target image; required
+
     
-    
-    ====================================================================== 
+    ======================================================================
     
     Specify training images and labelmaps via a csv file.
-    Put the images with any header in the first column, 
-    and labelmaps with proper headers in the consecutive columns. 
+    Put the images with any header in the first column,
+    and labelmaps with proper headers in the consecutive columns.
     The headers in the labelmap columns will be used to name the generated atlas labelmaps.
-    
+
     Usage:
         atlas.py csv [SWITCHES] csvFile
-    
+
     Switches:
-        --fusion VALUE:{'avg', 'wavg', 'antsJointFusion'}      Also create predicted labelmap(s) by combining the
-                                                               atlas labelmaps: avg is naive mathematical average,
-                                                               wavg is weighted average where weights are computed
-                                                               from MI between the warped atlases and target image,
-                                                               antsJointFusion is local weighted averaging; the
-                                                               default is wavg
-        -n, --nproc VALUE:str                                  number of processes/threads to use (-1 for all
-                                                               available); the default is 4
-        -o, --outDir VALUE:str                                 output directory; required
+        -d                                                     Debug mode, saves intermediate labelmaps to atlas-debug-<pid> in output
+                                                               directory
+        --fusion VALUE:{'avg', 'wavg', 'antsJointFusion'}      Also create predicted labelmap(s) by combining the atlas labelmaps: avg
+                                                               is naive mathematical average, wavg is weighted average where weights are
+                                                               computed from MI between the warped atlases and target image,
+                                                               antsJointFusion is local weighted averaging; the default is wavg
+        -n, --nproc VALUE:str                                  number of processes/threads to use (-1 for all available); the default is
+                                                               4
+        -o, --outPrefix VALUE:str                              output prefix, output labelmaps are saved as outPrefix-mask.nii.gz,
+                                                               outPrefix-cingr.nii.gz, ...; required
         -t, --target VALUE:ExistingFile                        target image; required
-    
+
 
 
 Example usage:
     
-    ./atlas.py csv -t t1Nifti -o /tmp/T1labels/ -n 8 ~/pnlpipe/soft_dir/trainingDataT1AHCC-d6e5990/trainingDataT1AHCC-hdr.csv
+    ./atlas.py csv -t t1Nifti -o /tmp/T1-labels -n 8 ~/pnlpipe/soft_dir/trainingDataT1AHCC-d6e5990/trainingDataT1AHCC-hdr.csv
     
 The `csvFile` used here is `trainingDataT1AHCC-d6e5990/trainingDataT1AHCC-hdr.csv` which can be generated by running 
 [mktrainingfiles.sh](https://github.com/pnlbwh/trainingDataT1AHCC/blob/master/mktrainingfiles.sh) .
