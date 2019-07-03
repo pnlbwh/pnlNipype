@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 from os import getpid
-from util import logfmt, TemporaryDirectory, pjoin, FILEDIR, N_PROC
+from util import logfmt, TemporaryDirectory, pjoin, FILEDIR, N_PROC, dirname
 from plumbum import local, cli, FG
 from plumbum.cmd import ls, flirt, fslmerge, tar, fslsplit
 import numpy as np
@@ -137,7 +137,7 @@ class App(cli.Application):
             self.bvalFile.copy(self.out._path+'.bval')
 
             if self.debug:
-                tmpdir.move("eddy-debug-"+str(getpid()))
+                tmpdir.copy(pjoin(dirname(self.out),"eddy-debug-"+str(getpid())))
 
 
 if __name__ == '__main__':
