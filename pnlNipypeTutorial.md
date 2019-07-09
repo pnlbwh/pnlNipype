@@ -226,8 +226,43 @@ It might be useful for you to see a full example of a mask. Make sure you are in
 cp /rfanfs/pnl-zorro/software/pnlutil/trainingDataT2Masks/01063* ./
 ```
 
-This will copy one of the T2 training masks and its corresponding raw file to your PipelineTraining directory. Enter s4, and open these files (01063-t2w-mask.nrrd and 01063-t2w.nrrd) from your PipelineTraining directory (Ctrl + O in Slicer). Remember to select “Labelmap” for the mask!
+This will copy one of the T2 training masks and its corresponding raw file to your PipelineTraining directory. Enter `s4`, and open these files (`01063-t2w-mask.nii.gz` and `01063-t2w.nii.gz`) from your PipelineTraining directory (**Ctrl+o** in **Slicer**). Remember to select **“Labelmap”** for the mask!
 
-•	Scroll through the mask to get a sense of what is and isn’t brain. It might take awhile to get comfortable, and that’s okay! Remember, you can always ask questions and ask for help. These will always be in your PipelineTraining directory, so if you ever want to look back and refer to some sample masks while you’re working on a project, feel free to do so.
+  * Scroll through the mask to get a sense of what is and isn’t brain. It might take awhile to get comfortable, and that’s okay! Remember, you can always ask questions and ask for help. These will always be in your PipelineTraining directory, so if you ever want to look back and refer to some sample masks while you’re working on a project, feel free to do so.
 
-•	To turn the mask back into a labelmap, go back to the Segmentations module. Go back to “Export/import models and labelmaps.” Make sure “Export” and “Labelmap” are highlighted, and that your mask is the “Output node.” Click Export. Make sure to save your mask with Ctrl+s, and make sure that you know the path of where you’re saving it to.
+To turn the mask back into a labelmap, go back to the **Segmentations** module. Go back to “Export/import models and labelmaps.” Make sure “Export” and “Labelmap” are highlighted, and that your mask is the “Output node.” Click **Export**. Make sure to save your mask with **Ctrl+s**, and make sure that you know the path of where you’re saving it to.
+
+**FreeSurfer Segmentation and QC**
+
+Now that you have a good mask on your T2, you are going to apply that mask to your T1 image and generate an automated label map for white and gray matter parcellation. 
+
+You will now need to complete an additional step so that the T2 mask you just made is aligned in the same way that the T1 is because you are about to register the T2 mask onto the T1 image. When you are in your `strct` folder, enter:
+```bash
+nifti_makeRigidMask -l sample_T2-mask.nii.gz -i sample_T2-xc.nii.gz -t sample_T1-xc.nii.gz -o sample_T1-mask.nii.gz
+```
+
+  * The `-l` flag is the labelmap that you’re moving to another image.
+  * The `-i` flag is the input T2 .nii.gz image
+  * The `-t` flag is the target image for which you want the new mask.
+  * The `-o` flag is the output mask that will be generated.
+
+There are a lot of settings that FreeSurfer has available for you to adjust what you want to do, but often times in this lab we use a standard set of settings which have been automated in a script called `nifti_fs`. Enter:
+```bash
+nifti_fs –i sample_T1-xc.nii.gz –m sample_T1-mask.nii.gz –o sample_freesurfer
+```
+This process will take about 12 hours to run to completion for each case.
+
+  * `sample_freesurfer` can also be found in the `Other` folder as part of your `PipelineTraining` directory. Stop **FreeSurfer** from running by entering **Control+c** and you can copy this folder into strct. Just remember to use the `-r` option here since there are many directories and files within this
+
+Once it has completed, you need to quality control your FreeSurfer labelmap. To start that you will need to start by opening it in Slicer. Enter:
+`/rfanfs/pnl-zorro/software/Slicer-4.8.1-linux-amd64/Slicer`to open slicer and then open it going to **File** > **Add Data** > **Choose File** to Add then go to your `sample_freesurfer` folder in strct and then go into `mri` and open `wmparc.mgz`. Before selecting the final **OK** make sure you select **Show Options** and then select **LabelMap**. Also open `brain.mgz`, which can be found in the `sample_freesurfer/mri folder`.
+
+Now in order to actually see your label map transposed on the T1, you need to go to the **Modules** drop-down menu and select **Volumes**. First, make sure the Active Volume is `wmparc`. Then, under the **Volume Information** heading, make sure LabelMap is selected. Last, under the Display heading, for the **Lookup Table** dropdown box, go to **FreeSurfer** > **FreeSurferLabels**. You should end up with something that looks like this:
+
+The first thing to look for that will be immediately obvious is whether the label map and the T1 image are aligned in the same way. The easiest way to do many of these checks is to reduce the opacity of the label map in the same way that you did with the masks you’ve made.
+
+Next you will want to scroll through all of the slices of the brain and check if major portions of brain are missing anywhere. FreeSurfer does tend to be a little under inclusive with the cortical gray matter but that is considered okay. Here are a few examples of brains that were bad enough that they failed the check due to large missing chunks:
+
+Two particularly common issues are missing temporal poles (below left) and inaccurate amygdala hippocampal complex (below right). Often times these issues will not cause the images to fail the check but they should be recorded. If these are areas that are of interest in the study you are working on, you will need to discuss with your PI how to address this. Below the areas that should be covered are outlined in red:
+
+Some useful information can be gained just from looking at the FreeSurfer output. To look at it go into the `stats` folder in `sample_freesurfer` and look at the files `aseg.stats` and `wmparc.stats` using the command `cat`.
