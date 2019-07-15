@@ -7,7 +7,7 @@ Before you start this tutorial, here is some helpful advice:
 
 And here are some things to keep in mind as you go through this tutorial
 * These characters "<>" indicate something that you enter yourself, such as<yourusernamehere>
-* Don't hit enter unless you're sure what you've typed is correct and that it will do what you want it to do.  
+* Don't hit enter unless you're sure what you've typed is correct and that it will do what you want it to do. 
 
 **NOTE:** this manual is not an exhaustive overview of the different image processing techniques that the PNL utilizes, and does not include instructions for manual segmentation, manual WM tract delineation, TBSS, NODDI, etc.)*
 
@@ -581,56 +581,81 @@ You will now want to copy the result of this back onto your local server. Go int
 scp -pr tractQC <yourusername>@<yourcomputer’sI.P.address>:/rfanfs/pnl-zorro/home/<yourname>/PipelineTraining/Diffusion_b3000
 ```
 
-You can now leave the **Cluster** by entering `exit` twice. Then go into your new `tractQC` directory. To do a visual QC, enter `xdg-open view_<area>.html`. There are 6 different areas that you can look at (ant, inf, left, post, right, and sup) and you should inspect each of them carefully. 
+You can now leave the **Cluster** by entering `exit` twice. Then go into your new `tractQC` directory. To do a visual QC, enter `xdg-open view_<area>.html`. There are 6 different areas that you can look at (**ant**, **inf**, **left**, **post**, **right**, and **sup**) and you should inspect each of them carefully.
 
-One paper that is very helpful in determining what to look for is “A diffusion tensor imaging tractography atlas for virtual in vivo dissections” (Catani & Thiebaut de Schotten, 2008) so give it a look 
+* One paper that is very helpful in determining what to look for is “A diffusion tensor imaging tractography atlas for virtual in vivo dissections” (Catani & Thiebaut de Schotten, 2008) so give it a look.
 
-Then to do a data QC, make sure you are still in the tractQC directory and enter oocalc quality_control_fibers.txt. A window will pop up and you can just select OK.
+Then to do a data QC, make sure you are still in the `tractQC` directory and enter:
+```shell
+oocalc quality_control_fibers.txt
+```
+A window will pop up and you can just select **OK**.
 
-A spread sheet will then open up and in the example it will only contain one row, but normally each case will have a row. You would be mainly interested in the TOTAL_FIBERS and LEN_200 columns, which count the number of total tracts and the number of the longest type of tract respectively. We are looking to see if any case has an abnormally low level of either of these values relative to the rest of the cases. The easiest way to do this would be to sort the columns and look at the lowest ones using the Sort Ascending or Sort Descending tool in the upper toolbar. 
+A spread sheet will then open up and in the example it will only contain one row, but normally each case will have a row. You would be mainly interested in the **TOTAL_FIBERS** and **LEN_200** columns, which count the number of total tracts and the number of the longest type of tract respectively. We are looking to see if any case has an abnormally low level of either of these values relative to the rest of the cases. The easiest way to do this would be to sort the columns and look at the lowest ones using the **Sort Ascending** or **Sort Descending** tool in the upper toolbar. 
 
 Talk with your PI in the case where any case fails any of the QCs.
 
-3. White Matter Query Language
+**White Matter Query Language**
 
 At this time you will use white matter query language to put the FreeSurfer output in the same space as the tractography by using Demian’s method to automatically select fibers connecting specific regions from the whole brain tractography.
 
-Something that would be good to do before you actually run the script is to have a look at the query files that you will have to use to reference the area you are interested in looking at. To do this go to /projects/schiz/software/LabPython/tract_querier/queries. Once here, enter gedit FreeSurfer.qry and a window should pop up. Don’t change anything in this window but you’ll notice that it contains the names of all of the different brain regions followed by the number code given to them in the FreeSurfer output. When looking at a FreeSurfer labelmap, when you put your mouse over a color-coded brain region this is the number that pops up in the bottom left hand corner of the screen along with the brain region abbreviation.  If you exit out of this you can also enter gedit freesurfer_queries_new.qry and this defines individual tracts.
+Something that would be good to do before you actually run the script is to have a look at the query files that you will have to use to reference the area you are interested in looking at. To do this go to `/projects/schiz/software/LabPython/tract_querier/queries`. Once here, enter:
+```shell
+gedit FreeSurfer.qry
+```
+and a window should pop up. Don’t change anything in this window but you’ll notice that it contains the names of all of the different brain regions followed by the number code given to them in the FreeSurfer output. When looking at a FreeSurfer labelmap, when you put your mouse over a color-coded brain region this is the number that pops up in the bottom left hand corner of the screen along with the brain region abbreviation.  If you exit out of this you can also enter:
+```shell
+gedit freesurfer_queries_new.qry
+```
+and this defines individual tracts.
  
-Now go back to your PipelineTraining directory and make a new directory called wmql.
+Now go back to your PipelineTraining directory and make a new directory called **wmql**.
 
-Now enter wmql.sh Diffusion_b3000/Tractography/sample-dwi-tracts.vtk sample_fs2dwi/wmparc-in-bse.nii.gz /rfanfs/pnl-zorro/software/pnlutil/pipeline/wmql-2.0.qry ./wmql sample
+Now enter:
+```shell
+wmql.sh Diffusion_b3000/Tractography/sample-dwi-tracts.vtk sample_fs2dwi/wmparc-in-bse.nii.gz /rfanfs/pnl-zorro/software/pnlutil/pipeline/wmql-2.0.qry ./wmql sample
+```
 
-After it has finished running, you can go into the wmql/ directory and see that it has generated files for all kinds of tracts.  
+After it has finished running, you can go into the `wmql/` directory and see that it has generated files for all kinds of tracts.
 
-You would now use these files to QC whichever areas you are interested in the study, so for this example we can choose a random one, say sample_af.left.vtk, to have a look at.  Open the file in Slicer making sure to choose FiberBundle option for Description and also open wmparc.mgz  in the sample_freesurfer/mri directory with Volume selected.
+You would now use these files to QC whichever areas you are interested in the study, so for this example we can choose a random one, say `sample_af.left.vtk`, to have a look at.  Open the file in Slicer making sure to choose **FiberBundle** option for **Description** and also open `wmparc.mgz`  in the `sample_freesurfer/mri` directory with **Volume** selected.
 
-When it is open go to Volumes in Modules and under the Display header, change the Lookup Table value to FreeSurferLabels. At this point you should have something like this:
+When it is open go to **Volumes** in **Modules** and under the **Display** header, change the **Lookup Table** value to **FreeSurferLabels**. At this point you should have something like this:
 
  
 The region you are looking at with the tracts is the left arcuate fasciculus. When doing the QC the main things you want to look for are that the tracts intersect the regions they are supposed to on the label map and that they have the shape they should. A good source of this information is the Catani & Thiebaut de Schotten paper mentioned above. The region you are looking at is supposed to connect the perisylvian cortex of the frontal and temporal lobes and the example seen here does seem to do that, although as I mentioned before they should be a little off in the example.
 
 The wm_quality_control_tractography.py script used before can also used here to do the same thing with individual tracts as long as all of the .vtk files for that tract are in the same directory.
 
-If they are not all in the same directory to start, one way that you can do that without moving or copying all of the .vtk files is to make softlinks for them all, which is basically just a file that when accessed will redirect to the actual file. To do this you use the format ln -s <actual file> <softlink directory>.
+If they are not all in the same directory to start, one way that you can do that without moving or copying all of the .vtk files is to make softlinks for them all, which is basically just a file that when accessed will redirect to the actual file. To do this you use the format:
+```shell
+ln -s <full path to actual file> <full path to softlink directory>.
+```
 
-4. Extract Measures
+**Extract Measures**
 
 For the final step of the pipeline you need to now extract all of the measures you want from the images. There are two ways to do this:
 
-Way 1: Go into your wmql/ directory. Let’s say we are still interested in the left AF. Enter measureTracts.py -i sample_af.left.vtk -o sample_af.left.csv. This will create a file called sample_af.left.csv in that directory as well.
+* Way 1: Go into your `wmql/` directory. Let’s say we are still interested in the left AF. Enter:
+```shell
+measureTracts.py -i sample_af.left.vtk -o sample_af.left.csv
+```
+  * This will create a file called `sample_af.left.csv` in that directory as well.
 
-You can open this file by entering oocalc sample_af.left.csv
+  * You can open this file by entering:
+	```shell
+	oocalc sample_af.left.csv
+	```
 
-If you want to run the script on many .vtk files at once and have them all in the same spreadsheet, you can do this by putting all of the .vtk files in the same directory (or making softlinks to them in the same directory as discussed above in wmql) and replace the input with *.vtk.
+If you want to run the script on many `.vtk` files at once and have them all in the same spreadsheet, you can do this by putting all of the `.vtk` files in the same directory (or making softlinks to them in the same directory as discussed above in wmql) and replace the input with `*.vtk`.
 
-Way 2: In Slicer, you can go to the Modules drop-down and go to Diffusion > Tractography > Fiber Tract Scalar Measurements
+* Way 2: In **Slicer**, you can go to the **Modules** drop-down and go to **Diffusion** > **Tractography** > **Fiber Tract Scalar Measurements**
 
-Now you will need to create a blank text file for the program to put the information into. You can do this by entering in terminal touch sample_af.txt
+  * Now you will need to create a blank text file for the program to put the information into. You can do this by entering in terminal `touch sample_af.txt`.
 
-Under the IO header, for Select Input Type, choose Fibers_File_directory. For Fibers File directory select your wmql directory and for Output Text File you can select the text file you just made. Then for Select Output Format choose Column_Hierarchy and for Output Field Separator choose Tab and press Apply
+  * Under the **IO** header, for **Select Input Type**, choose **Fibers_File_Folder**. For **Fibers File Folder** select your wmql directory and for **Output Text File** you can select the text file you just made. Then for Select Output Format choose **Column_Hierarchy** and for **Output Field Separator** choose **Tab** and press **Apply**.
 
-Now you can open the text file by entering oocalc sample_af.left.txt 
+  * Now you can open the text file by entering `oocalc sample_af.left.txt`.
 
 You may notice that there are some differences in what these two methods give you, so which you choose largely depends on what you’re looking for, and sometimes it may be necessary to use boths ways to get everything you need:
 
