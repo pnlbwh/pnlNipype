@@ -6,7 +6,8 @@ Before you start this tutorial, here is some helpful advice:
 2. With great power comes great responsibility.
 
 And here are some things to keep in mind as you go through this tutorial
-* These characters "<>" indicate something that you enter yourself, such as<yourusernamehere>
+* These characters "<>" indicate something that you enter yourself, such as `<yourusernamehere>`
+* Whenever you're running a script, you can often type `<nameofscript> -h` or `<nameofscript> --help` to get more information about it. 
 * Don't hit enter unless you're sure what you've typed is correct and that it will do what you want it to do. 
 
 **NOTE:** this manual is not an exhaustive overview of the different image processing techniques that the PNL utilizes, and does not include instructions for manual segmentation, manual WM tract delineation, TBSS, NODDI, etc.)*
@@ -68,7 +69,10 @@ Make a new directory in PipelineTraining for structural data processing by going
 
 Processing a structural image involves processing both T1 and T2 images, which are similar images of the brain, but with differing contrasts.  
 
-We convert structural images from their raw forms (i.e. Dicoms, Bruker) to .nii files, as these are most compatible with our processing pipeline. In order to convert structural dicoms to .nii file, use the command `dcm2niix -b y -z y -f <file name> -o <output directory> <dicom directory>`
+We convert structural images from their raw forms (i.e. Dicoms, Bruker) to .nii files, as these are most compatible with our processing pipeline. In order to convert structural dicoms to .nii file, use the command
+```shell
+dcm2niix -b y -z y -f <file name> -o <output directory> <dicom directory>
+```
 
 Make sure that you are in the PipelineTraining directory and then enter:
 ```shell
@@ -97,8 +101,14 @@ The command for axis aligning images is `nifti_align –-axisAlign --center -i <
 
 For your images, enter:
 ```shell
-nifti_align –-axisAlign –-center –i sample_T1.nii.gz –o sample_T1-xc. Next enter nifti_align –-axisAlign –-center –i sample_T2.nii.gz –o sample_T2-xc
+nifti_align –-axisAlign –-center –i sample_T1.nii.gz –o sample_T1-xc.
 ```
+
+Next enter:
+```shell
+ nifti_align –-axisAlign –-center –i sample_T2.nii.gz –o sample_T2-xc
+```
+
 The files `sample_T1-xc.nii.gz` and `sample_T2-xc.nii.gz` will now be in that directory as well, and will be axis aligned and centered.
 
 Now that you have the axis aligned and centered image, you don’t have any use for older versions of the files. To remove some unnecessary files, enter `rm *.json` in the strct directory. This removes an artifact of the conversion from `DICOM` to `nii.gz`.
@@ -231,6 +241,7 @@ The tool that is mainly useful for editing the mask is the **Paint** tool, which
     * Pressing the `3` key toggles whether you are applying or getting rid of mask.  Which setting you are on is shown on the left by the colored bar under **PaintEffect**
     * Pressing Shift and scrolling with the mouse scroll wheel. will make the brush larger and smaller
     * Pressing the `z` key will undo the last edit you made, and the `y` key will redo the last edit you made.
+    * Pressing the `+` and `–` keys will make the brush larger and smaller
 
 When masking, make sure that you go through every slice on all three viewing windows. It is typical to start with the axial view (red) and go through at least twice.  For the inferior part of the brain, we don’t begin the mast until you can see the cerebellum.  We don’t include the eyes or optic nerves as brain, and there are a bunch of structures you will see that look like they might be brain but are not, but you will learn to recognize these as you go. Be sure to ask if you are unsure to start.  Make sure before you are done that there are no single-voxel islands. The final mask should look something like this:
 
@@ -290,9 +301,9 @@ Some useful information can be gained just from looking at the FreeSurfer output
 
 **Dicom to Nifti File Conversion**
 
-In your Diffusion_B3000 directory, enter:
+In your `PipelineTraining` directory, enter:
 ```shell
-dcm2niix -b y -z y -f sample_dwi -o ./ ./000001.ACQU/09h4mm/
+dcm2niix -b y -z y -f sample_dwi -o ./ ./Diffusion_B3000
 ```
 
 After a bit of a wait you will get a bunch of text to your screen but you don’t need to worry about that and you will now have a file called `sample-dwi.nii.gz` in your `Diffusion_b3000` directory (along with `sample_dwi.bval`, `sample_dwi.bvec`, and `sample_dwi.json`), which you can see by entering `ls`.
@@ -371,61 +382,11 @@ Since this takes a long time, it is also available to be copied from the `Other`
 
 **Tensor Mask**
 
-We’re now ready to mask our diffusion image. Again, we’ll be using Slicer: `/rfanfs/pnl-zorro/software/Slicer-4.10.1-linux-amd64/Slicer`
+To mask a diffusion image, follow the instructions [here](https://confluence.partners.org/pages/viewpage.action?spaceKey=PNL&title=Segment+Editor+Diffusion+Masking) to mask `sample-dwi-Ed.nii.gz` (in the `Diffusion_b3000` directory)
 
-Open the eddy current corrected image by going to **File** > **Add Data** > **Choose Files to Add** and then select `sample-dwi-Ed.nii.gz` in the `Diffusion_b3000` directory and select **Open**. What comes up should look like the figure below:
+**EPI correction**
 
-
-
-To mask a diffusion image, follow the instructions [here](https://confluence.partners.org/pages/viewpage.action?spaceKey=PNL&title=Segment+Editor+Diffusion+Masking)
-
-
-Below that field, set the **Baseline B-Value Threshold Parameter** to about **3000** here and make sure the **Remove Islands in Threshold Mask** checkbox is checked.
-
-There are some cases where having this box checked will create problems such as making a mask that is the entire window. In these cases you should not check the box but if it doesn’t create problems it makes the mask much easier to edit.
-
-Select the **Apply** button. You will see something like this appear on the slice windows:
-
-
-
-At this point it would be best to save your mask before you begin editing it. To do this you go to **File** > **Save** and in the window that pops up uncheck everything there except `sample-dwi-tensor-mask.nii.gz` and then make sure that the location that the image being save is the one that you want which in this case is in the `Diffusion_b3000` directory.
-
-To edit the mask you now have to go to the **Modules** drop-down again and select **Editor**. Then select **Apply** on the box that pops up.
-
-You now have a set of tools before you on the left portion of the screen that you can use to make sure that all of the brain and only brain is covered by the mask, although it is best to be over-inclusive as opposed to under inclusive. I’ve found it’s best to start by selecting the **DilateEffect** tool, which is the second one in the second row under **Edit Selected Label Map** and then choosing **Apply** as this will make sure the edges are covered.
-
-The tool that is mainly useful for editing the mask is the **PaintEffect** tool, which is the third tool in the first row.  
-
-At this point your mouse will have a circle around it that shows the current size of your brush. There are a couple of things you should be aware of when using this tool to make your life easier:
-
-* Turn on **Toggle crosshair** which is the orange crosshair button above the red bar. With this on, whenever you are in one of the views and hit the **Shift** key, you will see what that location looks like on the other two slice views as well.
-
-* If you hover over the tack icon at the top left corner of each view in the colored bar, another bar will drop down and on that you will want to select **Link/unlink the slice controls (except scales) across all Slice Viewers** as this will make it so that any changes made will happen in all views.
-
-* If you then hover over the double chevrons next to the **Link/unlink** toggle, the menu will drop down further. Here you can lower the opacity of the mask by changing the number next to **sample-dwi-tensor-mask**. I usually like 0.6.
-
-* You’ll notice that next to the opacity control on the right is the **Toggle between showing label map volume with regions outlined or filled**. As it sounds like this toggles whether you see the whole mask or just the outline and this can sometimes be useful.
-
-* Two rows below the outline toggle is the **Interpolate background** toggle and it is often easiest to use the pixelated option, although both are useful in some situations.
-
-* There are also a number of things that can be done using the keyboard, but in order for these to work you have to click on of the viewing windows after you’ve selected the paint tool. 
-
-  * Pressing the `g` key will toggle whether or not the mask is shown
-  * Pressing the `e` key toggles whether you are applying or getting rid of mask.  Which setting you are on is shown on the left by the colored bar under **PaintEffect**
-  * Pressing the `+` and `–` keys will make the brush larger and smaller
-
-When masking, make sure that you go through every slice on all three viewing windows. It is typical to start with the axial view (red) and go through at least twice.  For the inferior part of the brain, we don’t begin the mast until you can see the cerebellum.  We don’t include the eyes or optic nerves as brain, and there are a bunch of structures you will see that look like they might be brain but are not, but you will learn to recognize these as you go. Be sure to ask if you are unsure to start.  Make sure before you are done that there are no single-voxel islands.  When you have finished, this is an example of what it should look like:
-
-
-
-
-
-
-When you save after completion make sure again that is the only file with a box checked and if you ever need to reopen the mask make sure that under Show Options that Label Map is selected.
-
-**Epi correction**
-
-To further correct for distortions caused by magnet interactions and magnetic inhomogeneity (which leads to intensity loss and voxel shifts), you will now have to run an epi correction. This is done by co-registering it with the T2 image, which means that you need to have T2 images for the case to do this step and also that you will need to have masked the T2 file (step 5 of the structural pipeline) so that you can use it for this. If T2 images were not taken for the particular case (they were for this example) then you will have to skip this step. 
+To further correct for distortions caused by magnet interactions and magnetic inhomogeneity (which leads to intensity loss and voxel shifts), you will now have to run an EPI correction. This is done by co-registering it with the T2 image, which means that you need to have T2 images for the case to do this step and also that you will need to have masked the T2 file (step 5 of the structural pipeline) so that you can use it for this. If T2 images were not taken for the particular case (they were for this example) then you will have to skip this step. 
 
 You first need to skull strip the T2 image using the mask for it and to do this you need to make sure you are in the `strct` directory and then enter:
 ```shell
@@ -435,7 +396,7 @@ After this `sample_T2-masked.nii.gz` will now be in your `strct` directory as we
 
 Now out in `PipelineTraining`, enter:
 ```shell
-epi.sh Diffusion_b3000/sample-dwi-Ed.nii.gz Diffusion_b3000/sample-dwi-tensor-mask.nii.gz strct/sample_T2-masked.nii.gz strct/sample_T2-mask.nii.gz Diffusion_b3000/sample-dwi-epi.nii.gz
+pnl_epi Diffusion_b3000/sample-dwi-Ed.nii.gz Diffusion_b3000/sample-dwi-tensor-mask.nii.gz strct/sample_T2-masked.nii.gz strct/sample_T2-mask.nii.gz Diffusion_b3000/sample-dwi-epi.nii.gz
 ```
 
 * Since this takes a long time this is also available to be copied from the `Other` directory. Just be sure to copy both the `.nii.gz` and `.raw.gz` files for `sample-dwi-epi`
@@ -483,7 +444,7 @@ In the `Diffusion_b3000` directory, make a new directory called `Tractography/`
 
 The script that make these images works best for b-values (found in the header) where **700 <= b <= 3000**. If your b-value is not in this range, talk to your PI. Our b-value is acceptable for the current example. When you are in the `Diffusion_b3000` directory, enter:
 ```shell
-UKFTractography --dwiFile sample-dwi-epi.nii.gz --maskFile sample-dwi-tensor-mask.nii.gz --tracts Tractography/sample-dwi-tracts.vtk --numThreads 8 --recordTensors
+ukf -i sample-dwi-epi.nii.gz --bvals sample-dwi-epi.bval --bvecs sample-dwi-epi.bvecs  -m sample-dwi-tensor-mask.nii.gz -o Tractography/sample-dwi-tracts.vtk --numThreads,8,--recordTensors
 ```
 Be warned that depending on the computing power you are using this process could take anywhere from a few hours to several days.
 
@@ -514,21 +475,20 @@ To continue on from this point you will need to have both the diffusion and the 
 
 The first step of post-processing involves registering the FreeSurfer labelmap that you made to the diffusion image since they don’t have the same resolution and aren’t in the same space. To do this make sure you are in the `PipelineTraining` directory and enter:
 ```shell
-fs2dwi_T2.sh --fsdir strct/sample_freesurfer --dwi Diffusion_b3000/sample-dwi-epi.nii.gz --dwimask Diffusion_b3000/sample-dwi-epi-mask.nii.gz --t2 strct/sample_T2-masked.nii.gz --t2mask strct/sample_T2-mask.nii.gz --t1 strct/sample_T1-xc.nii.gz --t1mask strct/sample_T1-mask.nii.gz -o sample_fs2dwi
+nifti_fs2dwi --dwi Diffusion_b3000/sample-dwi-epi.nii.gz --dwimask Diffusion_b3000/sample-dwi-epi-mask.nii.gz -f strct/sample_freesurfer witht2 --t2 strct/sample_T2-masked.nii.gz --t2mask strct/sample_T2-mask.nii.gz -o sample_fs2dwi
 ```
-It will take about 6 hours to run to completion.
+It will take about 6 hours to run to completion, so type **Ctrl+c**.
 
-Since this takes a long time this is also available to be copied from the `Other` directory. Just be sure use the `-r` option since `sample_fs2dwi` contains lots of directories and files
+Since this takes a long time this is also available to be copied from the `Other` directory. Just be sure use the `-r` option since `sample_fs2dwi` contains lots of directories and files.
 
-Note: If you do not have T2s as part of the case you are working with you will have to use a slightly different script which will not lead to as good results but will still work fine. Its format is:
+Note: If you do not have T2s as part of the case you are working with you will have to use a different version of this command, which will not lead to suboptimal but fine results. Its format is:
 ```shell
-fs2dwi.sh <dwi-Ed> <tensor_mask> <freesurfer_directory> <output_directory>
+nifti_fs2dwi --dwi <dwi_Ed> --dwimask <tensor_mask> -f <freesurfer_directory> -o <output_directory> direct
 ```
 
 Once the script has finished running, you will find that there is a file called `wmparc-in-bse.nii.gz` in the `sample_fs2dwi` directory. Open this file along with `sample-dwi-epi.nii.gz` in Slicer to see if they are registered well. Make sure that `wmparc-in-bse.nii.gz` is checked for Label Map.
 
 When it opens, it will probably not appear as it should, and to fix this go to the **Volumes** module and for the **Active Volume** select `wmparc-in-bse`. Then, under the **Display** heading, change Lookup Table to **FreeSurfer** > **FreeSurferLabels**. It will look something like this:
-
 
 
 To check if the registration is good you scroll through the different views similar to how you did when quality checking the FreeSurfer labelmap during step 6 of the structural portion of the pipeline. 
@@ -613,7 +573,7 @@ Now go back to your PipelineTraining directory and make a new directory called *
 
 Now enter:
 ```shell
-wmql.sh Diffusion_b3000/Tractography/sample-dwi-tracts.vtk sample_fs2dwi/wmparc-in-bse.nii.gz /rfanfs/pnl-zorro/software/pnlutil/pipeline/wmql-2.0.qry ./wmql sample
+nifti_wmql -f sample_fs2dwi/wmparc-in-bse.nii.gz -i Diffusion_b3000/Tractography/sample-dwi-tracts.vtk  -q /rfanfs/pnl-zorro/software/pnlutil/pipeline/wmql-2.0.qry -o ./wmql sample
 ```
 
 After it has finished running, you can go into the `wmql/` directory and see that it has generated files for all kinds of tracts.
