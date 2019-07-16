@@ -168,15 +168,17 @@ Before you start QCing your actual data, ask a Research Assistant for a QC tutor
 
 * Be sure to QC both your T1 and your T2 images (`sample_T2-xc.nii.gz`)
 
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/motion_vs_normal.png" width="80%">
+<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/motion_vs_normal.png" width="70%">
 An example of a severe motion artifact (A) compared with a good image (B).
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/ghosting.png" width="80%">
+<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/ghosting.png" width="70%">
 
 An example of ghosting where you can see the back of the skull is shown a second time in the middle of the brain.
 
 Example of ringing. If you look closely at the top of the image you will see ringing forming around the outside of the brain (which has been magnified below)
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/ringing.png" width="80%">
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/ringing_closeup.png" width="80%">
+
+<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/ringing.png" width="70%">
+
+<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/ringing_closeup.png" width="70%">
 
 
 **Brain Masking and Mask QC**
@@ -247,7 +249,7 @@ The tool that is mainly useful for editing the mask is the **Paint** tool, which
 
 When masking, make sure that you go through every slice on all three viewing windows. It is typical to start with the axial view (red) and go through at least twice.  For the inferior part of the brain, we don’t begin the mast until you can see the cerebellum.  We don’t include the eyes or optic nerves as brain, and there are a bunch of structures you will see that look like they might be brain but are not, but you will learn to recognize these as you go. Be sure to ask if you are unsure to start.  Make sure before you are done that there are no single-voxel islands. The final mask should look something like this:
 
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/ringing.png" width="80%">
+<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/t2mask.png" width="80%">
 
 It might be useful for you to see a full example of a mask. Make sure you are in your PipelineTraining directory, and enter:
 ```shell
@@ -293,13 +295,15 @@ The first thing to look for that will be immediately obvious is whether the labe
 
 Next you will want to scroll through all of the slices of the brain and check if major portions of brain are missing anywhere. FreeSurfer does tend to be a little under inclusive with the cortical gray matter but that is considered okay. Here are a few examples of brains that were bad enough that they failed the check due to large missing chunks:
 
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/fs_fail_1.png" width="80%">
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/fs_fail_2.png" width="80%">
+<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/fs_fail_1.png" width="50%">
+<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/fs_fail_2.png" width="50%">
 
 
 Two particularly common issues are missing temporal poles (below top) and inaccurate amygdala hippocampal complex (below bottom). Often times these issues will not cause the images to fail the check but they should be recorded. If these are areas that are of interest in the study you are working on, you will need to discuss with your PI how to address this. Below the areas that should be covered are outlined in red:
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/inacc_amyg_hipp_fs.png" width="80%">
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/inacc_temp_pole_fs.png" width="80%">
+
+<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/inacc_amyg_hipp_fs.png" width="50%">
+
+<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/inacc_temp_pole_fs.png" width="50%">
 
 
 Some useful information can be gained just from looking at the FreeSurfer output. To look at it go into the `stats` directory in `sample_freesurfer` and look at the files `aseg.stats` and `wmparc.stats` using the command `cat`.
@@ -363,15 +367,15 @@ You will want to look through all 73 gradients for a few different things: **mov
 
 
 
-<img src ="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/motion_vs_normal.png" width=%80>
-http://www.diffusion-imaging.com/2015/11/a-guide-to-quantifying-head-motion-in.html
+<img src ="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/motion_vs_normal.png" width=70%>
+"http://www.diffusion-imaging.com/2015/11/a-guide-to-quantifying-head-motion-in.html"
 An example of a severe motion artifact (A) compared with a good image (B).
 
-<img src ="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/motion_vs_normal.png" width=%80>
+<img src ="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/ghosting.png" width=70%>
 An example of ghosting where you can see the back of the skull is shown a second time in the middle of the brain.
 
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/signal_drop.png" width=80%>
-http://journal.frontiersin.org/article/10.3389/fninf.2014.00004/full
+<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/signal_drop.png" width=60%>
+"http://journal.frontiersin.org/article/10.3389/fninf.2014.00004/full"
 An example of a signal drop.
 
 Before turning now to the automated QC tool, check with your PI about how severe these different things need to be to disqualify a case and in the case of dropped signal, check also if you will be getting rid of gradients within a case that have dropped signal or if you will keep them.
