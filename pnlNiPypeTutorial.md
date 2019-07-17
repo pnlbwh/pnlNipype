@@ -53,7 +53,7 @@ mkdir PipelineTraining
 
 To copy the sample case into this PipelineTraining directory, enter:
 ```shell
-cp –r /rfanfs/pnl-zorro/Tutorial/Case01183/raw/* /rfanfs/pnl-zorro/home/yourdirectory/PipelineTraining
+cp –r /rfanfs/pnl-zorro/Tutorial/Case01183_NiPype/raw/* /rfanfs/pnl-zorro/home/yourdirectory/PipelineTraining
 ```
 
 In your **PipelineTraining** directory you should now find 3 files and 4 directories.  It is the 4 directories (Diffusion_b3000, T1, T2, and Other) that you care about, and you are now ready to begin the pipeline.
