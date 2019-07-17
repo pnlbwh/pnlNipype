@@ -169,14 +169,17 @@ Before you start QCing your actual data, ask a Research Assistant for a QC tutor
 * Be sure to QC both your T1 and your T2 images (`sample_T2-xc.nii.gz`)
 
 <img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/motion_vs_normal.png" width="70%">
+
 An example of a severe motion artifact (A) compared with a good image (B).
+
 <img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/ghosting.png" width="70%">
 
 An example of ghosting where you can see the back of the skull is shown a second time in the middle of the brain.
 
-Example of ringing. If you look closely at the top of the image you will see ringing forming around the outside of the brain (which has been magnified below)
 
 <img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/ringing.png" width="70%">
+
+Example of ringing. If you look closely at the top of the image you will see ringing forming around the outside of the brain (which has been magnified below)
 
 <img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/ringing_closeup.png" width="70%">
 
@@ -367,18 +370,15 @@ You will want to look through all 73 gradients for a few different things: **mov
 
 
 
-<img src ="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/motion_vs_normal.png" width=70%>
-
-diffusion-imaging.com/2015/11/a-guide-to-quantifying-head-motion-in.html
+<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/motion_vs_normal.png" width=70%>
 
 An example of a severe motion artifact (A) compared with a good image (B).
 
-<img src ="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/ghosting.png" width=70%>
+<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/ghosting.png" width=70%>
+
 An example of ghosting where you can see the back of the skull is shown a second time in the middle of the brain.
 
 <img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/signal_drop.png" width=70%>
-
-journal.frontiersin.org/article/10.3389/fninf.2014.00004/full
 
 An example of a signal drop.
 
