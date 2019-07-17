@@ -101,7 +101,7 @@ The command for axis aligning images is `nifti_align –-axisAlign --center -i <
 
 For your images, enter:
 ```shell
-nifti_align –-axisAlign –-center –i sample_T1.nii.gz –o sample_T1-xc.
+nifti_align –-axisAlign –-center –i sample_T1.nii.gz –o sample_T1-xc
 ```
 
 Next enter:
@@ -332,10 +332,10 @@ To make it so that you don’t have to write the whole file path for everything,
 
 Similarly to how you axis-aligned and centered your structural images, we’ll do the same for our diffusion images. Type:
 ```shell
-nifti_align –axisAlign --center -i sample_dwi.nii.gz -o sample-dwi-xc –bvals sample_dwi.bval –bvecas sample_dwi.bvec.
+nifti_align -–axisAlign --center -i sample_dwi.nii.gz -–bvals sample_dwi.bval -–bvecs sample_dwi.bvec -o sample-dwi-xc 
 ```
 
-Like with the structural portion, you are now done with the versions of the image prior to the axis aligned and centered one so to save space it would now be best to clean these old files. Use the `rm` command to remove `sample-dwi.nii.gz`, `sample-dwi.json`, and the associated, non-xced `.bval` and `.bvec` files.
+Like with the structural portion, you are now done with the versions of the image prior to the axis aligned and centered one so to save space it would now be best to clean these old files. Once you've checked  that sample-dwi-xc.nii.gz has been outputted with `ls`, use the `rm` command to remove the old, non-xced `sample-dwi.nii.gz` as well as `sample-dwi.json`.
 
 Right now you are only doing a single case, but often you will want to do this for many cases.  You can save a lot of time by using a `for`  loop in the shell, so when you eventually find yourself in this situation, ask someone to show you how these work.
 
