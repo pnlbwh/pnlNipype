@@ -368,14 +368,18 @@ You will want to look through all 73 gradients for a few different things: **mov
 
 
 <img src ="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/motion_vs_normal.png" width=70%>
-"http://www.diffusion-imaging.com/2015/11/a-guide-to-quantifying-head-motion-in.html"
+
+diffusion-imaging.com/2015/11/a-guide-to-quantifying-head-motion-in.html
+
 An example of a severe motion artifact (A) compared with a good image (B).
 
 <img src ="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/ghosting.png" width=70%>
 An example of ghosting where you can see the back of the skull is shown a second time in the middle of the brain.
 
 <img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/signal_drop.png" width=70%>
-"http://journal.frontiersin.org/article/10.3389/fninf.2014.00004/full"
+
+journal.frontiersin.org/article/10.3389/fninf.2014.00004/full
+
 An example of a signal drop.
 
 Before turning now to the automated QC tool, check with your PI about how severe these different things need to be to disqualify a case and in the case of dropped signal, check also if you will be getting rid of gradients within a case that have dropped signal or if you will keep them.
