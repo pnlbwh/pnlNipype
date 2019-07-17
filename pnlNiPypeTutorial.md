@@ -191,7 +191,7 @@ First, make sure you are in the `strct` directory in your `PipelineTraining` dir
 
 Next, you need to create a `.csv` file in this TrainingData directory, that points to the training cases and training masks we will use. In this example you can enter:
 ```shell
-cd /rfanfs/pnl-zorro/software/pnlutil/trainingDataT2Masks
+cd /rfanfs/pnl-zorro/software/pnlpipe3/pnlpipe/soft_dir/trainingDataT2Masks-12a14d9/mktrainingcsv.sh
 ```
 
 Once in this directory, enter:
