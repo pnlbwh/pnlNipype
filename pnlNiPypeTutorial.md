@@ -622,7 +622,7 @@ The wm_quality_control_tractography.py script used before can also used here to 
 
 If they are not all in the same directory to start, one way that you can do that without moving or copying all of the .vtk files is to make softlinks for them all, which is basically just a file that when accessed will redirect to the actual file. To do this you use the format:
 ```shell
-ln -s <full path to actual file> <full path to softlink directory>.
+ln -s <full path to actual file> <full path to softlink directory>
 ```
 
 **Extract Measures**
