@@ -428,11 +428,11 @@ pnl_epi Diffusion_b3000/sample-dwi-Ed.nii.gz Diffusion_b3000/sample-dwi-tensor-m
 
 * Going to the drop-down pin in the top left corner of a viewing window and the the double chevrons under that, you will have to change the bottom right box from the baseline to **sample-dti**. Select the rings next to the chevrons to do this for all views.  You will get an image that looks like this:
 
-<img src ="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/dti.png" width=80%>
+<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/dti.png" width=80%>
 
 * Looking at the coronal view (green) scroll to a slice that has a red “U”-shape in the upper middle part of the brain. There are a lot of them, but any will do. This structure is the corpus callosum and it looks like this:
 
-<img src ="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/dti_corpus.png" width=80%>
+<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/dti_corpus.png" width=80%>
 
 
 * Then go to the **Volumes** module and make sure that the **Active Volume** is **sample-dti**.
@@ -441,11 +441,11 @@ pnl_epi Diffusion_b3000/sample-dwi-Ed.nii.gz Diffusion_b3000/sample-dwi-tensor-m
 
 * You should now see this on your screen:
 
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/glyph_corpus.png width=80%>
+<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/glyph_corpus.png" width=80%>
 
 * The area where the corpus callosum was will probably have turned to dark blue, but if it is correct the lines will follow the “u” shape to make a somewhat smooth curve. If it is incorrect, the lines will not follow the “u” shape, but instead might just all be horizontal or even form more of an “n” shape. This can be seen here:
 
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/bad_glyph_corpus.png width=80%>
+<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/bad_glyph_corpus.png" width=80%>
 	  
 * You will also need to check the corpus callosum in the other two views (red and yellow). To do this you simply uncheck **Green** for slice visibility and select the color you want.
 
