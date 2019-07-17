@@ -191,12 +191,12 @@ First, make sure you are in the `strct` directory in your `PipelineTraining` dir
 
 Next, you need to create a `.csv` file in this TrainingData directory, that points to the training cases and training masks we will use. In this example you can enter:
 ```shell
-cd /rfanfs/pnl-zorro/software/pnlpipe3/pnlpipe/soft_dir/trainingDataT2Masks-12a14d9/mktrainingcsv.sh
+cd /rfanfs/pnl-zorro/software/pnlpipe3/pnlpipe/soft_dir/trainingDataT2Masks-12a14d9/
 ```
 
 Once in this directory, enter:
 ```shell
-./mktrainingfiles.sh /rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining/strct/TrainingData
+./mktrainingcsv.sh /rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining/strct/TrainingData
 ```
 This will make a usable file for the masking script in your directory. You should now be able to see that `trainingDataT2Masks.csv` exists in `<yourdirectory>/PipelineTraining/strct/TrainingData`.
 
