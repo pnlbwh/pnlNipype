@@ -319,7 +319,7 @@ Some useful information can be gained just from looking at the FreeSurfer output
 
 In your `PipelineTraining` directory, enter:
 ```shell
-dcm2niix -b y -z y -f sample_dwi -o ./ ./Diffusion_b3000
+dcm2niix -b y -z y -f sample_dwi -o ./Diffusion_b3000 ./Diffusion_b3000
 ```
 
 After a bit of a wait you will get a bunch of text to your screen but you don’t need to worry about that and you will now have a file called `sample-dwi.nii.gz` in your `Diffusion_b3000` directory (along with `sample_dwi.bval`, `sample_dwi.bvec`, and `sample_dwi.json`), which you can see by entering `ls`.
