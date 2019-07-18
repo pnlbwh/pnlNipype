@@ -6,6 +6,7 @@ Before you start this tutorial, here is some helpful advice:
 2. With great power comes great responsibility.
 
 And here are some things to keep in mind as you go through this tutorial
+* The tab key is your best friend. It will autocomplete file names when you are entering them on the command line. If you can't complete the name of the file with tab, it probably doesn't exist. You can also list all the options for ywhat you have already typed if you press tab twice quickly. For example, if you're in your home folder and you typing the command `ls D` and then you hit tab twice, you might see that both `Documents` and `Desktop` appear as options. You should always try to hit tab when you're typing paths to files.
 * These characters "<>" indicate something that you enter yourself, such as `<yourusernamehere>`
 * Whenever you're running a script, you can often type `<nameofscript> -h` or `<nameofscript> --help` to get more information about it. 
 * Don't hit enter unless you're sure what you've typed is correct and that it will do what you want it to do. 
@@ -29,32 +30,34 @@ Before beginning this tutorial, you will need to copy the directory with the sam
 After logging into your account on a lab computer, go to the **Applications** drop-down menu > **System Tools** > **Terminal** to open the Linux terminal
  
 Before we begin, we’ll need to make sure that your bashrc is sourced. Type: 
- ```shell
+ ```
  echo source /rfanfs/pnl-zorro/software/pnlpipe3/bashrc3 >> ~/.bashrc
  source ~/.bashrc
  ```
  
   
 If you don’t already have a directory in the lab’s home directory you will need to make one. Enter:
-```shell
+```
 cd /rfanfs/pnl-zorro/home
 ```
 
 * To make your own directory enter
-  ```shell
+  ```
   mkdir <yourusername>
   ```
     
 Then, enter your directory and make a directory to store all your tutorial files
-```shell
+```
 cd /rfanfs/pnl-zorro/home/<yourusername>
 mkdir PipelineTraining
 ```
 
 To copy the sample case into this PipelineTraining directory, enter:
-```shell
-cp –r /rfanfs/pnl-zorro/Tutorial/Case01183_NiPype/raw/* /rfanfs/pnl-zorro/home/yourdirectory/PipelineTraining
 ```
+cp –r /rfanfs/pnl-zorro/Tutorial/Case01183_NiPype/raw/* /rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining
+```
+
+This may take a while
 
 In your **PipelineTraining** directory you should now find 3 files and 4 directories.  It is the 4 directories (Diffusion_b3000, T1, T2, and Other) that you care about, and you are now ready to begin the pipeline.
 
@@ -70,16 +73,16 @@ Make a new directory in PipelineTraining for structural data processing by going
 Processing a structural image involves processing both T1 and T2 images, which are similar images of the brain, but with differing contrasts.  
 
 We convert structural images from their raw forms (i.e. Dicoms, Bruker) to .nii files, as these are most compatible with our processing pipeline. In order to convert structural dicoms to .nii file, use the command
-```shell
+```
 dcm2niix -b y -z y -f <file name> -o <output directory> <dicom directory>
 ```
 
 Make sure that you are in the PipelineTraining directory and then enter:
-```shell
+```
 dcm2niix -b y -z y -f sample_T1 -o strct/ T1/
 ```
 Once this is completed, enter:
-```shell
+```
 dcm2niix -b y -z y -f sample_T2 -o strct/ T2/
 ```
 The files `sample_T1.nii` and `sample_T2.nii` should now be in your `strct` directory, which you can see if you enter `ls` while in that directory
@@ -100,12 +103,12 @@ The next step in the pipeline centers the images and aligns them on the x-y-z ax
 The command for axis aligning images is `nifti_align –-axisAlign --center -i <input file> -o <output file>`
 
 For your images, enter:
-```shell
+```
 nifti_align –-axisAlign –-center –i sample_T1.nii.gz –o sample_T1-xc
 ```
 
 Next enter:
-```shell
+```
  nifti_align –-axisAlign –-center –i sample_T2.nii.gz –o sample_T2-xc
 ```
 
@@ -117,7 +120,7 @@ Now that you have the axis aligned and centered image, you don’t have any use 
 
 Right now you are only practicing on a single case, but often you will want to axis align and center many cases at once.  You can save a lot of time by using a `for` loop in the shell, so when you eventually find yourself in this situation, ask someone to show you how these work.
 Example for loop:
-```shell
+```
 for i in *.nii.gz; do
   command 1;
   command 2;
@@ -126,18 +129,18 @@ done
 
 **Quality Control (Parameter and Visual)**
 
-After you axis align and center the structural images, you need to check the quality of the images themselves (visual), and the parameters used to acquire the images (parameter). Quality checking every image is crucial to ensure that we are only analyzing good data. Parameters are checked from the image header in the terminal, and the images themselves are checked in `Slicer`.
+After you axis align and center the structural images, you need to check the quality of the images themselves (visual), and the parameters used to acquire the images (parameter). Quality checking every image is crucial to ensure that we are only analyzing good data. Parameters are checked from the image header in the terminal, and the images themselves are checked in **Slicer**.
 
 * **Note:** Whether or not each case passes or fails QC should be recorded in an Excel spread sheet on **LabArchives**.
 
 When checking the image parameters, it is helpful to know what the header should be (ask your PI). We are looking for consistency in the headers between all cases. 
 
 In order to check the image header, use `fslhd`. For your case, enter:
-```shell
+```
 fslhd sample_T1-xc.nii.gz
 ```
 After you have finished checking the T1, you must also check the T2.  For this example, you can enter:
-```shell
+```
 fslhd sample_T2-xc.nii.gz
 ```
 
@@ -156,9 +159,10 @@ In addition to checking the image header, you need to do a visual QC of the imag
 Before you start QCing your actual data, ask a Research Assistant for a QC tutorial! They can teach you what problems to look for in your structural images.
 
 * To open Slicer, enter:
-```shell
-/rfanfs/pnl-zorro/software/Slicer-4.8.1-linux-amd64/Slicer
 ```
+/rfanfs/pnl-zorro/software/Slicer-4.8.1/Slicer &
+```
+The ampersand (&) allows you to open Slicer in a separate window, so that you can continue to use your terminal. If you forget to run Slicer without an ampersand at the end, you can pause it by going back into the terminal and pressing **ctrl+z**, then type `bg` to put it in the background. You can also type **ctrl+shift+t**. Note that it may take a while for Slicer to load.
 
 * To open your sample file go to **File** > **Add Data** > **Choose Files to Add** and then open `sample_T1-xc.nii.gz` in the `/rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining/strct` directory. 
 
@@ -193,18 +197,18 @@ You will create brain masks for your data by using a training data set consistin
 First, make sure you are in the `strct` directory in your `PipelineTraining` directory. Make a new directory called `TrainingData`.
 
 Next, you need to create a `.csv` file in this TrainingData directory, that points to the training cases and training masks we will use. In this example you can enter:
-```shell
+```
 cd /rfanfs/pnl-zorro/software/pnlpipe3/pnlpipe/soft_dir/trainingDataT2Masks-12a14d9/
 ```
 
 Once in this directory, enter:
-```shell
+```
 ./mktrainingcsv.sh /rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining/strct/TrainingData
 ```
 This will make a usable file for the masking script in your directory. You should now be able to see that `trainingDataT2Masks.csv` exists in `<yourdirectory>/PipelineTraining/strct/TrainingData`.
 
 `cd` to your `strct` directory and enter:
-```shell
+```
 nifti_atlas csv /rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining/strct/TrainingData/trainingDataT2Masks.csv –i sample_T2-xc.nii.gz –o sample_T2-mask
 ```
 This command will generate a mask for your T2 image, however it takes several hours to finish running.
@@ -216,7 +220,7 @@ This command will generate a mask for your T2 image, however it takes several ho
 
 [Link to the Manual Here](https://drive.google.com/file/d/0B_CbEBeE5Vr0SEwyS0RNWlJLbWs/view?usp=sharing)
 
-After you run `nifti_atlas`, you need to check the quality of your mask. Open **Slicer** by entering `/rfanfs/pnl-zorro/software/Slicer-4.8.1-linux-amd64/Slicer`.
+After you run `nifti_atlas`, you need to check the quality of your mask. Open **Slicer** by entering `/rfanfs/pnl-zorro/software/Slicer-4.8.1/Slicer`.
 
 Open `sample_T2-mask.nii.gz` in **Slicer**, which should be in your `strct` directory.  Make sure that the **Label Map** option is selected under **Show Options** before opening it. You will also need to open `sample_T2-xc.nii.gz`.
 
@@ -255,11 +259,11 @@ When masking, make sure that you go through every slice on all three viewing win
 <img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/t2mask.png" width="80%">
 
 It might be useful for you to see a full example of a mask. Make sure you are in your PipelineTraining directory, and enter:
-```shell
+```
 cp /rfanfs/pnl-zorro/software/pnlutil/trainingDataT2Masks/01063* ./
 ```
 
-This will copy one of the T2 training masks and its corresponding raw file to your PipelineTraining directory. Enter ``/rfanfs/pnl-zorro/software/Slicer-4.10.1-linux-amd64/Slicer``, and open these files (`01063-t2w-mask.nii.gz` and `01063-t2w.nii.gz`) from your PipelineTraining directory (**Ctrl+o** in **Slicer**). Remember to select **“Labelmap”** for the mask!
+This will copy one of the T2 training masks and its corresponding raw file to your PipelineTraining directory. Enter ``/rfanfs/pnl-zorro/software/Slicer-4.8.1/Slicer``, and open these files (`01063-t2w-mask.nii.gz` and `01063-t2w.nii.gz`) from your PipelineTraining directory (**Ctrl+o** in **Slicer**). Remember to select **“Labelmap”** for the mask!
 
   * Scroll through the mask to get a sense of what is and isn’t brain. It might take awhile to get comfortable, and that’s okay! Remember, you can always ask questions and ask for help. These will always be in your PipelineTraining directory, so if you ever want to look back and refer to some sample masks while you’re working on a project, feel free to do so.
 
@@ -270,7 +274,7 @@ To turn the mask back into a labelmap, go back to the **Segmentations** module. 
 Now that you have a good mask on your T2, you are going to apply that mask to your T1 image and generate an automated label map for white and gray matter parcellation. 
 
 You will now need to complete an additional step so that the T2 mask you just made is aligned in the same way that the T1 is because you are about to register the T2 mask onto the T1 image. When you are in your `strct` directory, enter:
-```shell
+```
 nifti_makeRigidMask -l sample_T2-mask.nii.gz -i sample_T2-xc.nii.gz -t sample_T1-xc.nii.gz -o sample_T1-mask.nii.gz
 ```
 
@@ -280,7 +284,7 @@ nifti_makeRigidMask -l sample_T2-mask.nii.gz -i sample_T2-xc.nii.gz -t sample_T1
   * The `-o` flag is the output mask that will be generated.
 
 There are a lot of settings that FreeSurfer has available for you to adjust what you want to do, but often times in this lab we use a standard set of settings which have been automated in a script called `nifti_fs`. Enter:
-```shell
+```
 nifti_fs –i sample_T1-xc.nii.gz –m sample_T1-mask.nii.gz –o sample_freesurfer
 ```
 This process will take about 12 hours to run to completion for each case.
@@ -288,7 +292,7 @@ This process will take about 12 hours to run to completion for each case.
   * `sample_freesurfer` can also be found in the `Other` directory as part of your `PipelineTraining` directory. Stop **FreeSurfer** from running by entering **Control+c** and you can copy this directory into strct. Just remember to use the `-r` option here since there are many directories and files within this
 
 Once it has completed, you need to quality control your FreeSurfer labelmap. To start that you will need to start by opening it in Slicer. Enter:
-`/rfanfs/pnl-zorro/software/Slicer-4.8.1-linux-amd64/Slicer`to open slicer and then open it going to **File** > **Add Data** > **Choose File** to Add then go to your `sample_freesurfer` directory in strct and then go into `mri` and open `wmparc.mgz`. Before selecting the final **OK** make sure you select **Show Options** and then select **LabelMap**. Also open `brain.mgz`, which can be found in the `sample_freesurfer/mri directory`.
+`/rfanfs/pnl-zorro/software/Slicer-4.8.1/Slicer`to open slicer and then open it going to **File** > **Add Data** > **Choose File** to Add then go to your `sample_freesurfer` directory in strct and then go into `mri` and open `wmparc.mgz`. Before selecting the final **OK** make sure you select **Show Options** and then select **LabelMap**. Also open `brain.mgz`, which can be found in the `sample_freesurfer/mri directory`.
 
 Now in order to actually see your label map transposed on the T1, you need to go to the **Modules** drop-down menu and select **Volumes**. First, make sure the Active Volume is `wmparc`. Then, under the **Volume Information** heading, make sure LabelMap is selected. Last, under the Display heading, for the **Lookup Table** dropdown box, go to **FreeSurfer** > **FreeSurferLabels**. You should end up with something that looks like this:
 
@@ -318,11 +322,11 @@ Some useful information can be gained just from looking at the FreeSurfer output
 **Dicom to Nifti File Conversion**
 
 In your `PipelineTraining` directory, enter:
-```shell
-dcm2niix -b y -z y -f sample_dwi -o ./Diffusion_b3000 ./Diffusion_b3000
+```
+dcm2niix -b y -z y -f sample-dwi -o ./Diffusion_b3000 ./Diffusion_b3000
 ```
 
-After a bit of a wait you will get a bunch of text to your screen but you don’t need to worry about that and you will now have a file called `sample-dwi.nii.gz` in your `Diffusion_b3000` directory (along with `sample_dwi.bval`, `sample_dwi.bvec`, and `sample_dwi.json`), which you can see by entering `ls`.
+After a bit of a wait and some output messages printed on your screen,  and you should now have a file called `sample-dwi.nii.gz` in your `Diffusion_b3000` directory (along with `sample-dwi.bval`, `sample-dwi.bvec`, and `sample-dwi.json`), which you can see by entering `ls`.
 
 A `.bval` file is a text file where the B-value for every gradient is listed in order separated by a space. A `.bvec` file is a text file with the x,y,z vectors of each gradient listed in order separated by a space between directions and a return between gradients. This is information you can get from the file’s header, which you can learn more about below in the **Quality Control (Parameter, Visual, and Auto)** section. 
 
@@ -331,8 +335,8 @@ A `.bval` file is a text file where the B-value for every gradient is listed in 
 To make it so that you don’t have to write the whole file path for everything, make sure you are in the directory with your `.nii.gz` file, which should be `Diffusion_b3000`
 
 Similarly to how you axis-aligned and centered your structural images, we’ll do the same for our diffusion images. Type:
-```shell
-nifti_align -–axisAlign --center -i sample_dwi.nii.gz -–bvals sample_dwi.bval -–bvecs sample_dwi.bvec -o sample-dwi-xc 
+```
+nifti_align -–axisAlign --center -i sample-dwi.nii.gz -–bvals sample-dwi.bval -–bvecs sample-dwi.bvec -o sample-dwi-xc 
 ```
 
 Like with the structural portion, you are now done with the versions of the image prior to the axis aligned and centered one so to save space it would now be best to clean these old files. Once you've checked  that sample-dwi-xc.nii.gz has been outputted with `ls`, use the `rm` command to remove the old, non-xced `sample-dwi.nii.gz` as well as `sample-dwi.json`.
@@ -343,7 +347,7 @@ Right now you are only doing a single case, but often you will want to do this f
 **Quality Control (Parameter, Visual, and Auto)**
 
 You will first need to do a parameter check where you are essentially making sure all of the headers look like they should and that all the cases match each other. Whether or not each case passes the different QC checks should be recorded in an **Excel** spreadsheet on **LabArchives**. There are several fields you will need to look at but first to see the header, make sure you are still in the directory with your new `.nii.gz` files and enter:
-```shell
+```
 fslhd sample-dwi-xc.nii.gz
 ```
 Bear in mind that, unless otherwise specified, the value for each field listed is the value that you should see in this example, but it may vary depending on your project.
@@ -354,7 +358,7 @@ Bear in mind that, unless otherwise specified, the value for each field listed i
 
 * `sto_xy{1,2,3,4}` (space directions and space origins) should be the same between cases. Small deviations in space directions between cases are okay (e.g. .98877350 instead of 1), but a large difference (e.g. 2 instead of 1) is a problem, as is a difference in sign (e.g. -1 instead of 1). Depending on the situation, the space directions of an image may be corrected via upsampling or downsampling the image. Talk to an RA or your PI about this possibility if you encounter it. In this example it should read (-2,0,0,127.5) (0,2,0,-127.5) (0,0,2,-69) (0, 0, 0, 1). If a case has a different space origin, it may mean that this case was not axis aligned and centered.
 
-* If you type `cat sample-dwi-xc.bval`, you can see the b-values from all the gradients. The highest be consistent across all cases, and should be a reasonable value (usually, these tend to be between 2000-3000).
+* If you type `cat sample-dwi-xc.bval`, you can see the b-values from all the gradients. The highest should be consistent across all cases, and should be a reasonable value (usually, these tend to be between 2000-3000).
 
 * If you type `cat sample-dwi-xc.bvec`, you can see the vectors from each gradient. There should be 73 lines and the three numbers (x,y,z vectors) for each gradient should roughly match between cases.  If either there are not all of the gradients or the numbers don’t match in a case, the case is failed.
 
@@ -364,7 +368,9 @@ The other half of the QC is the visual and automatic check where you look at the
 
 To open FSLEyes, type `fsleyes`.
 
-To open your sample file go to **File** > **Add from File** > and then open `sample-dwi-xc.nii.gz` in the `/rfanfs/pnl-zorro/home/yourdirectory/PipelineTraining/Diffusion_b3000` directory. 
+To open your sample file go to **File** > **Add from File** > and then open `sample-dwi-xc.nii.gz` in the `/rfanfs/pnl-zorro/home/yourdirectory/PipelineTraining/Diffusion_b3000` directory.
+
+
 
 You will want to look through all 73 gradients for a few different things: **movement artifacts**, **ghosting**, and **signal drops**.  In your spread sheet from the parameter checks, note any movement artifacts and ghostings along with which gradients show signal drops. To change gradients, scroll over the **Volumes** counter.  Then, look for **DWI Component** on the left under **Display** > **Scalar Display** and you can move through them with the arrows. Look below to see an example of each:
 
@@ -391,7 +397,7 @@ Before turning now to the automated QC tool, check with your PI about how severe
 **Motion and Eddy Current Correction**
 
 Now that you ideally have only the cases and gradients that are usable for further processing (which we’ll say is all of them in this example), you can correct for motion and eddy currents. Make sure you are still in the `Diffusion_b3000 directory` and enter:
-```shell
+```
 pnl_eddy --bvals sample-dwi-xc.bval --bvecs sample-dwi-xc.bvec -i sample-dwi-xc.nii.gz -o sample-dwi-Ed
 ```
 Running this to completion could take some time (about 30 minutes) and you will see it progress through each gradient. After it is done you will have a file called `sample-dwi-Ed.nii.gz` in the directory as well.
@@ -407,13 +413,13 @@ To mask a diffusion image, follow the instructions [here](https://confluence.par
 To further correct for distortions caused by magnet interactions and magnetic inhomogeneity (which leads to intensity loss and voxel shifts), you will now have to run an EPI correction. This is done by co-registering it with the T2 image, which means that you need to have T2 images for the case to do this step and also that you will need to have masked the T2 file (step 5 of the structural pipeline) so that you can use it for this. If T2 images were not taken for the particular case (they were for this example) then you will have to skip this step. 
 
 You first need to skull strip the T2 image using the mask for it and to do this you need to make sure you are in the `strct` directory and then enter:
-```shell
+```
 unu 2op x sample_T2-mask.nii.gz sample_T2-xc.nii.gz -o sample_T2-masked.nii.gz
 ```
 After this `sample_T2-masked.nii.gz` will now be in your `strct` directory as well.
 
 Now out in `PipelineTraining`, enter:
-```shell
+```
 pnl_epi Diffusion_b3000/sample-dwi-Ed.nii.gz Diffusion_b3000/sample-dwi-tensor-mask.nii.gz strct/sample_T2-masked.nii.gz strct/sample_T2-mask.nii.gz Diffusion_b3000/sample-dwi-epi.nii.gz
 ```
 
@@ -423,7 +429,7 @@ pnl_epi Diffusion_b3000/sample-dwi-Ed.nii.gz Diffusion_b3000/sample-dwi-tensor-m
 
 * Even if you know little about how the glyphs should look there is an easy trick that is generally good enough when making this determination. This involves looking at the corpus callosum, which is the most major white matter bundle connecting the two hemispheres.
 
-* Open Slicer using `/rfanfs/pnl-zorro/software/Slicer-4.10.1-linux-amd64/Slicer` and open `sample-dwi-epi.nii.gz`. The first thing you need to do is generate a DTI (Diffusion Tensor Image). This will show the orientation of the fibers in each voxel using color coding (red is left to right, blue is up and down, and green is forward to backward). Under Modules, go to **Diffusion** > **Diffusion Weighted Images** > **DWI to DTI Estimation**.
+* Open Slicer using `/rfanfs/pnl-zorro/software/Slicer-4.8.1/Slicer` and open `sample-dwi-epi.nii.gz`. The first thing you need to do is generate a DTI (Diffusion Tensor Image). This will show the orientation of the fibers in each voxel using color coding (red is left to right, blue is up and down, and green is forward to backward). Under Modules, go to **Diffusion** > **Diffusion Weighted Images** > **DWI to DTI Estimation**.
 
   * For **Input DWI Volume**, select sample-dwi-epi.
   * For **Output DTI Volume**, you can create a new volume as **sample-dti**.
@@ -475,7 +481,7 @@ It is now time to generate a tractography image, which creates images that look 
 In the `Diffusion_b3000` directory, make a new directory called `Tractography/`
 
 The script that make these images works best for b-values (found in the header) where **700 <= b <= 3000**. If your b-value is not in this range, talk to your PI. Our b-value is acceptable for the current example. When you are in the `Diffusion_b3000` directory, enter:
-```shell
+```
 ukf -i sample-dwi-epi.nii.gz --bvals sample-dwi-epi.bval --bvecs sample-dwi-epi.bvecs  -m sample-dwi-tensor-mask.nii.gz -o Tractography/sample-dwi-tracts.vtk --numThreads,8,--recordTensors
 ```
 Be warned that depending on the computing power you are using this process could take anywhere from a few hours to several days.
@@ -505,7 +511,7 @@ To continue on from this point you will need to have both the diffusion and the 
 **FreeSurfer labelmap to dwi-space registration**
 
 The first step of post-processing involves registering the FreeSurfer labelmap that you made to the diffusion image since they don’t have the same resolution and aren’t in the same space. To do this make sure you are in the `PipelineTraining` directory and enter:
-```shell
+```
 nifti_fs2dwi --dwi Diffusion_b3000/sample-dwi-epi.nii.gz --dwimask Diffusion_b3000/sample-dwi-epi-mask.nii.gz -f strct/sample_freesurfer witht2 --t2 strct/sample_T2-masked.nii.gz --t2mask strct/sample_T2-mask.nii.gz -o sample_fs2dwi
 ```
 It will take about 6 hours to run to completion, so type **Ctrl+c**.
@@ -513,7 +519,7 @@ It will take about 6 hours to run to completion, so type **Ctrl+c**.
 Since this takes a long time this is also available to be copied from the `Other` directory. Just be sure use the `-r` option since `sample_fs2dwi` contains lots of directories and files.
 
 Note: If you do not have T2s as part of the case you are working with you will have to use a different version of this command, which will not lead to suboptimal but fine results. Its format is:
-```shell
+```
 nifti_fs2dwi --dwi <dwi_Ed> --dwimask <tensor_mask> -f <freesurfer_directory> -o <output_directory> direct
 ```
 
@@ -530,7 +536,7 @@ To check if the registration is good you scroll through the different views simi
 This step is not a part of the figure on the first page of this tutorial, but it is often a good idea to complete this extra form of quality control. Note that this step makes use of something called Cluster. In order to use the cluster you need an account and a separate mini-tutorial exists to help you set this up if you need it. The purpose of doing this QC is that the tractography you produced contains thousands and thousands of fibers and it is hard to tell from looking at it if the result is reasonable.
 
 Once you have logged into the **Cluster** and chose a free node that you will use for an interactive session by entering:
-```shell
+```
 bsub -Is -XF /bin/bash
 ```
 Note that the `-Is` stands for your interactive session and the `-XF` that you will be using graphical processing resources. If you are not running this on the Cluster using your PNL desktop, but instead No Machine, this is not applicable and you can find the information about that further down the page.
@@ -538,23 +544,23 @@ Note that the `-Is` stands for your interactive session and the `-XF` that you w
 Assuming that you have already created a personal directory for yourself in the **Cluster**, you will need to copy your PipelineTraining directory into that directory in Cluster. 
 
 * First, you will need your workstation's I.P. address. You can get this  by entering:
-```shell
+```
 ip addr
 ```
 Look for a line that looks like the following:
-```shell
+```
 inet 172.23.222.249/24 brd 172.23.222.255 scope global dynamic eno1
 ```
 In this case, the I.P. address `172.23.222.249` (ignore anything after the `/`)
 
 Then, to copy from your workstation to the **Cluster**, you can go to your **Cluster** directory and enter:
-```shell
+```
 scp -pr <yourusername>@<yourcomputer’sI.P.address>:/rfanfs/pnl-zorro/home/<yourname>/PipelineTraining ./
 ```
 After this has completed you should now have your PipelineTraining directory in cluster as well.
 
 Go into the `Diffusion_b3000` directory and enter:
-```shell
+```
 /data/pnl/soft/whitematteranalysis/bin/wm_quality_control_tractography.py Tractography tractQC
 ```
 
@@ -569,7 +575,7 @@ It is also important to note that when running the white matter quality control 
 When using No Machine for this task, since you are not logging into a node, you will also not be accessing the X-serving (by using `-XF`), but this is okay because this is automatically activated in No Machine as long as you are not logged into a node.
 
 You will now want to copy the result of this back onto your local server. Go into your `Diffusion_b3000` directory and enter:
-```shell
+```
 scp -pr tractQC <yourusername>@<yourcomputer’sI.P.address>:/rfanfs/pnl-zorro/home/<yourname>/PipelineTraining/Diffusion_b3000
 ```
 
@@ -578,7 +584,7 @@ You can now leave the **Cluster** by entering `exit` twice. Then go into your ne
 * One paper that is very helpful in determining what to look for is “A diffusion tensor imaging tractography atlas for virtual in vivo dissections” (Catani & Thiebaut de Schotten, 2008) so give it a look.
 
 Then to do a data QC, make sure you are still in the `tractQC` directory and enter:
-```shell
+```
 oocalc quality_control_fibers.txt
 ```
 A window will pop up and you can just select **OK**.
@@ -592,11 +598,11 @@ Talk with your PI in the case where any case fails any of the QCs.
 At this time you will use white matter query language to put the FreeSurfer output in the same space as the tractography by using Demian’s method to automatically select fibers connecting specific regions from the whole brain tractography.
 
 Something that would be good to do before you actually run the script is to have a look at the query files that you will have to use to reference the area you are interested in looking at. To do this go to `/projects/schiz/software/LabPython/tract_querier/queries`. Once here, enter:
-```shell
+```
 gedit FreeSurfer.qry
 ```
 and a window should pop up. Don’t change anything in this window but you’ll notice that it contains the names of all of the different brain regions followed by the number code given to them in the FreeSurfer output. When looking at a FreeSurfer labelmap, when you put your mouse over a color-coded brain region this is the number that pops up in the bottom left hand corner of the screen along with the brain region abbreviation.  If you exit out of this you can also enter:
-```shell
+```
 gedit freesurfer_queries_new.qry
 ```
 and this defines individual tracts.
@@ -604,7 +610,7 @@ and this defines individual tracts.
 Now go back to your PipelineTraining directory and make a new directory called **wmql**.
 
 Now enter:
-```shell
+```
 nifti_wmql -f sample_fs2dwi/wmparc-in-bse.nii.gz -i Diffusion_b3000/Tractography/sample-dwi-tracts.vtk  -q /rfanfs/pnl-zorro/software/pnlutil/pipeline/wmql-2.0.qry -o ./wmql sample
 ```
 
@@ -621,7 +627,7 @@ The region you are looking at with the tracts is the left arcuate fasciculus. Wh
 The wm_quality_control_tractography.py script used before can also used here to do the same thing with individual tracts as long as all of the .vtk files for that tract are in the same directory.
 
 If they are not all in the same directory to start, one way that you can do that without moving or copying all of the .vtk files is to make softlinks for them all, which is basically just a file that when accessed will redirect to the actual file. To do this you use the format:
-```shell
+```
 ln -s <full path to actual file> <full path to softlink directory>
 ```
 
@@ -630,13 +636,13 @@ ln -s <full path to actual file> <full path to softlink directory>
 For the final step of the pipeline you need to now extract all of the measures you want from the images. There are two ways to do this:
 
 * Way 1: Go into your `wmql/` directory. Let’s say we are still interested in the left AF. Enter:
-```shell
+```
 measureTracts.py -i sample_af.left.vtk -o sample_af.left.csv
 ```
   * This will create a file called `sample_af.left.csv` in that directory as well.
 
   * You can open this file by entering:
-	```shell
+	```
 	oocalc sample_af.left.csv
 	```
 
