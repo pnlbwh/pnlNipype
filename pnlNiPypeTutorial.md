@@ -424,7 +424,7 @@ After this `sample_T2-masked.nii.gz` will now be in your `strct` directory as we
 
 Now out in `PipelineTraining`, enter:
 ```
-pnl_epi Diffusion_b3000/sample-dwi-Ed.nii.gz Diffusion_b3000/sample-dwi-tensor-mask.nii.gz strct/sample_T2-masked.nii.gz strct/sample_T2-mask.nii.gz Diffusion_b3000/sample-dwi-epi.nii.gz
+pnl_epi --dwi Diffusion_b3000/sample-dwi-Ed.nii.gz --dwimask Diffusion_b3000/sample-dwi-tensor-mask.nii.gz --t2 strct/sample_T2-masked.nii.gz --t2mask strct/sample_T2-mask.nii.gz -o Diffusion_b3000/sample-dwi-epi.nii.gz
 ```
 
 * Since this takes a long time this is also available to be copied from the `Other` directory. Just be sure to copy both the `.nii.gz` and `.raw.gz` files for `sample-dwi-epi`
