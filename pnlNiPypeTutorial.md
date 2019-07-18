@@ -410,7 +410,7 @@ Since this takes a long time, it is also available to be copied from the `Other`
 
 **Tensor Mask**
 
-To mask a diffusion image, follow the instructions [here](https://confluence.partners.org/pages/viewpage.action?spaceKey=PNL&title=Segment+Editor+Diffusion+Masking) to mask `sample-dwi-Ed.nii.gz` (in the `Diffusion_b3000` directory)
+To mask a diffusion image, follow the instructions [here](https://confluence.partners.org/pages/viewpage.action?spaceKey=PNL&title=Segment+Editor+Diffusion+Masking) to mask `sample-dwi-Ed.nii.gz` (in the `Diffusion_b3000` directory). Be sure to save the output mask into your `Diffusion_b3000` directory as `sample-dwi-tensor-mask.nii.gz`.
 
 **EPI correction**
 
@@ -670,4 +670,18 @@ You would normally compare different measures between cases much like you did be
 
 At this point you are ready to go into any statistical analysis that the project may require.
 
-Congratulations! You have made it through the tutorial. 
+Congratulations! You have made it through the tutorial!! You should now tar/zip your PipelineTraining to save space. You can do that with the following command:
+```
+tar -zcvf archive-name.tar.gz directory-name
+```
+
+Where,
+
+-z : Compress archive using gzip program in Linux or Unix
+-c : Create archive on Linux
+-v : Verbose i.e display progress while creating archive
+-f : Archive File name
+
+
+
+
