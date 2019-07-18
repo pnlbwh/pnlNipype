@@ -1,11 +1,13 @@
 This manual goes step by step through the processes involved in the PNL’s core image-processing pipeline with .nii. The goal of this tutorial is to teach new lab members and students the steps of the semi-automated, standardized processing pipeline seen below.
 
 **Important notes**
+
 Before you start this tutorial, here is some helpful advice:
 1. Think before you type.
 2. With great power comes great responsibility.
 
-And here are some things to keep in mind as you go through this tutorial
+And here are some things to keep in mind as you go through this tutorial:
+
 * The tab key is your best friend. It will autocomplete file names when you are entering them on the command line. If you can't complete the name of the file with tab, it probably doesn't exist. You can also list all the options for ywhat you have already typed if you press tab twice quickly. For example, if you're in your home folder and you typing the command `ls D` and then you hit tab twice, you might see that both `Documents` and `Desktop` appear as options. You should always try to hit tab when you're typing paths to files.
 * These characters "<>" indicate something that you enter yourself, such as `<yourusernamehere>`
 * Whenever you're running a script, you can often type `<nameofscript> -h` or `<nameofscript> --help` to get more information about it. 
@@ -416,7 +418,7 @@ To further correct for distortions caused by magnet interactions and magnetic in
 
 You first need to skull strip the T2 image using the mask for it and to do this you need to make sure you are in the `strct` directory and then enter:
 ```
-unu 2op x sample_T2-mask.nii.gz sample_T2-xc.nii.gz -o sample_T2-masked.nii.gz
+fslmaths sample_T2-mask.nii.gz -mul sample_T2-xc.nii.gz sample_T2-masked.nii.gz
 ```
 After this `sample_T2-masked.nii.gz` will now be in your `strct` directory as well.
 
@@ -667,3 +669,5 @@ Way 2 will not give you AD and RD, but it will give you FW and other measures as
 You would normally compare different measures between cases much like you did before to see if there are any extremely low values that are possibly incorrect but obviously that is not possible with only 1 case in this example. Generally, any outliers in any field should be noted.
 
 At this point you are ready to go into any statistical analysis that the project may require.
+
+Congratulations! You have made it through the tutorial. 
