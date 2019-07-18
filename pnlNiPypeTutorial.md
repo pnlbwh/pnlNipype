@@ -87,11 +87,11 @@ Once this is completed, enter:
 ```
 dcm2niix -b y -z y -f sample-T2 -o strct/ T2/
 ```
-The files `sample_T1.nii.gz` and `sample-T2.nii.gz` should now be in your `strct` directory, which you can see if you enter `ls` while in that directory
+The files `sample-T1.nii.gz` and `sample-T2.nii.gz` should now be in your `strct` directory, which you can see if you enter `ls` while in that directory
 
  * **Note:** `dcm2niix` can also be used to convert to `nrrd` files.
 
-  * If you want to convert to a `nrrd` (specifically, an `.nhdr` and a `.raw.gz` file), use the `-e` flag. For example, `dcm2niix -b y -z y -e y -f sample_T1 -o strct/ T1/`.
+  * If you want to convert to a `nrrd` (specifically, an `.nhdr` and a `.raw.gz` file), use the `-e` flag. For example, `dcm2niix -b y -z y -e y -f sample-T1 -o strct/ T1/`.
 
 •	In order to save space on the system, best practice is to zip the DICOM directory after you have converted it. To do this enter:
 `tar -cf <DICOM directory.tar>  <DICOM directory>`. If you ever want to use the files again you can simply unzip the files by entering `tar -xvf <.tar file>`.
@@ -106,7 +106,7 @@ The command for axis aligning images is `nifti_align –-axisAlign --center -i <
 
 For your images, enter:
 ```
-nifti_align –-axisAlign –-center –i sample_T1.nii.gz –o sample_T1-xc
+nifti_align –-axisAlign –-center –i sample-T1.nii.gz –o sample-T1-xc
 ```
 
 Next enter:
@@ -114,7 +114,7 @@ Next enter:
  nifti_align –-axisAlign –-center –i sample-T2.nii.gz –o sample-T2-xc
 ```
 
-The files `sample_T1-xc.nii.gz` and `sample-T2-xc.nii.gz` will now be in that directory as well, and will be axis aligned and centered.
+The files `sample-T1-xc.nii.gz` and `sample-T2-xc.nii.gz` will now be in that directory as well, and will be axis aligned and centered.
 
 Now that you have the axis aligned and centered image, you don’t have any use for older versions of the files. To remove some unnecessary files, enter `rm *.json` in the strct directory. This removes an artifact of the conversion from `DICOM` to `nii.gz`.
 
@@ -139,7 +139,7 @@ When checking the image parameters, it is helpful to know what the header should
 
 In order to check the image header, use `fslhd`. For your case, enter:
 ```
-fslhd sample_T1-xc.nii.gz
+fslhd sample-T1-xc.nii.gz
 ```
 After you have finished checking the T1, you must also check the T2.  For this example, you can enter:
 ```
@@ -168,7 +168,7 @@ The ampersand (&) allows you to open Slicer in a separate window, so that you ca
 
 Note that it may take a while for Slicer to load.
 
-* To open your sample file go to **File** > **Add Data** > **Choose Files to Add** and then open `sample_T1-xc.nii.gz` in the `/rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining/strct` directory. 
+* To open your sample file go to **File** > **Add Data** > **Choose Files to Add** and then open `sample-T1-xc.nii.gz` in the `/rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining/strct` directory. 
 
 * Now that you have the file open, you will want to turn off the interpolation that Slicer automatically does. To do this go to the colored bar of one of the viewing windows and hover over the tack icon. On the bar that drops down, click the rings, which are next to the double chevrons. This will make any changes happen in all of the windows. Then click the double chevrons to get the rest of the menu and click on the button in the bottom row called **Interpolate background** next to the bar containing the filename. This will make the image look more pixelated, but we want interpolation off because it can hide some of the artifacts you are looking for.
 
@@ -279,7 +279,7 @@ Now that you have a good mask on your T2, you are going to apply that mask to yo
 
 You will now need to complete an additional step so that the T2 mask you just made is aligned in the same way that the T1 is because you are about to register the T2 mask onto the T1 image. When you are in your `strct` directory, enter:
 ```
-nifti_makeRigidMask -l sample-T2-mask.nii.gz -i sample-T2-xc.nii.gz -t sample_T1-xc.nii.gz -o sample_T1-mask.nii.gz
+nifti_makeRigidMask -l sample-T2-mask.nii.gz -i sample-T2-xc.nii.gz -t sample-T1-xc.nii.gz -o sample-T1-mask.nii.gz
 ```
 
   * The `-l` flag is the labelmap that you’re moving to another image.
@@ -289,7 +289,7 @@ nifti_makeRigidMask -l sample-T2-mask.nii.gz -i sample-T2-xc.nii.gz -t sample_T1
 
 There are a lot of settings that FreeSurfer has available for you to adjust what you want to do, but often times in this lab we use a standard set of settings which have been automated in a script called `nifti_fs`. Enter:
 ```
-nifti_fs –i sample_T1-xc.nii.gz –m sample_T1-mask.nii.gz –o sample_freesurfer
+nifti_fs –i sample-T1-xc.nii.gz –m sample-T1-mask.nii.gz –o sample_freesurfer
 ```
 This process will take about 12 hours to run to completion for each case.
 
