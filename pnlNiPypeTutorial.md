@@ -162,7 +162,9 @@ Before you start QCing your actual data, ask a Research Assistant for a QC tutor
 ```
 /rfanfs/pnl-zorro/software/Slicer-4.8.1/Slicer &
 ```
-The ampersand (&) allows you to open Slicer in a separate window, so that you can continue to use your terminal. If you forget to run Slicer without an ampersand at the end, you can pause it by going back into the terminal and pressing **ctrl+z**, then type `bg` to put it in the background. You can also type **ctrl+shift+t**. Note that it may take a while for Slicer to load.
+The ampersand (&) allows you to open Slicer in a separate window, so that you can continue to use your terminal. If you forget to run Slicer without an ampersand at the end, you can pause it by going back into the terminal and pressing **ctrl+z**, then type `bg` to put it in the background. If you want to kill any process running in the background like this, you will need to bring it back into the foreground with `fg`, and then you can type **ctrl+c** as usual. You can also type **ctrl+shift+t** to open a new tab if you don't want to deal with background/foreground issues.
+
+Note that it may take a while for Slicer to load.
 
 * To open your sample file go to **File** > **Add Data** > **Choose Files to Add** and then open `sample_T1-xc.nii.gz` in the `/rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining/strct` directory. 
 
@@ -366,13 +368,13 @@ Bear in mind that, unless otherwise specified, the value for each field listed i
 
 The other half of the QC is the visual and automatic check where you look at the images on FSLEyes.
 
-To open FSLEyes, type `fsleyes`.
+To open FSLEyes, type `fsleyes &`.
 
 To open your sample file go to **File** > **Add from File** > and then open `sample-dwi-xc.nii.gz` in the `/rfanfs/pnl-zorro/home/yourdirectory/PipelineTraining/Diffusion_b3000` directory.
 
+You can scroll through each view by clicking and dragging in the window with the left mouse button. The sliders at the top next to brightness and contrast will allow you to adjust how the picture looks. To scroll through the gradient directions, there will be a box labeled **Volume** near the bottom of the screen. You can use your scroll wheel while hovering over this box, click on the up and down arrows, or type in a desired number to go through each gradient. You will probably have to adjust the brightness/contrast for some of these. Have an RA go through a QC tutorial with you to learn more about QCing diffusion scan.
 
-
-You will want to look through all 73 gradients for a few different things: **movement artifacts**, **ghosting**, and **signal drops**.  In your spread sheet from the parameter checks, note any movement artifacts and ghostings along with which gradients show signal drops. To change gradients, scroll over the **Volumes** counter.  Then, look for **DWI Component** on the left under **Display** > **Scalar Display** and you can move through them with the arrows. Look below to see an example of each:
+For now, you will want to look through all 73 gradients for a few different things: **movement artifacts**, **ghosting**, and **signal drops**.  In your spreadsheet from the parameter checks, note any movement artifacts and ghostings along with which gradients show signal drops. To change gradients, scroll over the **Volumes** counter.  Then, look for **DWI Component** on the left under **Display** > **Scalar Display** and you can move through them with the arrows. Look below to see an example of each:
 
 
 
