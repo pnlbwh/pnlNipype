@@ -87,11 +87,11 @@ Once this is completed, enter:
 ```
 dcm2niix -b y -z y -f sample_T2 -o strct/ T2/
 ```
-The files `sample_T1.nii` and `sample_T2.nii` should now be in your `strct` directory, which you can see if you enter `ls` while in that directory
+The files `sample_T1.nii.gz` and `sample_T2.nii.gz` should now be in your `strct` directory, which you can see if you enter `ls` while in that directory
 
  * **Note:** `dcm2niix` can also be used to convert to `nrrd` files.
 
-  * If you want to convert to a `nrrd` (specifically, an `nii.gz` and a `raw.gz` file), use the `-e` flag. For example, `dcm2niix -b y -z y -e y -f sample_T1 -o strct/ T1/`.
+  * If you want to convert to a `nrrd` (specifically, an `.nhdr` and a `.raw.gz` file), use the `-e` flag. For example, `dcm2niix -b y -z y -e y -f sample_T1 -o strct/ T1/`.
 
 •	In order to save space on the system, best practice is to zip the DICOM directory after you have converted it. To do this enter:
 `tar -cf <DICOM directory.tar>  <DICOM directory>`. If you ever want to use the files again you can simply unzip the files by entering `tar -xvf <.tar file>`.
@@ -406,7 +406,7 @@ pnl_eddy --bvals sample-dwi-xc.bval --bvecs sample-dwi-xc.bvec -i sample-dwi-xc.
 ```
 Running this to completion could take some time (about 30 minutes) and you will see it progress through each gradient. After it is done you will have a file called `sample-dwi-Ed.nii.gz` in the directory as well.
 
-Since this takes a long time, it is also available to be copied from the `Other` directory, into your `Diffusion_b3000` directory.
+Since this takes a long time, it is also available to be copied from the `Other` directory into your `Diffusion_b3000` directory. You will also need to copy `sample-dwi-Ed.bval` and `sample-dwi-Ed.bvec` along with `sample-dwi-Ed.nii.gz`.
 
 **Tensor Mask**
 
@@ -427,7 +427,7 @@ Now out in `PipelineTraining`, enter:
 pnl_epi --dwi Diffusion_b3000/sample-dwi-Ed.nii.gz --dwimask Diffusion_b3000/sample-dwi-tensor-mask.nii.gz --t2 strct/sample_T2-masked.nii.gz --t2mask strct/sample_T2-mask.nii.gz -o Diffusion_b3000/sample-dwi-epi.nii.gz
 ```
 
-* Since this takes a long time this is also available to be copied from the `Other` directory. Just be sure to copy both the `.nii.gz` and `.raw.gz` files for `sample-dwi-epi`
+* Since this takes a long time this is also available to be copied from the `Other` directory and will be called `sample-dwi-epi.nii.gz`.
 
 * If this is the first case that you are doing in a data set, and for this tutorial we can pretend that it is, you should check the glyphs of the case’s DTI because sometimes they are incorrect, which will lead to the tractography being incorrect as well.
 
@@ -672,16 +672,5 @@ At this point you are ready to go into any statistical analysis that the project
 
 Congratulations! You have made it through the tutorial!! You should now tar/zip your PipelineTraining to save space. You can do that with the following command:
 ```
-tar -zcvf archive-name.tar.gz directory-name
+tar -zcvf /rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining.tar.gz /rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining
 ```
-
-Where,
-
--z : Compress archive using gzip program in Linux or Unix
--c : Create archive on Linux
--v : Verbose i.e display progress while creating archive
--f : Archive File name
-
-
-
-
