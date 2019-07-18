@@ -81,13 +81,13 @@ dcm2niix -b y -z y -f <file name> -o <output directory> <dicom directory>
 
 Make sure that you are in the PipelineTraining directory and then enter:
 ```
-dcm2niix -b y -z y -f sample_T1 -o strct/ T1/
+dcm2niix -b y -z y -f sample-T1 -o strct/ T1/
 ```
 Once this is completed, enter:
 ```
-dcm2niix -b y -z y -f sample_T2 -o strct/ T2/
+dcm2niix -b y -z y -f sample-T2 -o strct/ T2/
 ```
-The files `sample_T1.nii.gz` and `sample_T2.nii.gz` should now be in your `strct` directory, which you can see if you enter `ls` while in that directory
+The files `sample_T1.nii.gz` and `sample-T2.nii.gz` should now be in your `strct` directory, which you can see if you enter `ls` while in that directory
 
  * **Note:** `dcm2niix` can also be used to convert to `nrrd` files.
 
@@ -111,10 +111,10 @@ nifti_align –-axisAlign –-center –i sample_T1.nii.gz –o sample_T1-xc
 
 Next enter:
 ```
- nifti_align –-axisAlign –-center –i sample_T2.nii.gz –o sample_T2-xc
+ nifti_align –-axisAlign –-center –i sample-T2.nii.gz –o sample-T2-xc
 ```
 
-The files `sample_T1-xc.nii.gz` and `sample_T2-xc.nii.gz` will now be in that directory as well, and will be axis aligned and centered.
+The files `sample_T1-xc.nii.gz` and `sample-T2-xc.nii.gz` will now be in that directory as well, and will be axis aligned and centered.
 
 Now that you have the axis aligned and centered image, you don’t have any use for older versions of the files. To remove some unnecessary files, enter `rm *.json` in the strct directory. This removes an artifact of the conversion from `DICOM` to `nii.gz`.
 
@@ -143,7 +143,7 @@ fslhd sample_T1-xc.nii.gz
 ```
 After you have finished checking the T1, you must also check the T2.  For this example, you can enter:
 ```
-fslhd sample_T2-xc.nii.gz
+fslhd sample-T2-xc.nii.gz
 ```
 
 There are several fields that you will need to check in the image header. Bear in mind that, unless otherwise specified, the value for each field listed is the value that you should see in this example, but it may vary depending on your project. 
@@ -174,7 +174,7 @@ Note that it may take a while for Slicer to load.
 
 * You will want to examine your images for various potential artifacts and issues, e.g. **motion artifacts**, **ringing**, **ghosting of the skull or eyeballs**, **cut-offs and other artifacts**. If you see any of these problems in the scan, note it in your QC spreadsheet. Be sure to also check with your PI about what qualifies as a failed scan for your dataset.
 
-* Be sure to QC both your T1 and your T2 images (`sample_T2-xc.nii.gz`)
+* Be sure to QC both your T1 and your T2 images (`sample-T2-xc.nii.gz`)
 
 <img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/motion_vs_normal.png" width="70%">
 
@@ -213,11 +213,11 @@ This will make a usable file for the masking script in your directory. You shoul
 
 `cd` to your `strct` directory and enter:
 ```
-nifti_atlas csv /rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining/strct/TrainingData/trainingDataT2Masks.csv –i sample_T2-xc.nii.gz –o sample_T2-mask
+nifti_atlas csv /rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining/strct/TrainingData/trainingDataT2Masks.csv –i sample-T2-xc.nii.gz –o sample-T2-mask
 ```
 This command will generate a mask for your T2 image, however it takes several hours to finish running.
 
-* Because `nifti_atlas` takes so long to run, we have saved you the trouble of having to wait for the script to finish on your data. Instead, you can find an already generated sample T2 mask for your data in the `Other` directory in `PipelineTraining`. The file is called `sample_T2-mask.nii.gz` and has an accompanying raw file.
+* Because `nifti_atlas` takes so long to run, we have saved you the trouble of having to wait for the script to finish on your data. Instead, you can find an already generated sample T2 mask for your data in the `Other` directory in `PipelineTraining`. The file is called `sample-T2-mask.nii.gz` and has an accompanying raw file.
 * Now you can enter control+c into the terminal to stop the `nifti_atlas` script, and you can copy the mask file into your `strct` directory for use in further processing.
 
 •	In addition to the brief overview of masking laid out below, there is also a manual dedicated just to masking that you can take a look at. It is a little outdated because it uses an older version of 3D Slicer, but the main part about how to edit structural masks effectively continues to be relevant. You should pay particular attention to the section “Initial Editing” through “Reviewing the Mask”. You don’t have to do it how the maker of the manual does it exactly, but she offers many helpful pieces of advice:
@@ -226,11 +226,11 @@ This command will generate a mask for your T2 image, however it takes several ho
 
 After you run `nifti_atlas`, you need to check the quality of your mask. Open **Slicer** by entering `/rfanfs/pnl-zorro/software/Slicer-4.8.1/Slicer`.
 
-Open `sample_T2-mask.nii.gz` in **Slicer**, which should be in your `strct` directory.  Make sure that the **Label Map** option is selected under **Show Options** before opening it. You will also need to open `sample_T2-xc.nii.gz`.
+Open `sample-T2-mask.nii.gz` in **Slicer**, which should be in your `strct` directory.  Make sure that the **Label Map** option is selected under **Show Options** before opening it. You will also need to open `sample-T2-xc.nii.gz`.
 
 You’ll need to convert the mask to a segmentation. Go to the “Segmentations” module, and go to “Export/import models and labelmaps.” Make sure “Import” and “Labelmap” are highlighted, and that your mask is the “Input node.” Click **Import**.
 
-Switch to the **“Segment Editor”** module. Click on the “Sample_T2-mask”, and make sure the segmentation is “mask” and the master volume is “sample_T2-xc”. 
+Switch to the **“Segment Editor”** module. Click on the “Sample_T2-mask”, and make sure the segmentation is “mask” and the master volume is “sample-T2-xc”. 
 
 Because they use training data to make the masks, structural masks often do not need a lot or any editing. You should mainly edit large chunk of brain that are missing or large areas that are labeled that are not brain. Since it would be near impossible to be consistent, do not worry about editing single voxels around the edge of the brain. Sometimes this can be more harmful than beneficial, but on this example brain there are a few places that could use editing.
 
@@ -279,7 +279,7 @@ Now that you have a good mask on your T2, you are going to apply that mask to yo
 
 You will now need to complete an additional step so that the T2 mask you just made is aligned in the same way that the T1 is because you are about to register the T2 mask onto the T1 image. When you are in your `strct` directory, enter:
 ```
-nifti_makeRigidMask -l sample_T2-mask.nii.gz -i sample_T2-xc.nii.gz -t sample_T1-xc.nii.gz -o sample_T1-mask.nii.gz
+nifti_makeRigidMask -l sample-T2-mask.nii.gz -i sample-T2-xc.nii.gz -t sample_T1-xc.nii.gz -o sample_T1-mask.nii.gz
 ```
 
   * The `-l` flag is the labelmap that you’re moving to another image.
@@ -418,13 +418,13 @@ To further correct for distortions caused by magnet interactions and magnetic in
 
 You first need to skull strip the T2 image using the mask for it and to do this you need to make sure you are in the `strct` directory and then enter:
 ```
-fslmaths sample_T2-mask.nii.gz -mul sample_T2-xc.nii.gz sample_T2-masked.nii.gz
+fslmaths sample-T2-mask.nii.gz -mul sample-T2-xc.nii.gz sample-T2-masked.nii.gz
 ```
-After this `sample_T2-masked.nii.gz` will now be in your `strct` directory as well.
+After this `sample-T2-masked.nii.gz` will now be in your `strct` directory as well.
 
 Now out in `PipelineTraining`, enter:
 ```
-pnl_epi --dwi Diffusion_b3000/sample-dwi-Ed.nii.gz --dwimask Diffusion_b3000/sample-dwi-tensor-mask.nii.gz --t2 strct/sample_T2-masked.nii.gz --t2mask strct/sample_T2-mask.nii.gz -o Diffusion_b3000/sample-dwi-epi.nii.gz
+pnl_epi --dwi Diffusion_b3000/sample-dwi-Ed.nii.gz --dwimask Diffusion_b3000/sample-dwi-tensor-mask.nii.gz --t2 strct/sample-T2-masked.nii.gz --t2mask strct/sample-T2-mask.nii.gz -o Diffusion_b3000/sample-dwi-epi.nii.gz
 ```
 
 * Since this takes a long time this is also available to be copied from the `Other` directory and will be called `sample-dwi-epi.nii.gz`.
@@ -516,7 +516,7 @@ To continue on from this point you will need to have both the diffusion and the 
 
 The first step of post-processing involves registering the FreeSurfer labelmap that you made to the diffusion image since they don’t have the same resolution and aren’t in the same space. To do this make sure you are in the `PipelineTraining` directory and enter:
 ```
-nifti_fs2dwi --dwi Diffusion_b3000/sample-dwi-epi.nii.gz --dwimask Diffusion_b3000/sample-dwi-epi-mask.nii.gz -f strct/sample_freesurfer witht2 --t2 strct/sample_T2-masked.nii.gz --t2mask strct/sample_T2-mask.nii.gz -o sample_fs2dwi
+nifti_fs2dwi --dwi Diffusion_b3000/sample-dwi-epi.nii.gz --dwimask Diffusion_b3000/sample-dwi-epi-mask.nii.gz -f strct/sample_freesurfer witht2 --t2 strct/sample-T2-masked.nii.gz --t2mask strct/sample-T2-mask.nii.gz -o sample_fs2dwi
 ```
 It will take about 6 hours to run to completion, so type **Ctrl+c**.
 
