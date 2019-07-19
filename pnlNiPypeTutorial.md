@@ -427,20 +427,19 @@ Now out in `PipelineTraining`, enter:
 pnl_epi --dwi Diffusion_b3000/sample-dwi-Ed.nii.gz --dwimask Diffusion_b3000/sample-dwi-tensor-mask.nii.gz --t2 strct/sample-T2-masked.nii.gz --t2mask strct/sample-T2-mask.nii.gz -o Diffusion_b3000/sample-dwi-epi.nii.gz
 ```
 
-* Since this takes a long time this is also available to be copied from the `Other` directory and will be called `sample-dwi-epi.nii.gz`.
+* Since this takes a long time, `sample-dwi-epi.nii.gz` is also available to be copied from the `Other` directory into your `Diffusion_b3000` directory.
 
 * If this is the first case that you are doing in a data set, and for this tutorial we can pretend that it is, you should check the glyphs of the case’s DTI because sometimes they are incorrect, which will lead to the tractography being incorrect as well.
 
 * Even if you know little about how the glyphs should look there is an easy trick that is generally good enough when making this determination. This involves looking at the corpus callosum, which is the most major white matter bundle connecting the two hemispheres.
 
-* Open Slicer using `/rfanfs/pnl-zorro/software/Slicer-4.8.1/Slicer` and open `sample-dwi-epi.nii.gz`. The first thing you need to do is generate a DTI (Diffusion Tensor Image). This will show the orientation of the fibers in each voxel using color coding (red is left to right, blue is up and down, and green is forward to backward). Under Modules, go to **Diffusion** > **Diffusion Weighted Images** > **DWI to DTI Estimation**.
+First, `cd` into you `Diffusion_b3000` directory. Then run the folliwng command to generate a DTI (Diffusion Tensor Image). This will show the orientation of the fibers in each voxel using color coding (red is left to right, blue is up and down, and green is forward to backward).
 
-  * For **Input DWI Volume**, select sample-dwi-epi.
-  * For **Output DTI Volume**, you can create a new volume as **sample-dti**.
-  * For **Output Baseline Volume** you can create a new volume as **baseline**.
-  * Select **Apply**.
+```
+dtifit --data sample-dwi-epi.nii.gz --mask sample-dwi-tensor-mask.nii.gz --bvecs sample-dwi-Ed.bvec --bvals sample-dwi-Ed.bval --out sample-dti.nii.gz
+```
 
-* Going to the drop-down pin in the top left corner of a viewing window and the the double chevrons under that, you will have to change the bottom right box from the baseline to **sample-dti**. Select the rings next to the chevrons to do this for all views.  You will get an image that looks like this:
+You will get an image that looks like this:
 
 <img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/dti.png" width=80%>
 
