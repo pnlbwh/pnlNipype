@@ -439,6 +439,8 @@ First, `cd` into you `Diffusion_b3000` directory. Then run the folliwng command 
 dtifit -k sample-dwi-epi.nii.gz -m sample-dwi-tensor-mask.nii.gz -r sample-dwi-Ed.bvec -b sample-dwi-Ed.bval -o sample-dti.nii.gz
 ```
 
+You should now open the output `sample-dti_V1.nii.gz` in `fsleyes`.
+
 You will get an image that looks like this:
 
 <img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/dti.png" width=80%>
