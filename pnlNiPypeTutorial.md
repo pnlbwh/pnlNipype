@@ -436,7 +436,7 @@ pnl_epi --dwi Diffusion_b3000/sample-dwi-Ed.nii.gz --dwimask Diffusion_b3000/sam
 First, `cd` into you `Diffusion_b3000` directory. Then run the folliwng command to generate a DTI (Diffusion Tensor Image). This will show the orientation of the fibers in each voxel using color coding (red is left to right, blue is up and down, and green is forward to backward).
 
 ```
-dtifit --data sample-dwi-epi.nii.gz --mask sample-dwi-tensor-mask.nii.gz --bvecs sample-dwi-Ed.bvec --bvals sample-dwi-Ed.bval --out sample-dti.nii.gz
+dtifit -k sample-dwi-epi.nii.gz -m sample-dwi-tensor-mask.nii.gz -r sample-dwi-Ed.bvec -b sample-dwi-Ed.bval -o sample-dti.nii.gz
 ```
 
 You will get an image that looks like this:
