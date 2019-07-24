@@ -213,7 +213,7 @@ This will make a usable file for the masking script in your directory. You shoul
 
 `cd` to your `strct` directory and enter:
 ```
-nifti_atlas csv /rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining/strct/TrainingData/trainingDataT2Masks.csv –i sample-T2-xc.nii.gz –o sample-T2-mask
+nifti_atlas csv /rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining/strct/TrainingData/trainingDataT2Masks-hdr.csv –t sample-T2-xc.nii.gz –o sample-T2-mask
 ```
 This command will generate a mask for your T2 image, however it takes several hours to finish running.
 
