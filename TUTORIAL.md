@@ -792,8 +792,8 @@ The script that does the above is:
 
 Example usage:
 
-    ./fs2dwi.py --dwi dwiNifti --dwimask dwiMaskNifti -f fsSubDir direct
-    ./fs2dwi.py --dwi dwiNifti --dwimask dwiMaskNifti -f fsSubDir witht2 --t2 t2Nifti --t2mask t2MaskNifti
+    ./fs2dwi.py --dwi dwiNifti --dwimask dwiMaskNifti -f fsSubDir direct -o /tmp/fs2dwi/
+    ./fs2dwi.py --dwi dwiNifti --dwimask dwiMaskNifti -f fsSubDir witht2 --t2 t2Nifti --t2mask t2MaskNifti -o /tmp/fs2dwi/
     
 
 ## i. Direct registration

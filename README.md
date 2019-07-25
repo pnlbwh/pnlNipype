@@ -108,7 +108,7 @@ Building of dcm2niix is very straightforward and reliable. Follow [this](https:/
 
 Now that you have installed the prerequisite software, you are ready to install the pipeline:
 
-    git clone https://github.com/pnlbwh/pnlNypipe.git && cd pnlNypipe
+    git clone https://github.com/pnlbwh/pnlNipype.git && cd pnlNipype
     pip install -r requirements.txt
 
 
@@ -204,7 +204,7 @@ This table summarizes the scripts in `pnlNipype/scripts/`:
 | DWI                |  **bse.py**                        |  extracts a baseline b0 image                                         |
 | -                  |  -                                 |  -                                                                    |
 | DWI                |  **pnl_epi.py**                    |  corrects EPI distortion via registration                             |
-| DWI                |  **fsl_toup_epi_eddy.py**          |  corrects EPI distortion using FSL topup and eddy_openmp              |
+| DWI                |  **fsl_topup_epi_eddy.py**          |  corrects EPI distortion using FSL topup and eddy_openmp              |
 | -                  |  -                                 |  -                                                                    |
 | DWI                |  **pnl_eddy.py**                   |  corrects eddy distortion via registration                            |
 | DWI                |  **fsl_eddy.py**                   |  corrects eddy distortion using FSL eddy_openmp                       |
