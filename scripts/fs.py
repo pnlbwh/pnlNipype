@@ -69,6 +69,8 @@ class App(cli.Application):
             sys.exit(1)
 
         with TemporaryDirectory() as tmpdir, local.env(SUBJECTS_DIR=tmpdir, FSFAST_HOME='', MNI_DIR=''):
+            
+            tmpdir = local.path(tmpdir)
 
             if self.t1mask:
                 logging.info('Mask the t1')
@@ -80,17 +82,18 @@ class App(cli.Application):
                 skullstrip = '-skullstrip'
                 t1 = tmpdir / 't1.nii.gz'
                 self.t1.copy(t1)
+            
+            if self.t2:
+                if self.t2mask:
+                    logging.info('Mask the t2')
+                    t2 = tmpdir / 't2masked.nii.gz'
+                    ImageMath('3', t2, 'm', self.t2, self.t2mask)
+                    skullstrip = '-noskullstrip'
 
-            if self.t2mask:
-                logging.info('Mask the t2')
-                t2 = tmpdir / 't2masked.nii.gz'
-                ImageMath('3', t2, 'm', self.t2, self.t2mask)
-                skullstrip = '-noskullstrip'
-
-            else:
-                skullstrip = '-skullstrip'
-                t2 = tmpdir / 't2.nii.gz'
-                self.t2.copy(t2)
+                else:
+                    skullstrip = '-skullstrip'
+                    t2 = tmpdir / 't2.nii.gz'
+                    self.t2.copy(t2)
 
             logging.info("Run freesurfer on " + t1)
             subjid = t1.stem
