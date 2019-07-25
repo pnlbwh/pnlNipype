@@ -335,7 +335,7 @@ See the following help message to know more about those options.
         --avg                               turn on this flag to choose the average of all bvalue<threshold volumes as
                                             the baseline image, you might want to use this only when eddy/motion
                                             correction has been done before
-        --bval VALUE:ExistingFile           bval file, default: dwiPrefix.bval
+        --bvals VALUE:ExistingFile           bval file, default: dwiPrefix.bval
         -i, --input VALUE:ExistingFile      DWI in nifti format; required
         -m, --mask VALUE:ExistingFile       mask of the DWI in nifti format; if mask is provided, then baseline image
                                             is masked
@@ -346,8 +346,8 @@ See the following help message to know more about those options.
 
 Example usage:
 
-    ./bse.py -i dwiNifti --bval bvalFile -o bseNifti
-    ./bse.py -i dwiNifti --bval bvalFile -o bseNifti --avg
+    ./bse.py -i dwiNifti --bvals bvalFile -o bseNifti
+    ./bse.py -i dwiNifti --bvals bvalFile -o bseNifti --avg
     
 
 ### ii. FSL Bet
@@ -512,7 +512,7 @@ diffusion weighted volumes.
 
 Example usage:
 
-    ./pnl_epi.py --dwi dwiNifti --dwimask --maskNifti --t2 t2Nifti --t2mask t2MaskNifti -o dwiEpNifti 
+    ./pnl_epi.py --dwi dwiNifti --dwimask maskNifti --t2 t2Nifti --t2mask t2MaskNifti -o dwiEpNifti 
         
 
 
