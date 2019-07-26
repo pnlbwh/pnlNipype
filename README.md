@@ -25,7 +25,8 @@ Table of Contents
             * [UKFTractography](#ukftractography)
       * [2. Install pipeline](#2-install-pipeline)
       * [3. Configure your environment](#3-configure-your-environment)
-      * [4. Tests](#4-tests)
+      * [4. Temporary directory](#4-temporary-directory)
+      * [5. Tests](#5-tests)
          * [i. Preliminary](#i-preliminary)
          * [ii. Detailed](#ii-detailed)
    * [Multiprocessing](#multiprocessing)
@@ -153,7 +154,16 @@ If you have already configured your environment following *pnlpipe*, you may pas
 *(If you would like, you may edit your [bashrc](#global-bashrc) to have environment automatically setup
 every time you open a new terminal)*
 
-## 4. Tests
+## 4. Temporary directory
+
+Both *pnlpipe* and *pnlNipype* have centralized control over various temporary directories created down the pipeline. 
+The temporary directories can be large, and may possibly clog the default `/tmp/` directory. You may define custom 
+temporary directory with environment variable `PNLPIPE_TMPDIR`:
+
+    mkdir ~/tmp/
+    export PNLPIPE_TMPDIR=~/tmp/
+
+## 5. Tests
 
 ### i. Preliminary
 

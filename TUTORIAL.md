@@ -13,6 +13,7 @@ Table of Contents
    * [Pipeline scripts overview](#pipeline-scripts-overview)
    * [pnlNipype graph](#pnlnipype-graph)
    * [DICOM to NIFTI](#dicom-to-nifti)
+   * [Temporary directory](#temporary-directory)
    * [Axis alignment](#axis-alignment)
    * [Masking](#masking)
       * [1. Structural mask](#1-structural-mask)
@@ -121,6 +122,14 @@ They are the same thing.
     dcm2niix -o outputDir -f namePrefix -z y dicomDir
 
 
+# Temporary directory
+
+Both *pnlpipe* and *pnlNipype* have centralized control over various temporary directories created down the pipeline. 
+The temporary directories can be large, and may possibly clog the default `/tmp/` directory. You may define custom 
+temporary directory with environment variable `PNLPIPE_TMPDIR`:
+
+    mkdir ~/tmp/
+    export PNLPIPE_TMPDIR=~/tmp/
 
 # Axis alignment
 
