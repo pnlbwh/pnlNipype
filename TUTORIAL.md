@@ -712,33 +712,59 @@ Putting them all together, example usage:
 # UKFTractography
 
 > ukf -h
+    
+    ukf.py uses the following default values: ['--numTensor', 2, '--stoppingFA', 0.15, '--seedingThreshold', 0.18, 
+    '--Qm', 0.001, '--Ql', 70, '--Rs', 0.015, '--stepLength', 0.3, '--recordLength', 1.7, '--stoppingThreshold', 0.1, 
+    '--seedsPerVoxel', 10, '--recordTensors']
 
-    Convenient script to run UKFTractography
+    ukf.py is a convenient script to run UKFTractography on NIFTI data.
+    For NRRD data, you may run UKFTractography executable directly.
+    See UKFTractography --help for more default values.
     
     Usage:
-        ukf [SWITCHES]
+        ukf [SWITCHES] 
+    
+    Meta-switches:
+        -h, --help                      Prints this help message and quits
+        --help-all                      Prints help messages of all sub-commands and quits
+        -v, --version                   Prints the program's version and quits
     
     Switches:
         --bvals VALUE:ExistingFile      bval file for DWI; required
         --bvecs VALUE:ExistingFile      bvec file for DWI; required
-        -i VALUE:ExistingFile          DWI in nifti; required
-        -m VALUE:ExistingFile          mask of the DWI in nifti; required
-        -o VALUE:str                   output tract file (.vtk); required
-        --params VALUE:str             provide comma separated UKF parameters: --arg1,val1,--
-                                       arg2,val2,--arg3,val3 (no spaces); the default is ['--
-                                       numTensor', 2, '--stoppingFA', 0.15, '--seedingThreshold',
-                                       0.18, '--Qm', 0.001, '--Ql', 70, '--Rs', 0.015, '--stepLength',
-                                       0.3, '--recordLength', 1.7, '--stoppingThreshold', 0.1, '--
-                                       seedsPerVoxel', 10, '--recordTensors']
+        -i VALUE:ExistingFile           DWI in nifti; required
+        -m VALUE:ExistingFile           mask of the DWI in nifti; required
+        -o VALUE:str                    output tract file (.vtk); required
+        --params VALUE:str              provide comma separated UKF parameters: 
+                                        --arg1,val1,--arg2,val2,--arg3,val3 (no spaces)
 
     
 
-The minimal usual would be:
+The minimal usage would be:
 
     ukf -i dwiNifti --bvals bvalFile --bvecs bvecFile -m maskNifti -o /tmp/tracts.vtk
     
+
 However, you can give any additional paramaters with `--params`.
 
+The following parameters are defaults for this script:
+
+ukfdefaults = ['--numTensor', 2, '--stoppingFA', 0.15, '--seedingThreshold', 0.18, '--Qm', 0.001, '--Ql', 70,
+'--Rs', 0.015, '--stepLength', 0.3, '--recordLength', 1.7, '--stoppingThreshold', 0.1,
+'--seedsPerVoxel', 10, '--recordTensors']
+
+ 
+You may replace any parameter from the defaults by what you provide with `--params`. For example, if you provide: 
+
+    --params --stepLength,0.4,--stoppingThreshold,0.2,--recordFA,--maxBranchingAngle,45
+
+then parameters passed to UKFTractography will be:
+
+ukfdefaults = ['--numTensor', 2, '--stoppingFA', 0.15, '--seedingThreshold', 0.18, '--Qm', 0.001, '--Ql', 70,
+'--Rs', 0.015, **'--stepLength', 0.4,** '--recordLength', 1.7, **'--stoppingThreshold', 0.2,**
+'--seedsPerVoxel', 10, '--recordTensors', **'--recordFA'**, **'--maxBranchingAngle','45'**]
+
+Notice the changes in bold.
 
 
 # FreeSurfer

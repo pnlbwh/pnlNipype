@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.DEBUG, format=logfmt(__file__))
 # default UKFTractography parameters
 ukfdefaults = ['--numTensor', 2, '--stoppingFA', 0.15, '--seedingThreshold', 0.18, '--Qm', 0.001, '--Ql', 70,
                '--Rs', 0.015, '--stepLength', 0.3, '--recordLength', 1.7, '--stoppingThreshold', 0.1,
-               '--seedsPerVoxel', 10]
+               '--seedsPerVoxel', 10, '--recordTensors']
 
 
 class App(cli.Application):
@@ -32,8 +32,7 @@ class App(cli.Application):
     out = cli.SwitchAttr('-o', help='output tract file (.vtk)', mandatory= True)
 
     givenParams = cli.SwitchAttr('--params',
-                help='provide comma separated UKF parameters: --arg1,val1,--arg2,val2,--arg3,val3 (no spaces)',
-                default='--recordTensors')
+                help='provide comma separated UKF parameters: --arg1,val1,--arg2,val2,--arg3,val3 (no spaces)')
 
     print(f'\nukf.py uses the following default values: {ukfdefaults}\n')
 
@@ -66,7 +65,7 @@ class App(cli.Application):
             if self.givenParams:
                 key_val_pair= self.givenParams.split(',')
 
-                for i in range(0,len(ukfdefaults),2):
+                for i in range(0,len(ukfdefaults)-1,2): # -1 to pass --recordTensors which is always a default
 
                     try:
                         ind= key_val_pair.index(ukfdefaults[i])
