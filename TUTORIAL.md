@@ -855,8 +855,8 @@ The script that does the above is:
 
 Example usage:
 
-    nifti_fs2dwi --dwi dwiNifti --dwimask dwiMaskNifti -f fsSubDir direct -o /tmp/fs2dwi/
-    nifti_fs2dwi --dwi dwiNifti --dwimask dwiMaskNifti -f fsSubDir witht2 --t2 t2Nifti --t2mask t2MaskNifti -o /tmp/fs2dwi/
+    nifti_fs2dwi --dwi dwiNifti --dwimask dwiMaskNifti -f fsSubDir -o /tmp/fs2dwi/ direct
+    nifti_fs2dwi --dwi dwiNifti --dwimask dwiMaskNifti -f fsSubDir -o /tmp/fs2dwi/ witht2 --t2 t2Nifti --t2mask t2MaskNifti
     
 
 ## i. Direct registration
