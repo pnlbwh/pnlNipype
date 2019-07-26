@@ -14,15 +14,19 @@ Table of Contents
    * [Dependencies](#dependencies)
    * [Installation](#installation)
       * [1. Install prerequisites](#1-install-prerequisites)
-         * [Check system architecture](#check-system-architecture)
-         * [Python 3](#python-3)
-         * [FreeSurfer](#freesurfer)
-         * [FSL](#fsl)
-         * [ANTs](#ants)
-         * [dcm2niix](#dcm2niix)
+         * [With pnlpipe](#with-pnlpipe)
+         * [Independently](#independently)
+            * [Check system architecture](#check-system-architecture)
+            * [Python 3](#python-3)
+            * [FSL](#fsl)
+            * [FreeSurfer](#freesurfer)
+            * [ANTs](#ants)
+            * [dcm2niix](#dcm2niix)
+            * [UKFTractography](#ukftractography)
       * [2. Install pipeline](#2-install-pipeline)
       * [3. Configure your environment](#3-configure-your-environment)
-      * [4. Tests](#4-tests)
+      * [4. Temporary directory](#4-temporary-directory)
+      * [5. Tests](#5-tests)
          * [i. Preliminary](#i-preliminary)
          * [ii. Detailed](#ii-detailed)
    * [Multiprocessing](#multiprocessing)
@@ -31,6 +35,7 @@ Table of Contents
    * [Documentation](#documentation)
    * [Support](#support)
 
+   
 Table of Contents created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 
@@ -58,6 +63,7 @@ each node represents an output, and the arrows represent dependencies:
 
 * dcm2niix
 * ANTs == 2.3.0
+* UKFTractography == 1.0
 * freesurfer >= 5.0.3 
 * FSL >= 5.0.3
 * python >= 3
@@ -67,13 +73,27 @@ each node represents an output, and the arrows represent dependencies:
 
 ## 1. Install prerequisites
 
-Python 3, FreeSurfer>=5.0.3 and FSL>=5.0.11 (ignore the one(s) you have already):
+### With pnlpipe
 
-### Check system architecture
+*pnlNipype* depends on the above software modules. It is recommended to follow *pnlpipe* installation [instruction](https://github.com/pnlbwh/pnlpipe#installation).
+Most of the requisite software modules will be installed with *pnlpipe*. In addition, you should also learn 
+how to [configure your environment](https://github.com/pnlbwh/pnlpipe#1-configure-your-environment) and [source individual software module](https://github.com/pnlbwh/pnlpipe#2-source-individual-software-module).
+
+### Independently
+
+Installing *pnlNipype* independently should require you to install each of the dependencies separately. 
+This way, you can have more control upon the requisite software modules. The independent installation is for users with 
+a little more programming knowledge.
+
+Install the following software:
+
+Python 3, FreeSurfer>=5.0.3 and FSL>=5.0.11, ANTs, dcm2niix, UKFTractography (ignore the one(s) you have already):
+
+#### Check system architecture
 
     uname -a # check if 32 or 64 bit
 
-### Python 3
+#### Python 3
 
 Download [Miniconda Python 3.6 bash installer](https://conda.io/miniconda.html) (32/64-bit based on your environment):
     
@@ -83,36 +103,42 @@ Activate the conda environment:
 
     source ~/miniconda3/bin/activate # should introduce '(base)' in front of each line
 
-### FreeSurfer
+#### FSL
+
+Follow the [instruction](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FslInstallation) to download and install FSL.
+
+#### FreeSurfer
     
 Follow the [instruction](https://surfer.nmr.mgh.harvard.edu/fswiki/DownloadAndInstall) to download and install FreeSurfer >= 5.0.3
 After installation, you can check FreeSurfer version by typing `freesurfer` on the terminal.
 
 
-### FSL
-
-Follow the [instruction](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FslInstallation) to download and install FSL.
-
-
-### ANTs
+#### ANTs
 
 You can build ANTs from [source](https://github.com/ANTsX/ANTs). Additionally, you should define [ANTSPATH](https://github.com/ANTsX/ANTs/wiki/Compiling-ANTs-on-Linux-and-Mac-OS#set-path-and-antspath)
 
 
-### dcm2niix
+#### dcm2niix
 
 dcm2niix executable will create NIFTI file from DICOM. The pipeline uses a reliable converter dcm2niix. 
 Building of dcm2niix is very straightforward and reliable. Follow [this](https://github.com/rordenlab/dcm2niix#build-command-line-version-with-cmake-linux-macos-windows) instruction to build dcm2niix.
+
+#### UKFTractography
+
+Follow this [instruction](https://github.com/pnlbwh/ukftractography/blob/master/README.md) to download and install UKFTractography.
+
 
 ## 2. Install pipeline
 
 Now that you have installed the prerequisite software, you are ready to install the pipeline:
 
-    git clone https://github.com/pnlbwh/pnlNypipe.git && cd pnlNypipe
+    git clone https://github.com/pnlbwh/pnlNipype.git && cd pnlNipype
     pip install -r requirements.txt
 
 
 ## 3. Configure your environment
+
+If you have already configured your environment following *pnlpipe*, you may pass the instruction below:
 
     source ~/miniconda3/bin/activate           # should introduce '(base)' in front of each line
     export FSLDIR=~/fsl/                       # setup fsl environment
@@ -128,15 +154,24 @@ Now that you have installed the prerequisite software, you are ready to install 
 *(If you would like, you may edit your [bashrc](#global-bashrc) to have environment automatically setup
 every time you open a new terminal)*
 
-## 4. Tests
+## 4. Temporary directory
+
+Both *pnlpipe* and *pnlNipype* have centralized control over various temporary directories created down the pipeline. 
+The temporary directories can be large, and may possibly clog the default `/tmp/` directory. You may define custom 
+temporary directory with environment variable `PNLPIPE_TMPDIR`:
+
+    mkdir ~/tmp/
+    export PNLPIPE_TMPDIR=~/tmp/
+
+## 5. Tests
 
 ### i. Preliminary
 
 Upon successful installation, you should be able to see help message of each script in the pipeline:
     
     cd lib
-    ./atlas.py --help
-    ./fs2dwi.py --help
+    scripts/atlas.py --help
+    scripts/fs2dwi.py --help
     ...
 
 
@@ -183,9 +218,9 @@ Being written in python means they are easier to understand and modify,
 and [plumbum](https://plumbum.readthedocs.io/en/latest/) allows them to be
 almost as concise as a regular shell script.
 
-You can call any these scripts directly, e.g.
+You can call any of these scripts directly, e.g.
 
-    scripts/bse.py -h
+    scripts/align.py -h
 
 
 It's important to note that usually the scripts are calling other binaries, such
@@ -204,7 +239,7 @@ This table summarizes the scripts in `pnlNipype/scripts/`:
 | DWI                |  **bse.py**                        |  extracts a baseline b0 image                                         |
 | -                  |  -                                 |  -                                                                    |
 | DWI                |  **pnl_epi.py**                    |  corrects EPI distortion via registration                             |
-| DWI                |  **fsl_toup_epi_eddy.py**          |  corrects EPI distortion using FSL topup and eddy_openmp              |
+| DWI                |  **fsl_topup_epi_eddy.py**         |  corrects EPI distortion using FSL topup and eddy_openmp              |
 | -                  |  -                                 |  -                                                                    |
 | DWI                |  **pnl_eddy.py**                   |  corrects eddy distortion via registration                            |
 | DWI                |  **fsl_eddy.py**                   |  corrects eddy distortion using FSL eddy_openmp                       |
@@ -218,10 +253,32 @@ This table summarizes the scripts in `pnlNipype/scripts/`:
 | Tractography       |  **wmql.py**                       |  simple wrapper for tract_querier                                     |
 
 
-The above executables are available as soft links in `pnlNipype/exec` directory as well. So, you can also do:
+The above executables are available as soft links in `pnlNipype/exec` directory as well:
     
-    cd pnlNipype/exec
-    ./nifti_bse -h
+| Soft link | Target script |
+|---|---|
+| fsl_eddy | ../scripts/fsl_eddy.py |
+| fsl_toup_epi_eddy | ../scripts/fsl_topup_epi_eddy.py |
+| masking | ../scripts/masking.py |
+| nifti_align | ../scripts/align.py |
+| nifti_antsApplyTransformsDWI | ../scripts/antsApplyTransformsDWI.py |
+| nifti_atlas | ../scripts/atlas.py |
+| nifti_bet_mask | ../scripts/bet_mask.py |
+| nifti_bse | ../scripts/bse.py |
+| nifti_fs | ../scripts/fs.py |
+| nifti_fs2dwi | ../scripts/fs2dwi.py |
+| nifti_makeRigidMask | ../scripts/makeRigidMask.py |
+| nifti_wmql | ../scripts/wmql.py |
+| pnl_eddy | ../scripts/pnl_eddy.py |
+| pnl_epi | ../scripts/pnl_epi.py |
+| ukf | ../scripts/ukf.py |
+
+
+For example, to execute axis alignment script, you can do either of the following:
+    
+    pnlNipype/exec/nifti_align -h
+    pnlNipype/scripts/align.py -h
+    
 
 
 # Global bashrc
@@ -237,7 +294,7 @@ you may put the following lines in your bashrc:
     source $FREESURFER_HOME/SetUpFreeSurfer.sh
     export $PATH=$PATH:/absolute/path/to/pnlNipype/scripts
     export ANTSPATH=/path/to/ANTs/bin/
-    export PATH=$ANTSPATH:ANTs/Scripts:$PATH   # define ANTSPATH and export ANTs scripts in your path
+    export PATH=$ANTSPATH:ANTs/Scripts:$PATH    # define ANTSPATH and export ANTs scripts in your path
     export PATH=~/dcm2niix/build/bin
 
 # Documentation
