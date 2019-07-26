@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from __future__ import print_function
-from util import logfmt, TemporaryDirectory, FILEDIR, pjoin, N_PROC
+from util import logfmt, TemporaryDirectory, FILEDIR, pjoin, N_PROC, FILEDIR
 from plumbum import local, cli, FG
 from subprocess import check_call
 from multiprocessing import Pool
@@ -36,7 +36,7 @@ class App(cli.Application):
         ['-q', '--query'],
         help='tract_querier query file (e.g. wmql-2.0.qry)',
         mandatory=False,
-        default=local.path(__file__).dirname / 'wmql-2.0.qry')
+        default=pjoin(FILEDIR, 'wmql-2.0.qry'))
     out = cli.SwitchAttr(
         ['-o', '--out'], cli.NonexistentPath, help='output directory', mandatory=True)
 

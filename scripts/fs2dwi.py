@@ -5,9 +5,7 @@ import sys, os, tempfile, psutil, warnings
 from plumbum.cmd import ResampleImageBySpacing, antsApplyTransforms, ImageMath
 from subprocess import check_call
 
-# FILEDIR might be needed
-
-from util import load_nifti, N_CPU
+from util import load_nifti, N_CPU, FILEDIR, pjoin
 N_CPU= str(N_CPU)
 
 
@@ -146,7 +144,7 @@ class Direct(cli.Application):
                           '--regheader', wmparcmgz, '--o', wmparc)
 
             print('Extracting B0 from DWI and masking it')
-            check_call((' ').join(['bse.py', '-i', self.parent.dwi, '-m', self.parent.dwimask, '-o', b0masked]), shell= True)
+            check_call((' ').join([pjoin(FILEDIR, 'bse.py'), '-i', self.parent.dwi, '-m', self.parent.dwimask, '-o', b0masked]), shell= True)
             print('Made masked B0')
 
 
@@ -238,7 +236,7 @@ class WithT2(cli.Application):
                           '--regheader', wmparcmgz, '--o', wmparc)
 
             print('Extracting B0 from DWI and masking it')
-            check_call((' ').join(['bse.py', '-i', self.parent.dwi, '-m', self.parent.dwimask, '-o', b0masked]), shell= True)
+            check_call((' ').join([pjoin(FILEDIR, 'bse.py'), '-i', self.parent.dwi, '-m', self.parent.dwimask, '-o', b0masked]), shell= True)
             print('Made masked B0')
 
 
