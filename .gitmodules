@@ -3,4 +3,4 @@
 	url = https://github.com/pnlbwh/cmd.git
 [submodule "pnlpipe_software"]
 	path = pnlpipe_software
-    url = https://github.com/pnlbwh/pnlpipe_software.git
+	url = https://github.com/pnlbwh/pnlpipe_software.git
