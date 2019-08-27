@@ -433,26 +433,26 @@ pnl_epi --dwi Diffusion_b3000/sample-dwi-Ed.nii.gz --dwimask Diffusion_b3000/sam
 
 * Even if you know little about how the glyphs should look there is an easy trick that is generally good enough when making this determination. This involves looking at the corpus callosum, which is the most major white matter bundle connecting the two hemispheres.
 
-First, `cd` into you `Diffusion_b3000` directory. Then run the folliwng command to generate a DTI (Diffusion Tensor Image). This will show the orientation of the fibers in each voxel using color coding (red is left to right, blue is up and down, and green is forward to backward).
+First, `cd` into your `Diffusion_b3000` directory. Then run the following command to generate a DTI (Diffusion Tensor Image). This will show the orientation of the fibers in each voxel using color coding (red is left to right, blue is up and down, and green is forward to backward).
 
 ```
 dtifit -k sample-dwi-epi.nii.gz -m sample-dwi-tensor-mask.nii.gz -r sample-dwi-Ed.bvec -b sample-dwi-Ed.bval -o sample-dti.nii.gz
 ```
 
-You should now open the output `sample-dti_V1.nii.gz` in `fsleyes`.
+You should now open the output `sample-dti_V1.nii.gz` in `fsleyes` by doing the following:
+```
+fsleyes sample-dti_V1.nii.gz
+```
 
 You will get an image that looks like this:
 
 <img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/dti.png" width=80%>
 
-* Looking at the coronal view (green) scroll to a slice that has a red “U”-shape in the upper middle part of the brain. There are a lot of them, but any will do. This structure is the corpus callosum and it looks like this:
+* Looking at the coronal view (green) scroll (by clicking within the brain) to a slice that has a red “U”-shape in the upper middle part of the brain. There are a lot of them, but any will do. This structure is the corpus callosum and it looks like this:
 
 <img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/dti_corpus.png" width=80%>
 
-
-* Then go to the **Volumes** module and make sure that the **Active Volume** is **sample-dti**.
-
-* Scroll down on the sidebar to the **Glyphs on Slices Display** and choose **Green** for **Slice Visibility**. Then for **Glyph Type** choose **Lines** as this will allow Slicer to run faster.
+* In the upper left of your screen, click the button that says "3-direction vector imaging (RGB)" and select "3-direction vector image (Line)
 
 * You should now see this on your screen:
 
@@ -463,7 +463,6 @@ You will get an image that looks like this:
 <img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/bad_glyph_corpus.png" width=80%>
 	  
 * You will also need to check the corpus callosum in the other two views (red and yellow). To do this you simply uncheck **Green** for slice visibility and select the color you want.
-
 
 <img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/glyph_corpus_axial.png" width=80%>
 
