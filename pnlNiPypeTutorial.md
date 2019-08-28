@@ -21,7 +21,7 @@ The pipeline relies heavily on the use of the Linux operating system, which unli
 
 If you haven’t worked with Linux before, it’s important to know that spacing, capitalization, and typos all matter when inputting commands. If one of the scripts associated with the pipeline gives you an error message when you try to run it, it may be because of one of these things, so this is always the first place to look when figuring out the issue.
 
-If you have questions at any point, ask an RA! They will be more than happy to help you out, and might teach you a neat trick/shortcut along the way.
+If you have questions at any point, ask an RA! They will be more than happy to help you out and might teach you a neat trick/shortcut along the way.
 
 In order to practice each step in the pipeline, we will use a sample case located in `/rfanfs/pnl-zorro/Tutorial/Case01183_NiPype/raw`
 
@@ -34,6 +34,9 @@ After logging into your account on a lab computer, go to the **Applications** dr
 Before we begin, we’ll need to make sure that your bashrc is sourced. Type: 
  ```
  echo source /rfanfs/pnl-zorro/software/pnlpipe3/bashrc3 >> ~/.bashrc
+ ```
+ Then type:
+ ```
  source ~/.bashrc
  ```
  
@@ -59,7 +62,7 @@ To copy the sample case into this PipelineTraining directory, enter:
 cp –r /rfanfs/pnl-zorro/Tutorial/Case01183_NiPype/raw/* /rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining
 ```
 
-This may take a while
+This may take a while.
 
 In your **PipelineTraining** directory you should now find 3 files and 4 directories.  It is the 4 directories (Diffusion_b3000, T1, T2, and Other) that you care about, and you are now ready to begin the pipeline.
 
@@ -492,9 +495,9 @@ Be warned that depending on the computing power you are using this process could
 
 Since this takes quite a long time this is also available to be copied from the `Other` directory. 
 
-The value for  `--numThreads` most often is `8` and this is the computing power you are using for the process in terms of number of cores being used. For other projects you will want to ask someone how many cores you should be using.
+The value for  `--numThreads` most often is `8` and this is the computing power you are using for the process in terms of number of cores being used. For other projects, you will want to ask someone how many cores you should be using.
 
-You may also want to specify `--seedsPerVoxel`. Typically, we use `--seedsPerVoxel 10`, which means we will have 10 seed points in each voxel.  If unspecified it will use the default of 1. A higher number will cause it to take longer and lead to a larger output size, but it will generate more fibers. Ask your PI if you should use a different value. l cause there to be more fibers generated, but it will also take more time and take up more space.
+You may also want to specify `--seedsPerVoxel`. Typically, we use `--seedsPerVoxel 10`, which means we will have 10 seed points in each voxel.  If unspecified it will use the default of 1. A higher number will cause it to generate more fibers, but it will also take up more time and space. Ask your PI if you should use a different value.
 
 Other options that can be manipulated (depending on your B-value and the number of fibers being generated) include `--minGA --minFA --seedFALimit`. 
 
