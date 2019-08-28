@@ -436,26 +436,31 @@ pnl_epi --dwi Diffusion_b3000/sample-dwi-Ed.nii.gz --dwimask Diffusion_b3000/sam
 
 * Even if you know little about how the glyphs should look there is an easy trick that is generally good enough when making this determination. This involves looking at the corpus callosum, which is the most major white matter bundle connecting the two hemispheres.
 
-First, `cd` into your `Diffusion_b3000` directory. Then run the following command to generate a DTI (Diffusion Tensor Image). This will show the orientation of the fibers in each voxel using color coding (red is left to right, blue is up and down, and green is forward to backward).
+* Since we will be using Slicer for this QC, we will need to convert our data to NHDR format. First, `cd` into `Diffusion_b3000`. Then enter the following:
 
 ```
-dtifit -k sample-dwi-epi.nii.gz -m sample-dwi-tensor-mask.nii.gz -r sample-dwi-Ed.bvec -b sample-dwi-Ed.bval -o sample-dti.nii.gz
+nhdr_write.py --nifti sample-dwi-epi.nii.gz --bval sample-dwi-Ed.bval --bvec sample-dwi-Ed.bvec --nhdr sample-dwi-epi.nhdr
 ```
 
-You should now open the output `sample-dti_V1.nii.gz` in `fsleyes` by doing the following:
-```
-fsleyes sample-dti_V1.nii.gz
-```
+* Open Slicer using `/rfanfs/pnl-zorro/software/Slicer-4.8.1/Slicer` and open `sample-dwi-epi.nhdr`. The first thing you need to do is generate a DTI (Diffusion Tensor Image). This will show the orientation of the fibers in each voxel using color coding (red is left to right, blue is up and down, and green is forward to backward). Under Modules, go to **Diffusion** > **Diffusion Weighted Images** > **DWI to DTI Estimation**.
 
-You will get an image that looks like this:
+  * For **Input DWI Volume**, select sample-dwi-epi.
+  * For **Output DTI Volume**, you can create a new volume as **sample-dti**.
+  * For **Output Baseline Volume** you can create a new volume as **baseline**.
+  * Select **Apply**.
+
+* Going to the drop-down pin in the top left corner of a viewing window and the the double chevrons under that, you will have to change the bottom right box from the baseline to **sample-dti**. Select the rings next to the chevrons to do this for all views.  You will get an image that looks like this:
 
 <img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/dti.png" width=80%>
 
-* Looking at the coronal view (green) scroll (by clicking within the brain) to a slice that has a red “U”-shape in the upper middle part of the brain. There are a lot of them, but any will do. This structure is the corpus callosum and it looks like this:
+* Looking at the coronal view (green) scroll to a slice that has a red “U”-shape in the upper middle part of the brain. There are a lot of them, but any will do. This structure is the corpus callosum and it looks like this:
 
 <img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/dti_corpus.png" width=80%>
 
-* In the upper left of your screen, click the button that says "3-direction vector imaging (RGB)" and select "3-direction vector image (Line)
+
+* Then go to the **Volumes** module and make sure that the **Active Volume** is **sample-dti**.
+
+* Scroll down on the sidebar to the **Glyphs on Slices Display** and choose **Green** for **Slice Visibility**. Then for **Glyph Type** choose **Lines** as this will allow Slicer to run faster.
 
 * You should now see this on your screen:
 
@@ -471,13 +476,13 @@ You will get an image that looks like this:
 
 * This is how the corpus callosum should look in the in the axial view (red) if you are looking at the middle slice or thereabouts. The upper portion should be arranged like a “u” while the lower portion should be arranged like an “n”. Make sure you look at both parts of the corpus callosum because it is possible for one to be correct while the other is not:
 
-
 <img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/glyph_corpus_sagit.png" width=80%>
 * This is how the corpus callosum should look in the sagittal view (yellow) if you are looking at around the middle slice. The glyphs should look like they are more or less arranged straight in and out parallel with your view:
 
 * They should all look correct in this sample case, but if it doesn’t look correct, you can fix it by changing the header of the epi-corrected file. To do that, back in the terminal, enter `gedit sample-dwi-epi.nii.gz`. The header will come up in a text editor. You are interested in the **measurement frame**. The first thing you can try is changing any non-zero numbers in the first set of coordinates to negative. Then save and load the epi-corrected image in Slicer again and do the whole process over again.
 
 If this time the glyphs look correct in the corpus callosum, you have fixed it for that case. If they still don’t look correct, change the first set of coordinates back to positive and make the second set negative. There are 7 possible permutations of negatives that you can try if necessary. It is usually the case that the proper measurement frame is the same for every case in a dataset, but this is not always the case, especially if the data was acquired on more than one scanner or over a long period of time. Because of that, before you then make this change to the header of every epi-corrected dwi for every case in the dataset, you should check this on a handful of other cases as well. 
+
 
 **Two-Tensor Whole Brain Tractography**
 
