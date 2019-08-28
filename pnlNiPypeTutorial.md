@@ -486,7 +486,7 @@ In the `Diffusion_b3000` directory, make a new directory called `Tractography/`
 
 The script that make these images works best for b-values (found in the header) where **700 <= b <= 3000**. If your b-value is not in this range, talk to your PI. Our b-value is acceptable for the current example. When you are in the `Diffusion_b3000` directory, enter:
 ```
-ukf -i sample-dwi-epi.nii.gz --bvals sample-dwi-epi.bval --bvecs sample-dwi-epi.bvecs  -m sample-dwi-tensor-mask.nii.gz -o Tractography/sample-dwi-tracts.vtk --numThreads,8,--recordTensors
+ukf -i sample-dwi-epi.nii.gz --bvals sample-dwi-epi.bval --bvecs sample-dwi-epi.bvec  -m sample-dwi-tensor-mask.nii.gz -o Tractography/sample-dwi-tracts.vtk --params --numThreads,8,--recordTensors
 ```
 Be warned that depending on the computing power you are using this process could take anywhere from a few hours to several days.
 
