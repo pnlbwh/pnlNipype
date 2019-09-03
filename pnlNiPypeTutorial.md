@@ -171,7 +171,7 @@ The ampersand (&) allows you to open Slicer in a separate window, so that you ca
 
 Note that it may take a while for Slicer to load.
 
-* To open your sample file go to **File** > **Add Data** > **Choose Files to Add** and then open `sample-T1-xc.nii.gz` in the `/rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining/strct` directory. 
+* To open your sample file go to **File** > **Add Data** > **Choose Files to Add**. Make sure that `/rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining/strct` is listed on the top after **Look in:** and then select `sample-T1-xc.nii.gz`.
 
 * Now that you have the file open, you will want to turn off the interpolation that Slicer automatically does. To do this go to the colored bar of one of the viewing windows and hover over the tack icon. On the bar that drops down, click the rings, which are next to the double chevrons. This will make any changes happen in all of the windows. Then click the double chevrons to get the rest of the menu and click on the button in the bottom row called **Interpolate background** next to the bar containing the filename. This will make the image look more pixelated, but we want interpolation off because it can hide some of the artifacts you are looking for.
 
