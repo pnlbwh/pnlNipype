@@ -15,6 +15,8 @@ And here are some things to keep in mind as you go through this tutorial:
 
 **NOTE:** this manual is not an exhaustive overview of the different image processing techniques that the PNL utilizes, and does not include instructions for manual segmentation, manual WM tract delineation, TBSS, NODDI, etc.)*
 
+Once you have gone through this tutorial, you should also reference the [tutorial on the PNL GitHub] (https://github.com/pnlbwh/pnlNipype/blob/master/TUTORIAL.md). The main GitHub page can be found [here](https://github.com/pnlbwh)
+
 **Set up sample files**
 
 The pipeline relies heavily on the use of the Linux operating system, which unlike Microsoft Windows or Mac OS X, is text and terminal based.  It is best to gain some familiarity with Linux (with a Linux tutorial) before beginning this pipeline tutorial. However, all the steps used in Linux will be explained along the way. 
