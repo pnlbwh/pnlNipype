@@ -505,7 +505,7 @@ to learn more about Eddy correction.
         fsl_eddy [SWITCHES] 
     
     Switches:
-        --acqp VALUE:ExistingFile        acuisition parameters file (.txt); required
+        --acqp VALUE:ExistingFile        acquisition parameters file (.txt); required
         --bvals VALUE:ExistingFile       bvals file of the DWI); required
         --bvecs VALUE:ExistingFile       bvecs file of the DWI); required
         --dwi VALUE:ExistingFile         nifti DWI image); required
