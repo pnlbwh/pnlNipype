@@ -436,11 +436,17 @@ pnl_epi --dwi Diffusion_b3000/sample-dwi-Ed.nii.gz --dwimask Diffusion_b3000/sam
 
 * Even if you know little about how the glyphs should look there is an easy trick that is generally good enough when making this determination. This involves looking at the corpus callosum, which is the most major white matter bundle connecting the two hemispheres.
 
-* Since we will be using Slicer for this QC, we will need to convert our data to NHDR format. First, `cd` into `Diffusion_b3000`. Then enter the following:
+* Since we will be using Slicer for this QC, we will need to convert our data to NHDR format. First, `cd` into `Diffusion_b3000`. Then enter the following to convert the epi-corrected image to NHDR format:
 
 ```
 nhdr_write.py --nifti sample-dwi-epi.nii.gz --bval sample-dwi-Ed.bval --bvec sample-dwi-Ed.bvec --nhdr sample-dwi-epi.nhdr
 ```
+We will also need to convert the mask to NHDR format with the following:
+
+```
+nhdr_write.py --nifti sample-dwi-tensor-mask.nii.gz --nhdr sample-dwi-tensor-mask.nhdr
+```
+
 
 * Open Slicer using `/rfanfs/pnl-zorro/software/Slicer-4.8.1/Slicer` and open `sample-dwi-epi.nhdr`. The first thing you need to do is generate a DTI (Diffusion Tensor Image). This will show the orientation of the fibers in each voxel using color coding (red is left to right, blue is up and down, and green is forward to backward). Under Modules, go to **Diffusion** > **Diffusion Weighted Images** > **DWI to DTI Estimation**.
 
