@@ -14,19 +14,16 @@ Table of Contents
    * [Dependencies](#dependencies)
    * [Installation](#installation)
       * [1. Install prerequisites](#1-install-prerequisites)
-         * [With pnlpipe](#with-pnlpipe)
-         * [Independently](#independently)
+         * [i. With pnlpipe](#i-with-pnlpipe)
+         * [ii. Independently](#ii-independently)
             * [Check system architecture](#check-system-architecture)
             * [Python 3](#python-3)
             * [FSL](#fsl)
             * [FreeSurfer](#freesurfer)
-            * [ANTs](#ants)
-            * [dcm2niix](#dcm2niix)
-            * [UKFTractography](#ukftractography)
-      * [2. Install pipeline](#2-install-pipeline)
-      * [3. Configure your environment](#3-configure-your-environment)
-      * [4. Temporary directory](#4-temporary-directory)
-      * [5. Tests](#5-tests)
+            * [pnlpipe software](#pnlpipe-software)
+      * [2. Configure your environment](#2-configure-your-environment)
+      * [3. Temporary directory](#3-temporary-directory)
+      * [4. Tests](#4-tests)
          * [i. Preliminary](#i-preliminary)
          * [ii. Detailed](#ii-detailed)
    * [Multiprocessing](#multiprocessing)
@@ -34,7 +31,7 @@ Table of Contents
    * [Global bashrc](#global-bashrc)
    * [Documentation](#documentation)
    * [Support](#support)
-
+   
    
 Table of Contents created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
@@ -73,22 +70,25 @@ each node represents an output, and the arrows represent dependencies:
 
 ## 1. Install prerequisites
 
-### With pnlpipe
+### i. With pnlpipe
 
 *pnlNipype* depends on the above software modules. It is recommended to follow *pnlpipe* installation [instruction](https://github.com/pnlbwh/pnlpipe#installation).
 Most of the requisite software modules will be installed with *pnlpipe*. In addition, you should also learn 
 how to [configure your environment](https://github.com/pnlbwh/pnlpipe#1-configure-your-environment) and [source individual software module](https://github.com/pnlbwh/pnlpipe#2-source-individual-software-module).
 
-### Independently
+### ii. Independently
 
 Installing *pnlNipype* independently should require you to install each of the dependencies separately. 
 This way, you can have more control upon the requisite software modules. The independent installation is for users with 
 a little more programming knowledge.
 
-Install the following software:
+Install the following software (ignore the one(s) you have already):
 
-Python 3, FreeSurfer>=5.0.3 and FSL>=5.0.11, ANTs, dcm2niix, UKFTractography (ignore the one(s) you have already):
+* Python 3
+* FreeSurfer>=5.0.3
+* FSL>=5.0.11
 
+    
 #### Check system architecture
 
     uname -a # check if 32 or 64 bit
@@ -112,31 +112,59 @@ Follow the [instruction](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FslInstallation)
 Follow the [instruction](https://surfer.nmr.mgh.harvard.edu/fswiki/DownloadAndInstall) to download and install FreeSurfer >= 5.0.3
 After installation, you can check FreeSurfer version by typing `freesurfer` on the terminal.
 
+#### pnlpipe software
 
-#### ANTs
+The rest of the software can be installed with *pnlpipe* infrastructure:
+    
+    git clone https://github.com/pnlbwh/pnlNipype.git && cd pnlNipype
+    
+    # define PYTHONPATH so following software installation scripts are found
+    export PYTHONPATH=/abs/directory/of/pnlpipe_software/
+    
+    # this is where software modules are installed
+    export PNLPIPE_SOFT=/directory/for/software/
+    
+    # https://github.com/pnlbwh/ukftractography
+    cmd/install.py UKFTractography
+    
+    # https://github.com/rordenlab/dcm2niix
+    cmd/install.py dcm2niix
+    
+    # https://github.com/ANTsX/ANTs
+    cmd/install.py ANTs
+    
+    # https://github.com/demianw/tract_querier
+    cmd/install.py tract_querier
+    
+    # https://github.com/pnlbwh
+    cmd/install.py trainingDataT1AHCC
+    cmd/install.py trainingDataT2Masks
+    
+    # finally, install the python packages required to run pnlNipype
+    pip install -r requirements.txt
+    
+
+Detailed instruction can be found [here](https://github.com/pnlbwh/pnlpipe_software).
+
+
+You may also build the following from source:
+
+* ANTs
 
 You can build ANTs from [source](https://github.com/ANTsX/ANTs). Additionally, you should define [ANTSPATH](https://github.com/ANTsX/ANTs/wiki/Compiling-ANTs-on-Linux-and-Mac-OS#set-path-and-antspath)
-
-
-#### dcm2niix
+    
+* dcm2niix
 
 dcm2niix executable will create NIFTI file from DICOM. The pipeline uses a reliable converter dcm2niix. 
 Building of dcm2niix is very straightforward and reliable. Follow [this](https://github.com/rordenlab/dcm2niix#build-command-line-version-with-cmake-linux-macos-windows) instruction to build dcm2niix.
 
-#### UKFTractography
+* UKFTractography
 
 Follow this [instruction](https://github.com/pnlbwh/ukftractography/blob/master/README.md) to download and install UKFTractography.
 
 
-## 2. Install pipeline
 
-Now that you have installed the prerequisite software, you are ready to install the pipeline:
-
-    git clone https://github.com/pnlbwh/pnlNipype.git && cd pnlNipype
-    pip install -r requirements.txt
-
-
-## 3. Configure your environment
+## 2. Configure your environment
 
 If you have already configured your environment following *pnlpipe*, you may pass the instruction below:
 
@@ -154,7 +182,7 @@ If you have already configured your environment following *pnlpipe*, you may pas
 *(If you would like, you may edit your [bashrc](#global-bashrc) to have environment automatically setup
 every time you open a new terminal)*
 
-## 4. Temporary directory
+## 3. Temporary directory
 
 Both *pnlpipe* and *pnlNipype* have centralized control over various temporary directories created down the pipeline. 
 The temporary directories can be large, and may possibly clog the default `/tmp/` directory. You may define custom 
@@ -163,7 +191,7 @@ temporary directory with environment variable `PNLPIPE_TMPDIR`:
     mkdir ~/tmp/
     export PNLPIPE_TMPDIR=~/tmp/
 
-## 5. Tests
+## 4. Tests
 
 ### i. Preliminary
 
