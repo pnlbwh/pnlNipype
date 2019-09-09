@@ -847,6 +847,7 @@ The script that does the above is:
         nifti_fs2dwi [SWITCHES] [SUBCOMMAND [SWITCHES]] 
     
     Switches:
+        -d, --debug                                   Debug mode, saves intermediate transforms to out/fs2dwi-debug-<pid>
         --dwi VALUE:ExistingFile                      target DWI; required
         --dwimask VALUE:ExistingFile                  DWI mask; required
         -f, --freesurfer VALUE:ExistingDirectory      freesurfer subject directory; required
