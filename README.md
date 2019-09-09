@@ -116,7 +116,7 @@ After installation, you can check FreeSurfer version by typing `freesurfer` on t
 
 The rest of the software can be installed with *pnlpipe* infrastructure:
     
-    git clone https://github.com/pnlbwh/pnlNipype.git && cd pnlNipype
+    git clone --recurse-submodules https://github.com/pnlbwh/pnlNipype.git && cd pnlNipype
     
     # define PYTHONPATH so following software installation scripts are found
     export PYTHONPATH=/abs/directory/of/pnlpipe_software/
