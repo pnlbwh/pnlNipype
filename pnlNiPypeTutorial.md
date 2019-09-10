@@ -655,14 +655,15 @@ For the final step of the pipeline you need to now extract all of the measures y
 
 * Way 1: Go into your `wmql/` directory. Let’s say we are still interested in the left AF. Enter:
 ```
-measureTracts.py -i sample_af.left.vtk -o sample_af.left.csv
+/rfanfs/pnl-zorro/software/pnlpipe3/pnlpipe/pnlscripts/measuretracts/measureTracts.py -i sample_af.left.vtk -o sample_af.left.csv
 ```
   * This will create a file called `sample_af.left.csv` in that directory as well.
 
   * You can open this file by entering:
 	```
-	oocalc sample_af.left.csv
+	columns -s, -t < af.left.csv | less -#1 -N -S
 	```
+You can then use the left and right arrow keys to navigate through the csv file. To exit, press `q`.
 
 If you want to run the script on many `.vtk` files at once and have them all in the same spreadsheet, you can do this by putting all of the `.vtk` files in the same directory (or making softlinks to them in the same directory as discussed above in wmql) and replace the input with `*.vtk`.
 
