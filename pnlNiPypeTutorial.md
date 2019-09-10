@@ -661,7 +661,7 @@ For the final step of the pipeline you need to now extract all of the measures y
 
   * You can open this file by entering:
 	```
-	columns -s, -t < af.left.csv | less -#1 -N -S
+	column -s, -t < af.left.csv | less -#1 -N -S
 	```
 You can then use the left and right arrow keys to navigate through the csv file. To exit, press `q`.
 
