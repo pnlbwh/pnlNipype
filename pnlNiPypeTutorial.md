@@ -603,11 +603,12 @@ You can now leave the **Cluster** by entering `exit` twice. Then go into your ne
 
 Then to do a data QC, make sure you are still in the `tractQC` directory and enter:
 ```
-oocalc quality_control_fibers.txt
+cat quality_control_fibers.txt
 ```
 A window will pop up and you can just select **OK**.
 
-A spread sheet will then open up and in the example it will only contain one row, but normally each case will have a row. You would be mainly interested in the **TOTAL_FIBERS** and **LEN_200** columns, which count the number of total tracts and the number of the longest type of tract respectively. We are looking to see if any case has an abnormally low level of either of these values relative to the rest of the cases. The easiest way to do this would be to sort the columns and look at the lowest ones using the **Sort Ascending** or **Sort Descending** tool in the upper toolbar. 
+A spread sheet will then open up and in the example it will only contain one row, but normally each case will have a row. You would be mainly interested in the **TOTAL_FIBERS** and **LEN_200** columns, which count the number of total tracts and the number of the longest type of tract respectively. We are looking to see if any case has an abnormally low level of either of these values relative to the rest of the cases. The easiest way to do
+this would be to sort the columns and look at the lowest ones using the **Sort Ascending** or **Sort Descending** tool in the upper toolbar. 
 
 Talk with your PI in the case where any case fails any of the QCs.
 
@@ -673,7 +674,7 @@ If you want to run the script on many `.vtk` files at once and have them all in 
 
   * Under the **IO** header, for **Select Input Type**, choose **Fibers_File_Folder**. For **Fibers File Folder** select your wmql directory and for **Output Text File** you can select the text file you just made. Then for Select Output Format choose **Column_Hierarchy** and for **Output Field Separator** choose **Tab** and press **Apply**.
 
-  * Now you can open the text file by entering `oocalc sample_af.left.txt`.
+  * Now you can see the text file by entering `column -s, -t < sample_af.left.txt | less -#1 -N -S`.
 
 You may notice that there are some differences in what these two methods give you, so which you choose largely depends on what you’re looking for, and sometimes it may be necessary to use boths ways to get everything you need:
 
