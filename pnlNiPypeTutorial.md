@@ -579,7 +579,7 @@ After this has completed you should now have your PipelineTraining directory in 
 
 Go into the `Diffusion_b3000` directory and enter:
 ```
-/data/pnl/soft/whitematteranalysis/bin/wm_quality_control_tractography.py Tractography tractQC
+wm_quality_control_tractography Tractography/ tractQC/
 ```
 
 It is likely that this script will not be able to run on the desktop at your PNL workstation because of graphics processing issues. If this is the case, you will have to do it instead using **NoMachine** on your personal computer, which is an app that you should have anyway because it is very useful here at the lab.
