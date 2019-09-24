@@ -558,7 +558,7 @@ Go into the `Diffusion_b3000` directory and enter:
 wm_quality_control_tractography Tractography/ tractQC/
 ```
 
-Next, go into your new `tractQC` directory. To do a visual QC, enter `xdg-open view_<area>.html`. There are 6 different areas that you can look at (**ant**, **inf**, **left**, **post**, **right**, and **sup**) and you should inspect each of them carefully.
+Next, go into your new `tractQC` directory. To do a visual QC, enter `gio open view_<area>.html`. There are 6 different areas that you can look at (**ant**, **inf**, **left**, **post**, **right**, and **sup**) and you should inspect each of them carefully.
 
 * One paper that is very helpful in determining what to look for is “A diffusion tensor imaging tractography atlas for virtual in vivo dissections” (Catani & Thiebaut de Schotten, 2008) so give it a look.
 
