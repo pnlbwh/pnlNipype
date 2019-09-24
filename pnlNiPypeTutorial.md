@@ -17,7 +17,7 @@ And here are some things to keep in mind as you go through this tutorial:
 
 Once you have gone through this tutorial, you should also reference the [tutorial on the PNL GitHub](https://github.com/pnlbwh/pnlNipype/blob/master/TUTORIAL.md). The main GitHub page can be found [here](https://github.com/pnlbwh)
 
-**Set up sample files**
+## Set up sample files
 
 The pipeline relies heavily on the use of the Linux operating system, which unlike Microsoft Windows or Mac OS X, is text and terminal based.  It is best to gain some familiarity with Linux (with a Linux tutorial) before beginning this pipeline tutorial. However, all the steps used in Linux will be explained along the way. 
 
@@ -27,7 +27,7 @@ If you have questions at any point, ask an RA! They will be more than happy to h
 
 In order to practice each step in the pipeline, we will use a sample case located in `/rfanfs/pnl-zorro/Tutorial/Case01183_NiPype/raw`
 
-**Copying the Sample Case to your Home Directory**
+## Copying the Sample Case to your Home Directory
 
 Before beginning this tutorial, you will need to copy the directory with the sample case in it into a directory in your own “home” directory.
 
@@ -71,9 +71,9 @@ In your **PipelineTraining** directory you should now find 3 files and 4 directo
 In general, there are two types of neuroimaging data that you will be working with: **diffusion** imaging data and **structural** imaging data.  As you can see from the above figure, some steps of the pipeline are shared for both structural and diffusion data, and some are unique to one type of data. Furthermore, processing structural and diffusion data require different scripts and different use of the Slicer software. This tutorial will first go through structural data processing, and then diffusion data analysis.
 
 
-**The Pipeline - Structural**
+# The Pipeline - Structural
 
-**Dicom to Nifti (.nii) Conversion**
+## Dicom to Nifti (.nii) Conversion
 
 Make a new directory in PipelineTraining for structural data processing by going back into **PipelineTraining** and entering `mkdir strct`.
 
@@ -101,7 +101,7 @@ The files `sample-T1.nii.gz` and `sample-T2.nii.gz` should now be in your `strct
 •	In order to save space on the system, best practice is to zip the DICOM directory after you have converted it. To do this enter:
 `tar -cf <DICOM directory.tar>  <DICOM directory>`. If you ever want to use the files again you can simply unzip the files by entering `tar -xvf <.tar file>`.
 
-**Axis Align and Centering**
+## Axis Align and Centering
 
 The next step in the pipeline centers the images and aligns them on the x-y-z axis, in order to standardize the position and orientation of each image in space.
 
@@ -132,7 +132,7 @@ for i in *.nii.gz; do
 done
 ```
 
-**Quality Control (Parameter and Visual)**
+## Quality Control (Parameter and Visual)
 
 After you axis align and center the structural images, you need to check the quality of the images themselves (visual), and the parameters used to acquire the images (parameter). Quality checking every image is crucial to ensure that we are only analyzing good data. Parameters are checked from the image header in the terminal, and the images themselves are checked in **Slicer**.
 
@@ -195,7 +195,7 @@ Example of ringing. If you look closely at the top of the image you will see rin
 <img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/ringing_closeup.png" width="70%">
 
 
-**Brain Masking and Mask QC**
+## Brain Masking and Mask QC
 
 The next step in the pipeline involves making a “mask” for your structural data in order to define what is brain and what is not brain in the image. Structural masking is very important for other processing, especially for getting good Freesurfer output, and for accurate registration of brain images.
 
@@ -276,7 +276,7 @@ This will copy one of the T2 training masks and its corresponding raw file to yo
 
 To turn the mask back into a labelmap, go back to the **Segmentations** module. Go back to “Export/import models and labelmaps.” Make sure “Export” and “Labelmap” are highlighted, and that your mask is the “Output node.” Click **Export**. Make sure to save your mask with **Ctrl+s**, and make sure that you know the path of where you’re saving it to.
 
-**FreeSurfer Segmentation and QC**
+## FreeSurfer Segmentation and QC
 
 Now that you have a good mask on your T2, you are going to apply that mask to your T1 image and generate an automated label map for white and gray matter parcellation. 
 
@@ -324,9 +324,9 @@ Some useful information can be gained just from looking at the FreeSurfer output
 
 
 
-**The Pipeline - Diffusion**
+# The Pipeline - Diffusion
 
-**Dicom to Nifti File Conversion**
+## Dicom to Nifti File Conversion
 
 In your `PipelineTraining` directory, enter:
 ```
@@ -337,7 +337,7 @@ After a bit of a wait and some output messages printed on your screen,  and you 
 
 A `.bval` file is a text file where the B-value for every gradient is listed in order separated by a space. A `.bvec` file is a text file with the x,y,z vectors of each gradient listed in order separated by a space between directions and a return between gradients. This is information you can get from the file’s header, which you can learn more about below in the **Quality Control (Parameter, Visual, and Auto)** section. 
 
-**Axis Align and Center**
+## Axis Align and Center
 
 To make it so that you don’t have to write the whole file path for everything, make sure you are in the directory with your `.nii.gz` file, which should be `Diffusion_b3000`
 
@@ -351,7 +351,7 @@ Like with the structural portion, you are now done with the versions of the imag
 Right now you are only doing a single case, but often you will want to do this for many cases.  You can save a lot of time by using a `for`  loop in the shell, so when you eventually find yourself in this situation, ask someone to show you how these work.
 
 
-**Quality Control (Parameter, Visual, and Auto)**
+## Quality Control (Parameter, Visual, and Auto)
 
 You will first need to do a parameter check where you are essentially making sure all of the headers look like they should and that all the cases match each other. Whether or not each case passes the different QC checks should be recorded in an **Excel** spreadsheet on **LabArchives**. There are several fields you will need to look at but first to see the header, make sure you are still in the directory with your new `.nii.gz` files and enter:
 ```
@@ -398,10 +398,11 @@ An example of a signal drop.
 Before turning now to the automated QC tool, check with your PI about how severe these different things need to be to disqualify a case and in the case of dropped signal, check also if you will be getting rid of gradients within a case that have dropped signal or if you will keep them.
 
 
-**DIFFQC TOOL**
+## DIFFQC TOOL
+This is a placeholder for more info to come!
 
 
-**Motion and Eddy Current Correction**
+## Motion and Eddy Current Correction
 
 Now that you ideally have only the cases and gradients that are usable for further processing (which we’ll say is all of them in this example), you can correct for motion and eddy currents. Make sure you are still in the `Diffusion_b3000 directory` and enter:
 ```
@@ -411,11 +412,11 @@ Running this to completion could take some time (about 30 minutes) and you will 
 
 Since this takes a long time, it is also available to be copied from the `Other` directory into your `Diffusion_b3000` directory. You will also need to copy `sample-dwi-Ed.bval` and `sample-dwi-Ed.bvec` along with `sample-dwi-Ed.nii.gz`.
 
-**Tensor Mask**
+## Tensor Mask
 
 To mask a diffusion image, follow the instructions [here](https://confluence.partners.org/pages/viewpage.action?spaceKey=PNL&title=Segment+Editor+Diffusion+Masking) to mask `sample-dwi-Ed.nii.gz` (in the `Diffusion_b3000` directory). Be sure to save the output mask into your `Diffusion_b3000` directory as `sample-dwi-tensor-mask.nii.gz`.
 
-**EPI correction**
+## EPI correction
 
 To further correct for distortions caused by magnet interactions and magnetic inhomogeneity (which leads to intensity loss and voxel shifts), you will now have to run an EPI correction. This is done by co-registering it with the T2 image, which means that you need to have T2 images for the case to do this step and also that you will need to have masked the T2 file (step 5 of the structural pipeline) so that you can use it for this. If T2 images were not taken for the particular case (they were for this example) then you will have to skip this step. 
 
@@ -490,7 +491,7 @@ nhdr_write.py --nifti sample-dwi-tensor-mask.nii.gz --nhdr sample-dwi-tensor-mas
 If this time the glyphs look correct in the corpus callosum, you have fixed it for that case. If they still don’t look correct, change the first set of coordinates back to positive and make the second set negative. There are 7 possible permutations of negatives that you can try if necessary. It is usually the case that the proper measurement frame is the same for every case in a dataset, but this is not always the case, especially if the data was acquired on more than one scanner or over a long period of time. Because of that, before you then make this change to the header of every epi-corrected dwi for every case in the dataset, you should check this on a handful of other cases as well. 
 
 
-**Two-Tensor Whole Brain Tractography**
+## Two-Tensor Whole Brain Tractography
 
 It is now time to generate a tractography image, which creates images that look like this:
 
@@ -522,11 +523,11 @@ When it opens you will notice that the whole thing is most likely pink, like thi
 	
 There are more interesting color schemes, however, that will tell you different information about the image. You can change between these by going to the **Modules** drop down and selecting **Diffusion** > **Tractography Display**. Under the **Advanced Display** heading you can play around with the different options to look at different things. 
 
-**Finishing the Pipeline**
+## Finishing the Pipeline
 
 To continue on from this point you will need to have both the diffusion and the structural steps completed, since these use both of them. 
 
-**FreeSurfer labelmap to dwi-space registration**
+## FreeSurfer labelmap to dwi-space registration
 
 The first step of post-processing involves registering the FreeSurfer labelmap that you made to the diffusion image since they don’t have the same resolution and aren’t in the same space. To do this make sure you are in the `PipelineTraining` directory and enter:
 ```
@@ -549,7 +550,7 @@ When it opens, it will probably not appear as it should, and to fix this go to t
 
 To check if the registration is good you scroll through the different views similar to how you did when quality checking the FreeSurfer labelmap during step 6 of the structural portion of the pipeline. 
 
-**White Matter Analysis**
+# White Matter Analysis
 
 This step is not a part of the figure on the first page of this tutorial, but it is often a good idea to complete this extra form of quality control.
 
@@ -573,7 +574,7 @@ this would be to sort the columns and look at the lowest ones using the **Sort A
 
 Talk with your PI in the case where any case fails any of the QCs.
 
-**White Matter Query Language**
+## White Matter Query Language
 
 At this time you will use white matter query language to put the FreeSurfer output in the same space as the tractography by using Demian’s method to automatically select fibers connecting specific regions from the whole brain tractography.
 
@@ -611,7 +612,7 @@ If they are not all in the same directory to start, one way that you can do that
 ln -s <full path to actual file> <full path to softlink directory>
 ```
 
-**Extract Measures**
+## Extract Measures
 
 For the final step of the pipeline you need to now extract all of the measures you want from the images. There are two ways to do this:
 
@@ -651,3 +652,90 @@ Congratulations! You have made it through the tutorial!! You should now tar/zip 
 ```
 tar -zcvf /rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining.tar.gz /rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining
 ```
+
+# Summary of Commands
+Setup your environment
+```
+source /rfanfs/pnl-zorro/software/pnlpipe3/bashrc3
+```
+Go to your pipeline folder
+```
+cd $folder
+```
+
+## Structural pipeline
+Data conversion
+```
+dcm2niix -o . -f t1 -z y /rfanfs/pnl-zorro/Tutorial/Case01183_NiPype/raw/T1
+```
+```
+dcm2niix -o . -f t2 -z y /rfanfs/pnl-zorro/Tutorial/Case01183_NiPype/raw/T2
+```
+Axis Alignment and Centering
+```
+nifti_align -i t1.nii.gz --axisAlign --center -o t1-xc
+```
+```
+nifti_align -i t2.nii.gz --axisAlign --center -o t2-xc
+```
+Brain Masking via multiatlas labeling
+* *(Use /rfanfs/pnl-zorro/software/pnlpipe3/pnlpipe/soft_dir/trainingDataT1AHCC-8141805/trainingDataT1Masks-hdr.csv if no T2's)*
+```
+nifti_atlas csv -t t2-xc.nii.gz -o t2-xc -n 8 /rfanfs/pnl-zorro/software/pnlpipe3/pnlpipe/soft_dir/trainingDataT2Masks-12a14d9/trainingDataT2Masks-hdr.csv
+```
+Align T2 mask to T1 image
+```
+nifti_makeRigidMask -i t2-xc.nii.gz -l t2-xc-mask.nii.gz -t t1-xc.nii.gz -o t1-xc-mask.nii.gz
+```
+Run FreeSurfer
+```
+nifti_fs -i t1-xc.nii.gz -m t1-xc-mask.nii.gz -n 8 -o FreeSurfer
+```
+
+## Diffusion Pipeline
+Data conversion
+```
+dcm2niix -o . -f dwi -z y /home/hpc/pn72sa/ru48vil/Tutorial/Case01183_NiPype/raw/Diffusion_b3000/
+```
+Axis Alignment and centering
+```
+nifti_align -i dwi.nii.gz --bvals dwi.bval --bvecs dwi.bvec --axisAlign --center -o dwi-xc
+```
+Eddy current correction
+```
+pnl_eddy -i dwi-xc.nii.gz --bvals dwi-xc.bval --bvecs dwi-xc.bvec -o dwi-xc-ed
+```
+Brain Masking with FSL BET
+```
+nifti_bse -i dwi-xc-ed.nii.gz --bvals dwi-xc-ed.bval -o dwi-xc-ed-bse.nii.gz --avg
+```
+```
+nifti_bet_mask -i dwi-xc-ed-bse.nii.gz -o dwi-xc-ed
+```
+
+Unscented Kalman Filtered Tractography - 
+* This example uses 2 Tensors + FreeWater, 2 seeds per voxel
+* Typically one does 10 seeds per voxel. 
+```
+ukf -i dwi-xc-ed.nii.gz --bvals dwi-xc-ed.bval --bvecs dwi-xc-ed.bvec -m dwi-xc-ed_mask.nii.gz -o dwi-xc-ed-tracts.vtk --params '--seedsPerVoxel','2','--recordTensors','--freeWater','--recordFreeWater'
+```
+
+## Tracts Segmentation with White Matter Query Language (WMQL)
+
+Register FreeSurfer "wmparc" file to the diffusion space
+```
+nifti_fs2dwi --dwi dwi-xc-ed.nii.gz --dwimask dwi-xc-ed_mask.nii.gz -f FreeSurfer -o . direct
+```
+Cluster Tracts together based on the PNL query file.
+```
+nifti_wmql -f wmparcInDwi.nii.gz -i dwi-xc-ed-tracts.vtk -o wmquery -q /rfanfs/pnl-zorro/software/pnlpipe3/pnlNipype/scripts/wmql-2.0.qry
+```
+
+## Data Inspection/Tract Measures in Slicer
+*NOTE: Loading Volumes does not work, you can only visualize Tracts*
+```
+/rfanfs/pnl-zorro/software/pnlpipe3/Slicer-4.10.2-linux-amd64/Slicer
+```
+
+## Tracts Segmentation through Clustering
+*To be added later*
