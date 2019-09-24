@@ -551,53 +551,14 @@ To check if the registration is good you scroll through the different views simi
 
 **White Matter Analysis**
 
-This step is not a part of the figure on the first page of this tutorial, but it is often a good idea to complete this extra form of quality control. Note that this step makes use of something called Cluster. In order to use the cluster you need an account and a separate mini-tutorial exists to help you set this up if you need it. The purpose of doing this QC is that the tractography you produced contains thousands and thousands of fibers and it is hard to tell from looking at it if the result is reasonable.
-
-Once you have logged into the **Cluster** and chose a free node that you will use for an interactive session by entering:
-```
-bsub -Is -XF /bin/bash
-```
-Note that the `-Is` stands for your interactive session and the `-XF` that you will be using graphical processing resources. If you are not running this on the Cluster using your PNL desktop, but instead No Machine, this is not applicable and you can find the information about that further down the page.
-
-Assuming that you have already created a personal directory for yourself in the **Cluster**, you will need to copy your PipelineTraining directory into that directory in Cluster. 
-
-* First, you will need your workstation's I.P. address. You can get this  by entering:
-```
-ip addr
-```
-Look for a line that looks like the following:
-```
-inet 172.23.222.249/24 brd 172.23.222.255 scope global dynamic eno1
-```
-In this case, the I.P. address `172.23.222.249` (ignore anything after the `/`)
-
-Then, to copy from your workstation to the **Cluster**, you can go to your **Cluster** directory and enter:
-```
-scp -pr <yourusername>@<yourcomputer’sI.P.address>:/rfanfs/pnl-zorro/home/<yourname>/PipelineTraining ./
-```
-After this has completed you should now have your PipelineTraining directory in cluster as well.
+This step is not a part of the figure on the first page of this tutorial, but it is often a good idea to complete this extra form of quality control.
 
 Go into the `Diffusion_b3000` directory and enter:
 ```
 wm_quality_control_tractography Tractography/ tractQC/
 ```
 
-It is likely that this script will not be able to run on the desktop at your PNL workstation because of graphics processing issues. If this is the case, you will have to do it instead using **NoMachine** on your personal computer, which is an app that you should have anyway because it is very useful here at the lab.
-
-**NoMachine** will give you access to the same file system as the cluster but through a different set of servers that you can access from personal computers without taxing your machine’s processing power.
-
-To get **NoMachine**, follow this guide on [Confluence](https://confluence.partners.org/pages/viewpage.action?spaceKey=PNL&title=Remote+Access+and+NoMachine+09.11.17)
-
-It is also important to note that when running the white matter quality control script, it will not work if you try to log into a node like you would normally as discussed in the cluster manual. This is the only situation where you should instead just run the script without logging into a cluster node. For other jobs, even using **NoMachine**, you should still follow the typical cluster protocol.
-
-When using No Machine for this task, since you are not logging into a node, you will also not be accessing the X-serving (by using `-XF`), but this is okay because this is automatically activated in No Machine as long as you are not logged into a node.
-
-You will now want to copy the result of this back onto your local server. Go into your `Diffusion_b3000` directory and enter:
-```
-scp -pr tractQC <yourusername>@<yourcomputer’sI.P.address>:/rfanfs/pnl-zorro/home/<yourname>/PipelineTraining/Diffusion_b3000
-```
-
-You can now leave the **Cluster** by entering `exit` twice. Then go into your new `tractQC` directory. To do a visual QC, enter `xdg-open view_<area>.html`. There are 6 different areas that you can look at (**ant**, **inf**, **left**, **post**, **right**, and **sup**) and you should inspect each of them carefully.
+Next, go into your new `tractQC` directory. To do a visual QC, enter `xdg-open view_<area>.html`. There are 6 different areas that you can look at (**ant**, **inf**, **left**, **post**, **right**, and **sup**) and you should inspect each of them carefully.
 
 * One paper that is very helpful in determining what to look for is “A diffusion tensor imaging tractography atlas for virtual in vivo dissections” (Catani & Thiebaut de Schotten, 2008) so give it a look.
 
