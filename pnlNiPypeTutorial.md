@@ -617,7 +617,7 @@ For the final step of the pipeline you need to now extract all of the measures y
 
 * Way 1: Go into your `wmql/` directory. Let’s say we are still interested in the left AF. Enter:
 ```
-/rfanfs/pnl-zorro/software/pnlpipe3/pnlpipe/pnlscripts/measuretracts/measureTracts.py -i sample_af.left.vtk -o sample_af.left.csv
+/rfanfs/pnl-zorro/software/pnlpipe3/pnlpipe/pnlscripts/measuretracts/measureTracts.py -i *.vtk -o sample_summarizetracts.csv
 ```
   * This will create a file called `sample_af.left.csv` in that directory as well.
 
