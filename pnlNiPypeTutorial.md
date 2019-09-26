@@ -588,11 +588,10 @@ gedit freesurfer_queries_new.qry
 ```
 and this defines individual tracts.
  
-Now go back to your PipelineTraining directory and make a new directory called **wmql**.
+Now go back to your PipelineTraining directory and enter:
 
-Now enter:
 ```
-nifti_wmql -f sample_fs2dwi/wmparc-in-bse.nii.gz -i Diffusion_b3000/Tractography/sample-dwi-tracts.vtk  -q /rfanfs/pnl-zorro/software/pnlutil/pipeline/wmql-2.0.qry -o ./wmql sample
+nifti_wmql -f sample_fs2dwi/wmparc-in-bse.nii.gz -i Diffusion_b3000/Tractography/sample-dwi-tracts.vtk  -q /rfanfs/pnl-zorro/software/pnlutil/pipeline/wmql-2.0.qry -o ./wmql
 ```
 
 After it has finished running, you can go into the `wmql/` directory and see that it has generated files for all kinds of tracts.
