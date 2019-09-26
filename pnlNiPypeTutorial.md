@@ -629,7 +629,7 @@ You can then use the left and right arrow keys to navigate through the csv file.
 
 If you want to run the script on many `.vtk` files at once and have them all in the same spreadsheet, you can do this by putting all of the `.vtk` files in the same directory (or making softlinks to them in the same directory as discussed above in wmql) and replace the input with `*.vtk`.
 
-* Way 2: In **Slicer**, you can go to the **Modules** drop-down and go to **Diffusion** > **Tractography** > **Fiber Tract Scalar Measurements**
+* Way 2: In **Slicer**, you can go to the **Modules** drop-down and go to **Diffusion** > **Quantify** > **Tractography** > **Tractography Measurements**
 
   * Now you will need to create a blank text file for the program to put the information into. You can do this by entering in terminal `touch sample_af.txt`.
 
