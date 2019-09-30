@@ -542,9 +542,9 @@ Note: If you do not have T2s as part of the case you are working with you will h
 nifti_fs2dwi --dwi <dwi_Ed> --dwimask <tensor_mask> -f <freesurfer_directory> -o <output_directory> direct
 ```
 
-Once the script has finished running, you will find that there is a file called `wmparc-in-bse.nii.gz` in the `sample_fs2dwi` directory. Open this file along with `sample-dwi-epi.nii.gz` in Slicer to see if they are registered well. Make sure that `wmparc-in-bse.nii.gz` is checked for Label Map.
+Once the script has finished running, you will find that there is a file called `wmparcInBrain.nii.gz` in the `sample_fs2dwi` directory. Open this file along with `sample-dwi-epi.nii.gz` in Slicer to see if they are registered well. Make sure that `wmparcInBrain.nii.gz` is checked for Label Map.
 
-When it opens, it will probably not appear as it should, and to fix this go to the **Volumes** module and for the **Active Volume** select `wmparc-in-bse`. Then, under the **Display** heading, change Lookup Table to **FreeSurfer** > **FreeSurferLabels**. It will look something like this:
+When it opens, it will probably not appear as it should, and to fix this go to the **Volumes** module and for the **Active Volume** select `wmparcInBrain`. Then, under the **Display** heading, change Lookup Table to **FreeSurfer** > **FreeSurferLabels**. You should open up `b0maskedbrain.nii.gz` as well (as a normal Volume). It will look something like this:
 
 <img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/fs_in_dwi.png" width=80%>
 
