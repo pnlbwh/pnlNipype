@@ -274,7 +274,7 @@ This will copy one of the T2 training masks and its corresponding raw file to yo
 
   * Scroll through the mask to get a sense of what is and isn’t brain. It might take awhile to get comfortable, and that’s okay! Remember, you can always ask questions and ask for help. These will always be in your PipelineTraining directory, so if you ever want to look back and refer to some sample masks while you’re working on a project, feel free to do so.
 
-To turn the mask back into a labelmap, go back to the **Segmentations** module. Go back to “Export/import models and labelmaps.” Make sure “Export” and “Labelmap” are highlighted, and that your mask is the “Output node.” Click **Export**. Make sure to save your mask with **Ctrl+s**, and make sure that you know the path of where you’re saving it to.
+To turn the mask back into a labelmap, go back to the **Segmentations** module. Go back to “Export/import models and labelmaps.” Make sure “Export” and “Labelmap” are highlighted, and that your mask is the “Output node.” Click **Advanced** and select the reference volume (the image that you are masking). For this example, the file will be `sample-t2-xc`. Click **Export**. Make sure to save your mask with **Ctrl+s**, and make sure that you know the path of where you’re saving it to.
 
 ## FreeSurfer Segmentation and QC
 
