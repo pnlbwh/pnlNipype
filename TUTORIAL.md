@@ -36,7 +36,7 @@ Table of Contents
       * [i. Direct registration](#i-direct-registration)
       * [ii. Through T2 registration](#ii-through-t2-registration)
    * [White matter query](#white-matter-query)
-
+   * [Render white matter tracts](#render-white-matter-tracts) 
 
 Table of Contents created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
