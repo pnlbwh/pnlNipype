@@ -32,6 +32,18 @@ class App(cli.Application):
             help='DWI',
             mandatory=True)
 
+    bvecs_file= cli.SwitchAttr(
+        ['--bvecs'],
+        cli.ExistingFile,
+        help='bvecs file of the DWI',
+        mandatory=True)
+
+    bvals_file= cli.SwitchAttr(
+        ['--bvals'],
+        cli.ExistingFile,
+        help='bvals file of the DWI',
+        mandatory=True)
+
     dwimask = cli.SwitchAttr(
             '--dwimask',
             cli.ExistingFile,
@@ -52,8 +64,7 @@ class App(cli.Application):
 
     out = cli.SwitchAttr(
             ['-o', '--output'],
-            cli.NonexistentPath,
-            help='EPI corrected DWI',
+            help='Prefix for EPI corrected DWI, same prefix is used for saving bval, bvec, and mask',
             mandatory=True)
 
     nproc = cli.SwitchAttr(
@@ -61,11 +72,12 @@ class App(cli.Application):
             becomes sluggish/you run into memory error, reduce --nproc''', default= N_PROC)
 
     def main(self):
+
+        self.out = local.path(self.out)
         if not self.force and self.out.exists():
             logging.error('{} already exists, use --force to force overwrite.'.format(self.out))
             sys.exit(1)
 
-        self.out = local.path(self.out)
 
         with TemporaryDirectory() as tmpdir:
             tmpdir = local.path(tmpdir)
@@ -86,14 +98,20 @@ class App(cli.Application):
             logging.info('3. Compute a rigid registration from the T2 to the DWI baseline')
             rigid_registration(3, t2masked, bse, t2tobse_rigid)
 
+            # warp the t2
             antsApplyTransforms('-d', '3', '-i', t2masked, '-o', t2inbse, '-r', bse, '-t', affine)
+            # warp the mask
+            epimask = self.out._path+'-mask.nii.gz'
+            antsApplyTransforms('-d', '3', '-e', '0', '-i', self.dwimask, '-o', epimask,
+                                '-n', 'NearestNeighbor', '-r', bse, '-t', affine)
+            fslmaths(epimask, '-mul', '1', epimask, '-odt', 'char')
 
 
             logging.info('4. Compute 1d nonlinear registration from the DWI to T2-in-bse along the phase direction')
             moving = bse
             fixed = t2inbse
             pre = tmpdir / 'epi'
-            dwiepi = tmpdir / ('dwiepi' + ''.join(self.out.suffixes))
+            dwiepi = tmpdir / 'dwiepi.nii.gz'
             antsRegistration('-d', '3', '-m',
                              'cc[' + str(fixed) + ',' + str(moving) + ',1,2]', '-t',
                              'SyN[0.25,3,0]', '-c', '50x50x10', '-f', '4x2x1',
@@ -112,7 +130,9 @@ class App(cli.Application):
             # WarpTimeSeriesImageMultiTransform('4', dwimasked, dwiepi, '-R', dwimasked, '-i', epiwarp)
 
 
-            dwiepi.move(self.out)
+            dwiepi.move(self.out._path+'.nii.gz')
+            self.bvals_file.copy(self.out._path+'.bval')
+            self.bvecs_file.copy(self.out._path+'.bvec')
 
 
             if self.debug:
