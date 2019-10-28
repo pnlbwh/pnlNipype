@@ -30,7 +30,7 @@ class App(cli.Application):
     fsindwi = cli.SwitchAttr(
         ['-f', '--fsindwi'],
         cli.ExistingFile,
-        help='Freesurfer labelmap in DWI space (nrrd or nifti)',
+        help='Freesurfer labelmap in DWI space (nifti)',
         mandatory=True)
     query = cli.SwitchAttr(
         ['-q', '--query'],

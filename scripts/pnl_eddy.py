@@ -131,7 +131,7 @@ class App(cli.Application):
             write_bvecs(self.out._path+'.bvec', bvecs_new)
 
             # save EddyCorrect-DWI
-            local.path('EddyCorrect-DWI.nii.gz').copy(self.out+'.nii.gz')
+            local.path('EddyCorrect-DWI.nii.gz').copy(self.out._path+'.nii.gz')
 
             # copy bvals
             self.bvalFile.copy(self.out._path+'.bval')
