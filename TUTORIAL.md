@@ -562,21 +562,23 @@ diffusion weighted volumes.
         pnl_epi [SWITCHES] 
 
     Switches:
-        -d, --debug                             Debug, save intermediate files in 'epidebug-<pid>'
-        --dwi VALUE:ExistingFile                DWI; required
-        --dwimask VALUE:ExistingFile            DWI mask; required
-        --force                                 Force overwrite if output already exists
-        -n, --nproc VALUE:str                   number of threads to use, if other processes in your
-                                                computer becomes sluggish/you run into memory error,
-                                                reduce --nproc; the default is 4
-        -o, --output VALUE:NonexistentPath      EPI corrected DWI; required
-        --t2 VALUE:ExistingFile                 T2w; required
-        --t2mask VALUE:ExistingFile             T2w mask; required
+        --bvals VALUE:ExistingFile        bvals file of the DWI; required
+        --bvecs VALUE:ExistingFile        bvecs file of the DWI; required
+        -d, --debug                       Debug, save intermediate files in 'epidebug-<pid>'
+        --dwi VALUE:ExistingFile          DWI; required
+        --dwimask VALUE:ExistingFile      DWI mask; required
+        --force                           Force overwrite if output already exists
+        -n, --nproc VALUE:str             number of threads to use, if other processes in your computer becomes 
+                                          sluggish/you run into memory error, reduce --nproc; the default is 4
+        -o, --output VALUE:str            Prefix for EPI corrected DWI, same prefix is used for saving 
+                                          bval, bvec, and mask; required
+        --t2 VALUE:ExistingFile           T2w; required
+        --t2mask VALUE:ExistingFile       T2w mask; required
         
 
 Example usage:
 
-    pnl_epi --dwi dwiNifti --dwimask maskNifti --t2 t2Nifti --t2mask t2MaskNifti -o dwiEpNifti 
+    pnl_epi --dwi dwiNifti --dwimask maskNifti --t2 t2Nifti --t2mask t2MaskNifti -o dwiEpiPrefix 
         
 
 

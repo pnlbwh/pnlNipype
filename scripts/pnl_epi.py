@@ -64,7 +64,7 @@ class App(cli.Application):
 
     out = cli.SwitchAttr(
             ['-o', '--output'],
-            help='Prefix for EPI corrected DWI',
+            help='Prefix for EPI corrected DWI, same prefix is used for saving bval, bvec, and mask',
             mandatory=True)
 
     nproc = cli.SwitchAttr(
