@@ -1,5 +1,6 @@
 ![](docs/pnl-bwh-hms.png)
 
+
 [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.3258854.svg)](https://doi.org/10.5281/zenodo.3258854) [![Python](https://img.shields.io/badge/Python-3.6-green.svg)]() [![Platform](https://img.shields.io/badge/Platform-linux--64%20%7C%20osx--64-orange.svg)]()
 
 Developed by Tashrif Billah, Sylvain Bouix, and Yogesh Rathi, Brigham and Women's Hospital (Harvard Medical School).
@@ -140,13 +141,13 @@ The rest of the software can be installed with *pnlpipe* infrastructure:
     cmd/install.py trainingDataT1AHCC
     cmd/install.py trainingDataT2Masks
     
+
     # install the python packages required to run pnlNipype
     pip install -r requirements.txt    
     
     # finally, install whitematteanalysis according to https://github.com/pnlbwh/pnlpipe#4-whitematteranalysis-package
-    
-    
-    
+
+
 Detailed instruction can be found [here](https://github.com/pnlbwh/pnlpipe_software).
 
 
@@ -171,6 +172,7 @@ Follow this [instruction](https://github.com/pnlbwh/ukftractography/blob/master/
 
 If you have already configured your environment following *pnlpipe*, you may pass the instruction below:
 
+
     source ~/miniconda3/bin/activate                 # should introduce '(base)' in front of each line
     export FSLDIR=~/fsl/                             # setup fsl environment
     source $FSLDIR/etc/fslconf/fsl.sh
@@ -181,6 +183,7 @@ If you have already configured your environment following *pnlpipe*, you may pas
     export PATH=$ANTSPATH:ANTs/Scripts:$PATH         # define ANTSPATH and export ANTs scripts in your path
     export PATH=~/dcm2niix/build/bin
     export PY2BIN=/absolute/path/to/miniconda2/bin   # for whitematteranalysis package
+
     
     
 *(If you would like, you may edit your [bashrc](#global-bashrc) to have environment automatically setup
@@ -286,6 +289,7 @@ This table summarizes the scripts in `pnlNipype/scripts/`:
 | Tractography       |  **wmqlqc.py**                     |  makes html page of rendered wmql tracts                              |
 
 
+
 The above executables are available as soft links in `pnlNipype/exec` directory as well:
     
 | Soft link | Target script |
@@ -318,6 +322,7 @@ For example, to execute axis alignment script, you can do either of the followin
 
 If you want your terminal to have the scripts automatically discoverable and environment ready to go,
 you may put the following lines in your bashrc:
+
 
     source ~/miniconda3/bin/activate                 # should intoduce '(base)' in front of each line
     export FSLDIR=~/fsl                              # you may specify another directory where FreeSurfer is installed
