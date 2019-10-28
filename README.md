@@ -140,10 +140,13 @@ The rest of the software can be installed with *pnlpipe* infrastructure:
     cmd/install.py trainingDataT1AHCC
     cmd/install.py trainingDataT2Masks
     
-    # finally, install the python packages required to run pnlNipype
-    pip install -r requirements.txt
+    # install the python packages required to run pnlNipype
+    pip install -r requirements.txt    
     
-
+    # finally, install whitematteanalysis according to https://github.com/pnlbwh/pnlpipe#4-whitematteranalysis-package
+    
+    
+    
 Detailed instruction can be found [here](https://github.com/pnlbwh/pnlpipe_software).
 
 
@@ -168,15 +171,16 @@ Follow this [instruction](https://github.com/pnlbwh/ukftractography/blob/master/
 
 If you have already configured your environment following *pnlpipe*, you may pass the instruction below:
 
-    source ~/miniconda3/bin/activate           # should introduce '(base)' in front of each line
-    export FSLDIR=~/fsl/                       # setup fsl environment
+    source ~/miniconda3/bin/activate                 # should introduce '(base)' in front of each line
+    export FSLDIR=~/fsl/                             # setup fsl environment
     source $FSLDIR/etc/fslconf/fsl.sh
     export PATH=$PATH:$FSLDIR/bin
-    export FREESURFER_HOME=~/freesurfer        # you may specify another directory where FreeSurfer is installed
+    export FREESURFER_HOME=~/freesurfer              # you may specify another directory where FreeSurfer is installed
     source $FREESURFER_HOME/SetUpFreeSurfer.sh
     export ANTSPATH=/path/to/ANTs/bin/
-    export PATH=$ANTSPATH:ANTs/Scripts:$PATH   # define ANTSPATH and export ANTs scripts in your path
+    export PATH=$ANTSPATH:ANTs/Scripts:$PATH         # define ANTSPATH and export ANTs scripts in your path
     export PATH=~/dcm2niix/build/bin
+    export PY2BIN=/absolute/path/to/miniconda2/bin   # for whitematteranalysis package
     
     
 *(If you would like, you may edit your [bashrc](#global-bashrc) to have environment automatically setup
@@ -279,6 +283,7 @@ This table summarizes the scripts in `pnlNipype/scripts/`:
 | -                  |  -                                 |  -                                                                    |
 | Freesurfer to DWI  |  **fs2dwi.py**                     |  registers a freesurfer segmentation to a DWI                         |
 | Tractography       |  **wmql.py**                       |  simple wrapper for tract_querier                                     |
+| Tractography       |  **wmqlqc.py**                     |  makes html page of rendered wmql tracts                              |
 
 
 The above executables are available as soft links in `pnlNipype/exec` directory as well:
@@ -314,16 +319,18 @@ For example, to execute axis alignment script, you can do either of the followin
 If you want your terminal to have the scripts automatically discoverable and environment ready to go,
 you may put the following lines in your bashrc:
 
-    source ~/miniconda3/bin/activate            # should intoduce '(base)' in front of each line
-    export FSLDIR=~/fsl                         # you may specify another directory where FreeSurfer is installed
+    source ~/miniconda3/bin/activate                 # should intoduce '(base)' in front of each line
+    export FSLDIR=~/fsl                              # you may specify another directory where FreeSurfer is installed
     export PATH=$PATH:$FSLDIR/bin
     source $FSLDIR/etc/fslconf/fsl.sh
-    export FREESURFER_HOME=~/freesurfer         # you may specify another directory where FreeSurfer is installed
+    export FREESURFER_HOME=~/freesurfer              # you may specify another directory where FreeSurfer is installed
     source $FREESURFER_HOME/SetUpFreeSurfer.sh
     export $PATH=$PATH:/absolute/path/to/pnlNipype/scripts
     export ANTSPATH=/path/to/ANTs/bin/
-    export PATH=$ANTSPATH:ANTs/Scripts:$PATH    # define ANTSPATH and export ANTs scripts in your path
+    export PATH=$ANTSPATH:ANTs/Scripts:$PATH         # define ANTSPATH and export ANTs scripts in your path
     export PATH=~/dcm2niix/build/bin
+    export PY2BIN=/absolute/path/to/miniconda2/bin   # for whitematteranalysis package
+
 
 # Documentation
 

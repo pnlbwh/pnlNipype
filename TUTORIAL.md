@@ -918,7 +918,7 @@ Queries a whole brain tract file and extracts specific tract files.
         nifti_wmql [SWITCHES] 
 
     Switches:
-        -f, --fsindwi VALUE:ExistingFile      Freesurfer labelmap in DWI space (nrrd or nifti); required
+        -f, --fsindwi VALUE:ExistingFile      Freesurfer labelmap in DWI space (nifti); required
         -i, --in VALUE:ExistingFile           tractography file (.vtk or .vtk.gz), must be in RAS space; required
         -n, --nproc VALUE:str                 number of threads to use, if other processes in your computer becomes
                                               sluggish/you run into memory error, reduce --nproc; the default is 4
@@ -931,4 +931,23 @@ Example usage:
 
     nifti_wmql -f `wmparcInDwi.nii.gz` -i tracts.vtk -o /tmp/wmquery/
     
+
+# Render white matter tracts    
+
+Make html page of rendered wmql tracts.
+
+> wmqlqc -h
     
+    Usage:
+        wmqlqc [SWITCHES] 
+    
+    Switches:
+        -i VALUE:str                  list of wmql directories, must be enclosed within quotes; required
+        -o VALUE:NonexistentPath      Output directory; required
+        -s VALUE:str                  list of subject ids corrsponding to wmql directories, must be enclosed within quotes; required
+
+
+Example usage:
+    
+    wmqlqc -i /tmp/wmquery/ -o /tmp/htmls/ -s caseid
+     
