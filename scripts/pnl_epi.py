@@ -102,7 +102,7 @@ class App(cli.Application):
             antsApplyTransforms('-d', '3', '-i', t2masked, '-o', t2inbse, '-r', bse, '-t', affine)
             # warp the mask
             epimask = self.out._path+'-mask.nii.gz'
-            antsApplyTransforms('-d', '3', '-e', '0', '-i', self.dwimask, '-o', epimask,
+            antsApplyTransforms('-d', '3', '-i', self.dwimask, '-o', epimask,
                                 '-n', 'NearestNeighbor', '-r', bse, '-t', affine)
             fslmaths(epimask, '-mul', '1', epimask, '-odt', 'char')
 
