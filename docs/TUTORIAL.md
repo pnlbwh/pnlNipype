@@ -111,7 +111,7 @@ They are the same thing.
 
 # pnlNipype graph
 
-![](Misc/dag.png)
+![](docs/dag.png)
 
 
 
@@ -942,14 +942,16 @@ Make html page of rendered wmql tracts.
     
     Usage:
         wmqlqc [SWITCHES] 
-    
+
     Switches:
-        -i VALUE:str                  list of wmql directories, must be enclosed within quotes; required
+        -i VALUE:str                  list of wmql directories, separated by space; list must be
+                                      enclosed within quotes; required
         -o VALUE:NonexistentPath      Output directory; required
-        -s VALUE:str                  list of subject ids corrsponding to wmql directories, must be enclosed within quotes; required
+        -s VALUE:str                  list of subject ids corresponding to wmql directories, separated
+                                      by space; list must be enclosed within quotes; required
 
 
 Example usage:
     
-    wmqlqc -i /tmp/wmquery/ -o /tmp/htmls/ -s caseid
-     
+    wmqlqc -i /tmp/nifti_wmql_output_dir/ -o /tmp/htmls/ -s caseid
+    wmqlqc -i "/tmp/wmql_output_dir1/ /tmp/wmql_output_dir2/" -o /tmp/htmls -s "caseid1 caseid2"

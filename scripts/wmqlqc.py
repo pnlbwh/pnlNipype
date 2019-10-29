@@ -14,12 +14,12 @@ class App(cli.Application):
 
     wmqldirs = cli.SwitchAttr(
         ['-i'],
-        help='list of wmql directories, must be enclosed within quotes',
+        help='list of wmql directories, separated by space; list must be enclosed within quotes',
         mandatory=True)
 
     caseids = cli.SwitchAttr(
         ['-s'],
-        help='list of subject ids corrsponding to wmql directories, must be enclosed within quotes',
+        help='list of subject ids corresponding to wmql directories, separated by space; list must be enclosed within quotes',
         mandatory=True)
 
     out = cli.SwitchAttr(
