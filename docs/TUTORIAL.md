@@ -953,5 +953,5 @@ Make html page of rendered wmql tracts.
 
 Example usage:
     
-    wmqlqc -i /tmp/nifti_wmql_output_dir/ -o /tmp/htmls/ -s caseid
+    wmqlqc -i /tmp/wmql_output_dir/ -o /tmp/htmls/ -s caseid
     wmqlqc -i "/tmp/wmql_output_dir1/ /tmp/wmql_output_dir2/" -o /tmp/htmls -s "caseid1 caseid2"
