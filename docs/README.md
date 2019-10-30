@@ -1,4 +1,4 @@
-![](docs/pnl-bwh-hms.png)
+![](./pnl-bwh-hms.png)
 
 
 [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.3258854.svg)](https://doi.org/10.5281/zenodo.3258854) [![Python](https://img.shields.io/badge/Python-3.6-green.svg)]() [![Platform](https://img.shields.io/badge/Platform-linux--64%20%7C%20osx--64-orange.svg)]()
@@ -248,9 +248,9 @@ reduce NCPU (`--nproc`) to less than 4.
 pipeline steps. These scripts are the successors to the ones in [pnlpipe](https://github.com/pnlbwh/pnpipe)
 used for NRRD format data. Besides being more robust and up to date with respect to software such
 as [ANTS](http://stnava.github.io/ANTs/), they are implemented in python using
-the shell scripting library [plumbum](https://plumbum.readthedocs.io/en/latest/).
+the shell scripting library [plumbum](https://plumbum.readthe..io/en/latest/).
 Being written in python means they are easier to understand and modify,
-and [plumbum](https://plumbum.readthedocs.io/en/latest/) allows them to be
+and [plumbum](https://plumbum.readthe..io/en/latest/) allows them to be
 almost as concise as a regular shell script.
 
 You can call any of these scripts directly, e.g.
