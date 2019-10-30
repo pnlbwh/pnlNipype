@@ -98,13 +98,7 @@ class App(cli.Application):
             logging.info('3. Compute a rigid registration from the T2 to the DWI baseline')
             rigid_registration(3, t2masked, bse, t2tobse_rigid)
 
-            # warp the t2
             antsApplyTransforms('-d', '3', '-i', t2masked, '-o', t2inbse, '-r', bse, '-t', affine)
-            # warp the mask
-            epimask = self.out._path+'-mask.nii.gz'
-            antsApplyTransforms('-d', '3', '-i', self.dwimask, '-o', epimask,
-                                '-n', 'NearestNeighbor', '-r', bse, '-t', affine)
-            fslmaths(epimask, '-mul', '1', epimask, '-odt', 'char')
 
 
             logging.info('4. Compute 1d nonlinear registration from the DWI to T2-in-bse along the phase direction')
@@ -124,10 +118,17 @@ class App(cli.Application):
             check_call((' ').join([pjoin(FILEDIR, 'antsApplyTransformsDWI.py'), '-i', self.dwi, '-m', self.dwimask,
                                   '-t', epiwarp, '-o', dwiepi, '-n', self.nproc]), shell= True)
 
+
             # WarpTimeSeriesImageMultiTransform can also be used
             # dwimasked = tmpdir / 'masked_dwi.nii.gz'
             # fslmaths(self.dwi, '-mul', self.dwimask, dwimasked)
             # WarpTimeSeriesImageMultiTransform('4', dwimasked, dwiepi, '-R', dwimasked, '-i', epiwarp)
+
+            logging.info('6. Apply warp to the DWI mask')
+            epimask = self.out._path+'-mask.nii.gz'
+            antsApplyTransforms('-d', '3', '-i', self.dwimask, '-o', epimask,
+                                '-n', 'NearestNeighbor', '-r', bse, '-t', epiwarp)
+            fslmaths(epimask, '-mul', '1', epimask, '-odt', 'char')
 
 
             dwiepi.move(self.out._path+'.nii.gz')
