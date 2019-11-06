@@ -60,6 +60,87 @@ def update_hdr(hdr_in, spcdir_new, offset_new):
     return hdr_out
 
 
+def work_flow(img_file, out_prefix, axisAlign= False, center= False, bval_file= None, bvec_file= None):
+
+        if img_file.endswith('.nii') or img_file.endswith('.nii.gz'):
+            mri= load_nifti(img_file._path)
+        else:
+            print('Invalid image format, accepts nifti only')
+            exit(1)
+
+
+        hdr= mri.header
+        dim= hdr['dim'][0]
+
+        if dim == 4:
+            if not bvec_file and not bval_file:
+                print('bvec and bvals files not specified, exiting ...')
+                exit(1)
+
+        elif dim == 3:
+            spcdir_new= axis_align_3d(hdr)
+
+        else:
+            print('Invalid image dimension, has to be either 3 or 4')
+
+
+        offset_orig= matrix(hdr.get_best_affine()[0:3, 3]).T
+        spcdir_orig= hdr.get_best_affine()[0:3, 0:3]
+
+
+        if axisAlign and not center:
+            # pass spcdir_new and offset_orig
+
+            if not out_prefix:
+                out_prefix = img_file.split('.')[0] + '-ax'  # a clever way to get prefix including path
+
+            if dim == 4:
+                spcdir_new= axis_align_dwi(hdr, bvec_file, bval_file, out_prefix)
+
+            hdr_out = update_hdr(hdr, spcdir_new, offset_orig)
+
+
+        elif not axisAlign and center:
+            # pass spcdir_orig and offset_new
+
+            if not out_prefix:
+                out_prefix = img_file.split('.')[0] + '-ce'  # a clever way to get prefix including path
+
+
+            offset_new = -spcdir_orig @ matrix((hdr['dim'][1:4] - 1) / 2).T
+            hdr_out = update_hdr(hdr, spcdir_orig, offset_new)
+
+
+            # rename the bval file
+            bval_file.copy(out_prefix + '.bval')
+            # rename the bvec file
+            bvec_file.copy(out_prefix + '.bvec')
+
+
+        else: # axisAlign and center:
+            # pass spcdir_new and offset_new
+
+            if not out_prefix:
+                out_prefix = img_file.split('.')[0] + '-xc'  # a clever way to get prefix including path
+
+            if dim == 4:
+                spcdir_new= axis_align_dwi(hdr, bvec_file, bval_file, out_prefix)
+
+            offset_new = -spcdir_new @ matrix((hdr['dim'][1:4] - 1) / 2).T
+            hdr_out = update_hdr(hdr, spcdir_new, offset_new)
+
+
+
+        # write out the modified image
+        save_nifti(out_prefix+'.nii.gz', mri.get_data(), hdr_out.get_best_affine(), hdr_out)
+
+
+        if dim == 3:
+            return out_prefix+'.nii.gz'
+        else:
+            return (out_prefix+'.nii.gz', out_prefix+'.bval', out_prefix+'.bvec')
+
+
 class Xalign(cli.Application):
     '''Axis alignment and centering of a 3D/4D NIFTI image'''
 
@@ -103,77 +184,7 @@ class Xalign(cli.Application):
     def main(self):
 
 
-        if self.img_file.endswith('.nii') or self.img_file.endswith('.nii.gz'):
-            mri= load_nifti(self.img_file._path)
-        else:
-            print('Invalid image format, accepts nifti only')
-            exit(1)
-
-
-        hdr= mri.header
-        dim= hdr['dim'][0]
-
-        if dim == 4:
-            if not self.bvec_file and not self.bval_file:
-                print('bvec and bvals files not specified, exiting ...')
-                exit(1)
-
-        elif dim == 3:
-            spcdir_new= axis_align_3d(hdr)
-
-        else:
-            print('Invalid image dimension, has to be either 3 or 4')
-
-
-        offset_orig= matrix(hdr.get_best_affine()[0:3, 3]).T
-        spcdir_orig= hdr.get_best_affine()[0:3, 0:3]
-
-
-        if self.axisAlign and not self.center:
-            # pass spcdir_new and offset_orig
-
-            if not self.out_prefix:
-                self.out_prefix = self.img_file.split('.')[0] + '-ax'  # a clever way to get prefix including path
-
-            if dim == 4:
-                spcdir_new= axis_align_dwi(hdr, self.bvec_file, self.bval_file, self.out_prefix)
-
-            hdr_out = update_hdr(hdr, spcdir_new, offset_orig)
-
-
-        elif not self.axisAlign and self.center:
-            # pass spcdir_orig and offset_new
-
-            if not self.out_prefix:
-                self.out_prefix = self.img_file.split('.')[0] + '-ce'  # a clever way to get prefix including path
-
-
-            offset_new = -spcdir_orig @ matrix((hdr['dim'][1:4] - 1) / 2).T
-            hdr_out = update_hdr(hdr, spcdir_orig, offset_new)
-
-
-            # rename the bval file
-            self.bval_file.copy(self.out_prefix + '.bval')
-            # rename the bvec file
-            self.bvec_file.copy(self.out_prefix + '.bvec')
-
-
-        else: # self.axisAlign and self.center:
-            # pass spcdir_new and offset_new
-
-            if not self.out_prefix:
-                self.out_prefix = self.img_file.split('.')[0] + '-xc'  # a clever way to get prefix including path
-
-            if dim == 4:
-                spcdir_new= axis_align_dwi(hdr, self.bvec_file, self.bval_file, self.out_prefix)
-
-            offset_new = -spcdir_new @ matrix((hdr['dim'][1:4] - 1) / 2).T
-            hdr_out = update_hdr(hdr, spcdir_new, offset_new)
-
-
-
-        # write out the modified image
-        save_nifti(self.out_prefix+'.nii.gz', mri.get_data(), hdr_out.get_best_affine(), hdr_out)
+        work_flow(self.img_file, self.out_prefix, self.axisAlign, self.center, self.bval_file, self.bvec_file)
 
 
 if __name__ == '__main__':

@@ -35,6 +35,32 @@ def bet_mask(imgPath, maskPath, dim, bvalFile= None, thr= BET_THRESHOLD):
             raise ValueError('Input dimension should be 3 or 4')
 
 
+def work_flow(img, bval_file, out, bet_threshold):
+
+    prefix = img.name.split('.')[0]
+    directory = img.parent
+
+    if out is None:
+        out = os.path.join(directory, prefix)
+
+    # bet changed in FSL 6.0.1, it creates a mask for every volume in 4D
+    # if the image is 4D, baseline image should be extracted first
+
+    dim = load_nifti(img._path).header['dim'][0]
+
+    if dim == 4:
+        if not bval_file:
+            bval_file = os.path.join(directory, prefix + '.bval')
+
+        bet_mask(img._path, out, 4, bval_file, thr=bet_threshold)
+
+    else:
+        bet_mask(img._path, out, 3, thr=bet_threshold)
+
+
+    return out+ '_mask.nii.gz'
+
+
 class App(cli.Application):
     """Extracts the brain mask of a 3D/4D nifti image using fsl bet command"""
 
@@ -63,27 +89,7 @@ class App(cli.Application):
 
     def main(self):
 
-        prefix= self.img.name.split('.')[0]
-        directory= self.img.parent
-
-        if self.out is None:
-            self.out= os.path.join(directory, prefix)
-
-        # bet changed in FSL 6.0.1, it creates a mask for every volume in 4D
-        # if the image is 4D, baseline image should be extracted first
-
-        dim= load_nifti(self.img._path).header['dim'][0]
-
-        if dim==4:
-            if not self.bval_file:
-                self.bval_file = os.path.join(directory, prefix + '.bval')
-
-            bet_mask(self.img._path, self.out, 4, self.bval_file, thr= self.bet_threshold)
-
-        else:
-            bet_mask(self.img._path, self.out, 3, thr= self.bet_threshold)
-
-
+        work_flow(self.img, self.bval_file, self.out, self.bet_threshold)
 
 
 if __name__ == '__main__':

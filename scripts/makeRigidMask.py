@@ -10,6 +10,28 @@ logger = logging.getLogger()
 logging.basicConfig(level=logging.DEBUG, format=logfmt(__file__))
 
 
+def work_flow(infile, labelmap, target, out):
+
+    with TemporaryDirectory() as tmpdir:
+        tmpdir = local.path(tmpdir)
+        pre = tmpdir / 'ants'
+        rigidxfm = pre + '0GenericAffine.mat'
+        check_call((' ').join([pjoin(FILEDIR, 'antsRegistrationSyNMI.sh'), '-f', target,
+                               '-m', infile,
+                               '-t', 'r',
+                               '-o', pre,
+                               '-n', ANTSREG_THREADS
+                               ]), shell=True)
+
+        antsApplyTransforms['-d', '3'
+        , '-i', labelmap
+        , '-t', rigidxfm
+        , '-r', target
+        , '-o', out
+        , '--interpolation', 'NearestNeighbor'] & FG
+
+
+
 class App(cli.Application):
     """Rigidly align a given labelmap (usually a mask) to make another labelmap"""
 
@@ -25,23 +47,8 @@ class App(cli.Application):
     out = cli.SwitchAttr(['-o', '--output'], help='output labelmap (nrrd/nii)', mandatory=True)
 
     def main(self):
-        with TemporaryDirectory() as tmpdir:
-            tmpdir = local.path(tmpdir)
-            pre = tmpdir / 'ants'
-            rigidxfm = pre + '0GenericAffine.mat'
-            check_call((' ').join([pjoin(FILEDIR,'antsRegistrationSyNMI.sh'),'-f', self.target,
-                        '-m', self.infile,
-                        '-t', 'r',
-                        '-o', pre,
-                        '-n', ANTSREG_THREADS
-                        ]), shell= True)
 
-            antsApplyTransforms['-d', '3'
-                                ,'-i', self.labelmap
-                                ,'-t', rigidxfm
-                                ,'-r', self.target
-                                ,'-o', self.out
-                                ,'--interpolation', 'NearestNeighbor'] & FG
+        work_flow(self.infile, self.labelmap, self.target, self.out)
 
 if __name__ == '__main__':
     App.run()

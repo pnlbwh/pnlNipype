@@ -13,6 +13,75 @@ import logging
 logger = logging.getLogger()
 logging.basicConfig(level=logging.DEBUG, format=logfmt(__file__))
 
+def work_flow(dwi, bsein, dwimask, t2, t2mask, bvals_file, bvecs_file, out, debug, nproc, force):
+
+    out = local.path(out)
+    if not force and out.exists():
+        logging.error('{} already exists, use --force to force overwrite.'.format(out))
+        sys.exit(1)
+
+    with TemporaryDirectory() as tmpdir:
+        tmpdir = local.path(tmpdir)
+        bse = tmpdir / 'maskedbse.nii.gz'
+        t2masked = tmpdir / 'maskedt2.nii.gz'
+        t2inbse = tmpdir / 't2inbse.nii.gz'
+        epiwarp = tmpdir / 'epiwarp.nii.gz'
+
+        t2tobse_rigid = tmpdir / 't2tobse_rigid'
+        affine = tmpdir / 't2tobse_rigid0GenericAffine.mat'
+
+        logging.info('1. Extract B0 and and mask it')
+        if not bsein.exists():
+            check_call((' ').join([pjoin(FILEDIR, 'bse.py'), '-m', dwimask, '-i', dwi, '-o', bse]), shell=True)
+        else:
+            bsein.copy(bse)
+
+        logging.info('2. Mask the T2')
+        fslmaths(t2mask, '-mul', t2, t2masked)
+
+        logging.info('3. Compute a rigid registration from the T2 to the DWI baseline')
+        rigid_registration(3, t2masked, bse, t2tobse_rigid)
+
+        antsApplyTransforms('-d', '3', '-i', t2masked, '-o', t2inbse, '-r', bse, '-t', affine)
+
+        logging.info('4. Compute 1d nonlinear registration from the DWI to T2-in-bse along the phase direction')
+        moving = bse
+        fixed = t2inbse
+        pre = tmpdir / 'epi'
+        dwiepi = tmpdir / 'dwiepi.nii.gz'
+        antsRegistration('-d', '3', '-m',
+                         'cc[' + str(fixed) + ',' + str(moving) + ',1,2]', '-t',
+                         'SyN[0.25,3,0]', '-c', '50x50x10', '-f', '4x2x1',
+                         '-s', '2x1x0', '--restrict-deformation', '0x1x0',
+                         '-v', '1', '-o', pre)
+
+        local.path(str(pre) + '0Warp.nii.gz').move(epiwarp)
+
+        logging.info('5. Apply warp to the DWI')
+        check_call((' ').join([pjoin(FILEDIR, 'antsApplyTransformsDWI.py'), '-i', dwi, '-m', dwimask,
+                               '-t', epiwarp, '-o', dwiepi, '-n', nproc]), shell=True)
+
+        # WarpTimeSeriesImageMultiTransform can also be used
+        # dwimasked = tmpdir / 'masked_dwi.nii.gz'
+        # fslmaths(dwi, '-mul', dwimask, dwimasked)
+        # WarpTimeSeriesImageMultiTransform('4', dwimasked, dwiepi, '-R', dwimasked, '-i', epiwarp)
+
+        logging.info('6. Apply warp to the DWI mask')
+        epimask = out._path + '-mask.nii.gz'
+        antsApplyTransforms('-d', '3', '-i', dwimask, '-o', epimask,
+                            '-n', 'NearestNeighbor', '-r', bse, '-t', epiwarp)
+        fslmaths(epimask, '-mul', '1', epimask, '-odt', 'char')
+
+        dwiepi.move(out._path + '.nii.gz')
+        bvals_file.copy(out._path + '.bval')
+        bvecs_file.copy(out._path + '.bvec')
+
+        if debug:
+            tmpdir.copy(out.dirname / ('epidebug-' + str(getpid())))
+
+
+    return (out._path + '.nii.gz', out._path + '.bval', out._path + '.bvec', out._path + '-mask.nii.gz')
+
 
 class App(cli.Application):
     'Epi distortion correction.'
@@ -32,17 +101,23 @@ class App(cli.Application):
             help='DWI',
             mandatory=True)
 
+    bse = cli.SwitchAttr(
+            '--bse',
+            cli.ExistingFile,
+            help='b0 of the DWI',
+            mandatory=True)
+
     bvecs_file= cli.SwitchAttr(
-        ['--bvecs'],
-        cli.ExistingFile,
-        help='bvecs file of the DWI',
-        mandatory=True)
+            ['--bvecs'],
+            cli.ExistingFile,
+            help='bvecs file of the DWI',
+            mandatory=True)
 
     bvals_file= cli.SwitchAttr(
-        ['--bvals'],
-        cli.ExistingFile,
-        help='bvals file of the DWI',
-        mandatory=True)
+            ['--bvals'],
+            cli.ExistingFile,
+            help='bvals file of the DWI',
+            mandatory=True)
 
     dwimask = cli.SwitchAttr(
             '--dwimask',
@@ -73,72 +148,8 @@ class App(cli.Application):
 
     def main(self):
 
-        self.out = local.path(self.out)
-        if not self.force and self.out.exists():
-            logging.error('{} already exists, use --force to force overwrite.'.format(self.out))
-            sys.exit(1)
-
-
-        with TemporaryDirectory() as tmpdir:
-            tmpdir = local.path(tmpdir)
-            bse = tmpdir / 'maskedbse.nii.gz'
-            t2masked = tmpdir / 'maskedt2.nii.gz'
-            t2inbse = tmpdir / 't2inbse.nii.gz'
-            epiwarp = tmpdir / 'epiwarp.nii.gz'
-
-            t2tobse_rigid = tmpdir / 't2tobse_rigid'
-            affine= tmpdir / 't2tobse_rigid0GenericAffine.mat'
-
-            logging.info('1. Extract B0 and and mask it')
-            check_call((' ').join([pjoin(FILEDIR, 'bse.py'), '-m', self.dwimask, '-i', self.dwi, '-o', bse]), shell=True)
-
-            logging.info('2. Mask the T2')
-            fslmaths(self.t2mask, '-mul', self.t2, t2masked)
-
-            logging.info('3. Compute a rigid registration from the T2 to the DWI baseline')
-            rigid_registration(3, t2masked, bse, t2tobse_rigid)
-
-            antsApplyTransforms('-d', '3', '-i', t2masked, '-o', t2inbse, '-r', bse, '-t', affine)
-
-
-            logging.info('4. Compute 1d nonlinear registration from the DWI to T2-in-bse along the phase direction')
-            moving = bse
-            fixed = t2inbse
-            pre = tmpdir / 'epi'
-            dwiepi = tmpdir / 'dwiepi.nii.gz'
-            antsRegistration('-d', '3', '-m',
-                             'cc[' + str(fixed) + ',' + str(moving) + ',1,2]', '-t',
-                             'SyN[0.25,3,0]', '-c', '50x50x10', '-f', '4x2x1',
-                             '-s', '2x1x0', '--restrict-deformation', '0x1x0',
-                             '-v', '1', '-o', pre)
-
-            local.path(str(pre) + '0Warp.nii.gz').move(epiwarp)
-
-            logging.info('5. Apply warp to the DWI')
-            check_call((' ').join([pjoin(FILEDIR, 'antsApplyTransformsDWI.py'), '-i', self.dwi, '-m', self.dwimask,
-                                  '-t', epiwarp, '-o', dwiepi, '-n', self.nproc]), shell= True)
-
-
-            # WarpTimeSeriesImageMultiTransform can also be used
-            # dwimasked = tmpdir / 'masked_dwi.nii.gz'
-            # fslmaths(self.dwi, '-mul', self.dwimask, dwimasked)
-            # WarpTimeSeriesImageMultiTransform('4', dwimasked, dwiepi, '-R', dwimasked, '-i', epiwarp)
-
-            logging.info('6. Apply warp to the DWI mask')
-            epimask = self.out._path+'-mask.nii.gz'
-            antsApplyTransforms('-d', '3', '-i', self.dwimask, '-o', epimask,
-                                '-n', 'NearestNeighbor', '-r', bse, '-t', epiwarp)
-            fslmaths(epimask, '-mul', '1', epimask, '-odt', 'char')
-
-
-            dwiepi.move(self.out._path+'.nii.gz')
-            self.bvals_file.copy(self.out._path+'.bval')
-            self.bvecs_file.copy(self.out._path+'.bvec')
-
-
-            if self.debug:
-                tmpdir.copy(self.out.dirname / ('epidebug-' + str(getpid())))
-
+        work_flow(self.dwi, self.bse, self.dwimask, self.t2, self.t2mask, self.bvals_file, self.bvecs_file, self.out,
+                  self.debug, self.nproc, self.force)
 
 if __name__ == '__main__':
     App.run()

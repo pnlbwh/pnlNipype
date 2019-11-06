@@ -8,6 +8,63 @@ from util import load_nifti, save_nifti
 
 import numpy as np
 
+
+def work_flow(dwi, bval_file, out, b0_threshold, dwimask, minimum= False, average= False, all= False):
+
+    prefix = dwi.name.split('.')[0]
+    directory = dwi.parent
+
+    b0_threshold = float(b0_threshold)
+
+    if out is None:
+        out = os.path.join(directory, prefix + '_bse.nii.gz')
+
+    if dwi.endswith('.nii') or dwi.endswith('.nii.gz'):
+
+        if not bval_file:
+            bval_file = os.path.join(directory, prefix + '.bval')
+
+        bvals = read_bvals(bval_file)
+        idx = np.where([bval < b0_threshold for bval in bvals])[0]
+
+        if len(idx) > 1:
+
+            # default is the first b0
+            if not (minimum or average or all):
+                fslroi[dwi, out, idx, 1] & FG
+
+            elif minimum:
+                fslroi[dwi, out, idx, np.argsort(bvals)[0]] & FG
+
+            elif average:
+                # Load the given dwi to get image data
+                dwi = load_nifti(dwi._path)
+                hdr = dwi.header
+                mri = dwi.get_data()
+
+                avg_bse = np.mean(mri[:, :, :, idx], axis=3)
+
+                # Now write back the average bse
+                save_nifti(out, avg_bse, dwi.affine, hdr)
+
+
+            elif all:
+                fslroi[dwi, out, idx, len(idx)] & FG
+
+
+        else:
+            raise Exception('No b0 image found. Check the bval file.')
+
+
+    else:
+        raise Exception("Invalid dwi format, must be a nifti image")
+
+    if dwimask:
+        ImageMath(3, out, 'm', out, dwimask)
+
+    return out
+
+
 class App(cli.Application):
     """Extracts the baseline (b0) from a nifti DWI. Assumes
     the diffusion volumes are indexed by the last axis. Chooses the first b0 as the
@@ -62,57 +119,8 @@ class App(cli.Application):
 
     def main(self):
 
-        prefix= self.dwi.name.split('.')[0]
-        directory= self.dwi.parent
-
-        self.b0_threshold= float(self.b0_threshold)
-
-        if self.out is None:
-            self.out= os.path.join(directory, prefix+'_bse.nii.gz')
-
-        if self.dwi.endswith('.nii') or self.dwi.endswith('.nii.gz'):
-
-            if not self.bval_file:
-                self.bval_file= os.path.join(directory, prefix+'.bval')
-
-            bvals= read_bvals(self.bval_file)
-            idx= np.where([bval < self.b0_threshold for bval in bvals])[0]
-
-
-            if len(idx)>1:
-
-                # default is the first b0
-                if not (self.minimum or self.average or self.all):
-                    fslroi[self.dwi, self.out, idx, 1] & FG
-
-                elif self.minimum:
-                    fslroi[self.dwi, self.out, idx, np.argsort(bvals)[0]] & FG
-
-                elif self.average:
-                    # Load the given dwi to get image data
-                    dwi= load_nifti(self.dwi._path)
-                    hdr= dwi.header
-                    mri= dwi.get_data()
-
-                    avg_bse= np.mean(mri[:,:,:,idx], axis= 3)
-
-                    # Now write back the average bse
-                    save_nifti(self.out, avg_bse, dwi.affine, hdr)
-
-
-                elif self.all:
-                    fslroi[self.dwi, self.out, idx, len(idx)] & FG
-
-
-            else:
-                raise Exception('No b0 image found. Check the bval file.')
-
-
-        else:
-            raise Exception("Invalid dwi format, must be a nifti image")
-
-        if self.dwimask:
-            ImageMath(3, self.out, 'm', self.out, self.dwimask)
+        work_flow(self.dwi, self.bval_file, self.out, self.b0_threshold, self.dwimask,
+                  self.minimum, self.average, self.all)
 
 
 if __name__ == '__main__':

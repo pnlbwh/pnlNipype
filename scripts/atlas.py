@@ -288,6 +288,46 @@ class Atlas(cli.Application):
             return 1  # error exit code
 
 
+def work_flow_csv(target, out, fusions, threads, debug, csvFile):
+
+    trainingTable = pd.read_csv(csvFile)
+    makeAtlases(target, trainingTable, out, fusions, int(threads), debug)
+    logging.info('Made ' + out + '-*.nii.gz')
+
+
+def work_flow_args(target, out, fusions, threads, debug, images, labels, names):
+
+    images = images.split()
+    labels = labels.split()
+    labelnames = names.split()
+    quotient, remainder = divmod(len(labels), len(images))
+    if remainder != 0:
+        logging.error(
+            'Wrong number of labelmaps, must be a multiple of number of images ('
+            + str(len(images)) + '). Instead there is a remainder of ' +
+            str(remainder))
+        sys.exit(1)
+    if quotient != len(labelnames):
+        logging.error(
+            'Wrong number of names, must match number of labelmap training sets: '
+            + str(quotient))
+        sys.exit(1)
+    labelcols = grouper(labels, len(images))
+
+    trainingTable = {}
+    trainingTable['image'] = images
+    for i, values in enumerate(labelcols):
+        trainingTable[labelnames[i]] = values
+    trainingTable = pd.DataFrame(trainingTable, columns=['image'] + labelnames)
+
+    threads = int(threads)
+    if threads == -1 or threads > N_CPU:
+        threads = N_CPU
+
+    makeAtlases(target, trainingTable, out, fusions, threads, debug)
+    logging.info('Made ' + out + '-*.nii.gz')
+
+
 @Atlas.subcommand("args")
 class AtlasArgs(cli.Application):
     """Specify training images and labelmaps via command line arguments."""
@@ -326,35 +366,8 @@ class AtlasArgs(cli.Application):
     debug = cli.Flag('-d', help='Debug mode, saves intermediate labelmaps to atlas-debug-<pid> in output directory')
 
     def main(self):
-        images = self.images.split()
-        labels = self.labels.split()
-        labelnames = self.names.split()
-        quotient, remainder = divmod(len(labels), len(images))
-        if remainder != 0:
-            logging.error(
-                'Wrong number of labelmaps, must be a multiple of number of images ('
-                + str(len(images)) + '). Instead there is a remainder of ' +
-                str(remainder))
-            sys.exit(1)
-        if quotient != len(labelnames):
-            logging.error(
-                'Wrong number of names, must match number of labelmap training sets: '
-                + str(quotient))
-            sys.exit(1)
-        labelcols = grouper(labels, len(images))
 
-        trainingTable= {}
-        trainingTable['image']= images
-        for i, values in enumerate(labelcols):
-            trainingTable[labelnames[i]]= values
-        trainingTable= pd.DataFrame(trainingTable, columns=['image']+labelnames)
-
-        self.threads= int(self.threads)
-        if self.threads==-1 or self.threads>N_CPU:
-            self.threads= N_CPU
-
-        makeAtlases(self.target, trainingTable, self.out, self.fusions, self.threads, self.debug)
-        logging.info('Made ' + self.out + '-*.nii.gz')
+        work_flow_args(self.target, self.out, self.fusions, self.threads, self.debug, self.images, self.labels, self.names)
 
 
 @Atlas.subcommand("csv")
@@ -388,9 +401,8 @@ class AtlasCsv(cli.Application):
 
     @cli.positional(cli.ExistingFile)
     def main(self, csvFile):
-        trainingTable = pd.read_csv(csvFile)
-        makeAtlases(self.target, trainingTable, self.out, self.fusions, int(self.threads), self.debug)
-        logging.info('Made ' + self.out + '-*.nii.gz')
+        work_flow_csv(self.target, self.out, self.fusions, self.threads, self.debug, csvFile)
+
 
 
 if __name__ == '__main__':

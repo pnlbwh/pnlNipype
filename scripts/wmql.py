@@ -19,6 +19,42 @@ def _activateTensors_py(vtk):
     vtk.delete()
 
 
+def work_flow(ukf, fsindwi, query, out, nproc):
+
+    with TemporaryDirectory() as t:
+        t = local.path(t)
+        ukf = ukf
+        fsindwi = fsindwi
+        if '.gz' in ukf.suffix:
+            ukf = t / 'ukf.vtk'
+            from plumbum.cmd import gunzip
+            (gunzip['-c', ukf] > ukf)()
+
+        tract_querier = local['tract_querier']
+        tract_math = local['tract_math']
+        ukfpruned = t / 'ukfpruned.vtk'
+        # tract_math(ukf, 'tract_remove_short_tracts', '2', ukfpruned)
+        tract_math[ukf, 'tract_remove_short_tracts', '2', ukfpruned] & FG
+        if not ukfpruned.exists():
+            raise Exception("tract_math failed to make '{}'".format(ukfpruned))
+        out.mkdir()
+        tract_querier['-t', ukfpruned, '-a', fsindwi, '-q', query, '-o', out / '_'] & FG
+
+        logging.info('Convert vtk field data to tensor data')
+
+        # use the following multi-processed loop
+        pool = Pool(int(nproc))
+        pool.map_async(_activateTensors_py, out.glob('*.vtk'))
+        pool.close()
+        pool.join()
+
+        # or use the following for loop
+        # for vtk in out.glob('*.vtk'):
+        #     vtknew = vtk.dirname / (vtk.stem[2:] + ''.join(vtk.suffixes))
+        #     activateTensors_py(vtk, vtknew)
+        #     vtk.delete()
+
+
 class App(cli.Application):
     """Runs tract_querier. Output is <out>/*.vtk"""
 
@@ -46,38 +82,8 @@ class App(cli.Application):
 
 
     def main(self):
-        with TemporaryDirectory() as t:
-            t = local.path(t)
-            ukf = self.ukf
-            fsindwi = self.fsindwi
-            if '.gz' in self.ukf.suffix:
-                ukf = t / 'ukf.vtk'
-                from plumbum.cmd import gunzip
-                (gunzip['-c', self.ukf] > ukf)()
 
-            tract_querier = local['tract_querier']
-            tract_math = local['tract_math']
-            ukfpruned = t / 'ukfpruned.vtk'
-            # tract_math(ukf, 'tract_remove_short_tracts', '2', ukfpruned)
-            tract_math[ukf, 'tract_remove_short_tracts', '2', ukfpruned] & FG
-            if not ukfpruned.exists():
-                raise Exception("tract_math failed to make '{}'".format(ukfpruned))
-            self.out.mkdir()
-            tract_querier['-t', ukfpruned, '-a', fsindwi, '-q', self.query, '-o', self.out / '_'] & FG
-
-            logging.info('Convert vtk field data to tensor data')
-
-            # use the following multi-processed loop
-            pool= Pool(int(self.nproc))
-            pool.map_async(_activateTensors_py, self.out.glob('*.vtk'))
-            pool.close()
-            pool.join()
-
-            # or use the following for loop
-            # for vtk in self.out.glob('*.vtk'):
-            #     vtknew = vtk.dirname / (vtk.stem[2:] + ''.join(vtk.suffixes))
-            #     activateTensors_py(vtk, vtknew)
-            #     vtk.delete()
+        work_flow(self.ukf, self.fsindwi, self.query, self.out, self.nproc)
 
 if __name__ == '__main__':
     App.run()
