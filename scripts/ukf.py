@@ -49,7 +49,7 @@ class App(cli.Application):
             # TODO when UKFTractography supports float32, it should be removed
             # typecast to short
             short= load_nifti(self.dwi._path)
-            save_nifti(shortdwi, short.get_data().astype('int16'), short.affine, short.header)
+            save_nifti(shortdwi._path, short.get_data().astype('int16'), short.affine, short.header)
 
             short= load_nifti(self.dwimask._path)
             save_nifti(shortmask._path, short.get_data().astype('int16'), short.affine, short.header)
