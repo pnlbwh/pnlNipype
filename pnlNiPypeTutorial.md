@@ -426,9 +426,11 @@ fslmaths sample-T2-mask.nii.gz -mul sample-T2-xc.nii.gz sample-T2-masked.nii.gz
 ```
 After this `sample-T2-masked.nii.gz` will now be in your `strct` directory as well.
 
+In order to run EPI correction, you will need to make sure that you have bval and bvec files whose names match your dwi file. In this case, the prefix will be `sample-dwi-Ed`. You should already have copied these when you copied your files after eddy correction.
+
 Now out in `PipelineTraining`, enter:
 ```
-pnl_epi --dwi Diffusion_b3000/sample-dwi-Ed.nii.gz --dwimask Diffusion_b3000/sample-dwi-tensor-mask.nii.gz --t2 strct/sample-T2-masked.nii.gz --t2mask strct/sample-T2-mask.nii.gz -o Diffusion_b3000/sample-dwi-epi.nii.gz
+pnl_epi --dwi Diffusion_b3000/sample-dwi-Ed.nii.gz --dwimask Diffusion_b3000/sample-dwi-tensor-mask.nii.gz --t2 strct/sample-T2-masked.nii.gz --t2mask strct/sample-T2-mask.nii.gz -o Diffusion_b3000/sample-dwi-epi
 ```
 
 * Since this takes a long time, `sample-dwi-epi.nii.gz` is also available to be copied from the `Other` directory into your `Diffusion_b3000` directory.
