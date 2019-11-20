@@ -632,7 +632,7 @@ For the final step of the pipeline you need to now extract all of the measures y
 
   * You can open this file by entering:
 	```
-	column -s, -t < af.left.csv | less -#1 -N -S
+	oocalc sample_af.left.csv
 	```
 You can then use the left and right arrow keys to navigate through the csv file. To exit, press `q`.
 
