@@ -644,7 +644,7 @@ If you want to run the script on many `.vtk` files at once and have them all in 
 
   * Under the **IO** header, for **Select Input Type**, choose **Fibers_File_Folder**. For **Fibers File Folder** select your wmql directory and for **Output Text File** you can select the text file you just made. Then for Select Output Format choose **Column_Hierarchy** and for **Output Field Separator** choose **Tab** and press **Apply**.
 
-  * Now you can see the text file by entering `column -s, -t < sample_af.left.txt | less -#1 -N -S`.
+  * Now you can see the text file by entering `oocalc sample_af.left.txt`.
 
 You may notice that there are some differences in what these two methods give you, so which you choose largely depends on what you’re looking for, and sometimes it may be necessary to use boths ways to get everything you need:
 
