@@ -25,7 +25,7 @@ def get_spcdir_new(hdr_in):
 
     R = spcNN @ linalg.inv(spcON)
 
-    spcdir_new = spcNN.T * sizes
+    spcdir_new = spcNN.T @ sizes
 
     return (spcdir_new, R)
 
