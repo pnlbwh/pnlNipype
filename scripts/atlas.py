@@ -355,7 +355,9 @@ class AtlasArgs(cli.Application):
 
 # @Atlas.subcommand("csv")
 class AtlasCsv(cli.Application):
-    """Specify training images and labelmaps via a csv file.
+    """Makes atlas image/labelmap pairs for a target image.
+    Option to merge labelmaps via averaging or AntsJointFusion.
+    Specify training images and labelmaps via a csv file.
     Put the images with any header in the first column, 
     and labelmaps with proper headers in the consecutive columns. 
     The headers in the labelmap columns will be used to name the generated atlas labelmaps.

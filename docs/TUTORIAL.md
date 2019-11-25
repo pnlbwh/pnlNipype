@@ -238,54 +238,15 @@ space of the target T1/T2 image. The set of candidate masks (or labelmaps) are f
 
 > nifti_atlas --help-all
     
-    Makes atlas image/labelmap pairs for a target image. Option to merge labelmaps via averaging
-    or AntsJointFusion.
-
-    Usage:
-        nifti_atlas [SWITCHES] [SUBCOMMAND [SWITCHES]] args...
-
-    Sub-commands:
-        args               Specify training images and labelmaps via command line arguments.; see 'nifti_atlas args --help' for more info
-        csv                Specify training images and labelmaps via a csv file. Put the images with any header in the first column, and
-                           labelmaps with proper headers in the consecutive columns. The headers in the labelmap columns will be used to
-                           name the generated atlas labelmaps.; see 'nifti_atlas csv --help' for more info
-    
-    
-    ======================================================================
-    
-    Specify training images and labelmaps via command line arguments.
-
-    Usage:
-        nifti_atlas args [SWITCHES]
-
-    Switches:
-        -d                                                     Debug mode, saves intermediate labelmaps to atlas-debug-<pid> in output
-                                                               directory
-        --fusion VALUE:{'avg', 'wavg', 'antsJointFusion'}      Also create predicted labelmap(s) by combining the atlas labelmaps: avg
-                                                               is naive mathematical average, wavg is weighted average where weights are
-                                                               computed from MI between the warped atlases and target image,
-                                                               antsJointFusion is local weighted averaging; the default is wavg
-        -i, --images VALUE:str                                 list of images in quotations, e.g. "img1.nrrd img2.nrrd"; required
-        -l, --labels VALUE:str                                 list of labelmap images in quotations, e.g. "mask1.nrrd mask2.nrrd
-                                                               cingr1.nrrd cingr2.nrrd"; required
-        -n, --nproc VALUE:str                                  number of processes/threads to use (-1 for all available); the default is
-                                                               4
-        --names VALUE:str                                      list of names for generated labelmaps, e.g. "atlasmask atlascingr";
-                                                               required
-        -o, --outPrefix VALUE:str                              output prefix, output labelmaps are saved as outPrefix-mask.nii.gz,
-                                                               outPrefix-cingr.nii.gz, ...; required
-        -t, --target VALUE:ExistingFile                        target image; required
-
-    
-    ======================================================================
-    
+    Makes atlas image/labelmap pairs for a target image.
+    Option to merge labelmaps via averaging or AntsJointFusion.
     Specify training images and labelmaps via a csv file.
-    Put the images with any header in the first column,
-    and labelmaps with proper headers in the consecutive columns.
+    Put the images with any header in the first column, 
+    and labelmaps with proper headers in the consecutive columns. 
     The headers in the labelmap columns will be used to name the generated atlas labelmaps.
 
     Usage:
-        nifti_atlas csv [SWITCHES] csvFile
+        nifti_atlas [SWITCHES]
 
     Switches:
         -d                                                     Debug mode, saves intermediate labelmaps to atlas-debug-<pid> in output
@@ -299,17 +260,31 @@ space of the target T1/T2 image. The set of candidate masks (or labelmaps) are f
         -o, --outPrefix VALUE:str                              output prefix, output labelmaps are saved as outPrefix-mask.nii.gz,
                                                                outPrefix-cingr.nii.gz, ...; required
         -t, --target VALUE:ExistingFile                        target image; required
-
+        --train VALUE:str                                      --train t1; --train t2; --train trainingImages.csv; see pnlNipype/docs/TUTORIAL.md
+                                                               to know what each value means
 
 
 Example usage:
     
-    nifti_atlas csv -t t1Nifti -o /tmp/T1-labels -n 8 ~/pnlpipe/soft_dir/trainingDataT1AHCC-d6e5990/trainingDataT1AHCC-hdr.csv
+    nifti_atlas -t t1Nifti -o /tmp/T1-Mabs -n 8 --train t1
+    nifti_atlas -t t2Nifti -o /tmp/T2-Mabs -n 8 --train t2
+    nifti_atlas -t t1Nifti -o /tmp/T1-Mabs -n 8 --train ~/pnlpipe/soft_dir/trainingDataT1AHCC-d6e5990/trainingDataT1Masks-hdr.csv
+
+As shown in the above, pre-packaged training data can be specified with just `--train t1` or `--train t2` without having to provide path to csv file. 
+They are equivalent to the following:
+
+`--train t1`:
+> $PNLPIPE_SOFT/trainingDataT1AHCC-*/trainingDataT1Masks-hdr.csv
+
+`--train t2`:
+> $PNLPIPE_SOFT/trainingDataT2Masks-*/trainingDataT2Masks-hdr.csv
+
+**NOTE** For using shortcuts `t1` and `t2`, make sure to define the environment variable [`PNLPIPE_SOFT`](README.md#pnlpipe-software). Otherwise, provide path to csv file
     
-The `csvFile` used here is `trainingDataT1AHCC-d6e5990/trainingDataT1AHCC-hdr.csv` which can be generated by running 
+The csv file used here is `trainingDataT1AHCC-d6e5990/trainingDataT1AHCC-hdr.csv` which can be generated by running 
 [mktrainingfiles.sh](https://github.com/pnlbwh/trainingDataT1AHCC/blob/master/mktrainingfiles.sh) .
 
-`-n 8` specifies the number of processors you can use for this purpose. See [Multiprocessing](README.md/#multiprocessing) to learn more about it.
+Finally, `-n 8` specifies the number of processors you can use for this purpose. See [Multiprocessing](README.md/#multiprocessing) to learn more about it.
 
 
 
@@ -478,7 +453,7 @@ applies the transform to appropriately rotate the corresponding bvecs.
 
 Example usage:
     
-    pnl_eddy -i dwiNifti --bvals bvalFile --bvecs bvecFile -o dwiNifti-Ed        
+    pnl_eddy -i dwiNifti --bvals bvalFile --bvecs bvecFile -o dwiNifti-Ed
         
 
 ## ii. Using FSL eddy
@@ -556,7 +531,7 @@ diffusion weighted volumes.
 
 > pnl_epi -h
 
-    Epi distortion correction.    
+    Epi distortion correction.
     
     Usage:
         pnl_epi [SWITCHES] 
@@ -688,7 +663,7 @@ h) `--whichVol`: Now that mask for *eddy* is created, you can choose to correct 
     
 
 **NOTE 1** Any additional arguments to *eddy_openmp*, *topup*, and *applytopup* can be provided via `scripts/eddy_config.txt` 
-file.    
+file.
     
     
 **NOTE 2** All acquisition parameters and indices required for *eddy* binaries are written from provided `--acqp` file 
