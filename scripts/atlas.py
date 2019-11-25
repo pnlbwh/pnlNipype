@@ -5,6 +5,8 @@ from plumbum.cmd import ComposeMultiTransform, antsApplyTransforms, MeasureImage
     head, cut, antsRegistration
 from itertools import zip_longest
 import pandas as pd
+from glob import glob
+import numpy as np
 import sys, os
 import multiprocessing
 from math import exp
@@ -36,6 +38,7 @@ ANTSJOINTFUSION_PARAMS = ['--search-radius', 5
                          ,'--alpha', 0.4
                          ,'--beta', 3.0]
 
+# with the omission of subcommands, this function is not used anymore
 def grouper(iterable, n, fillvalue=None):
     "Collect data into fixed-length chunks or blocks"
     # grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx
@@ -96,24 +99,17 @@ def weightsFromMIExp(mis, alpha):
     weights = [exp(factor * (min(mis) - mi)) for mi in mis]
     return [w / sum(weights) for w in weights]
 
-def fuseWeightedAvg(labels, weights, out):
+def fuseWeightedAvg(labels, weights, out, target_header):
 
     # for each label, fuse warped labelmaps to compute output labelmap
     print("Apply weights to warped training {} et al., fuse, and threshold".format(labels[0]))
-    init= True
+    data= np.zeros(target_header['dim'][1:4], dtype= 'float32')
     for label, w in zip(labels, weights):
-        img= load_nifti(label._path)
-        if init:
-            data=img.get_data()*w
-            affine= img.affine
-            init= False
-        else:
-            data+=img.get_data()*w
-
+        data+= load_nifti(label._path).get_data()*w
 
 
     # out is {labelname}.nii.gz
-    save_nifti(out, ((data>0.5)*1).astype('uint8'), affine, img.header)
+    save_nifti(out, ((data>0.5)*1).astype('uint8'), target_header.get_best_affine(), target_header)
 
     print("Made labelmap: " + out)
 
@@ -137,7 +133,7 @@ def fuseAntsJointFusion(target, images, labels, out):
     print("Made labelmap: " + out)
 
 
-def fuseAvg(labels, out):
+def fuseAvg(labels, out, target_header):
     from plumbum.cmd import AverageImages
 
     with TemporaryDirectory() as tmpdir:
@@ -147,7 +143,7 @@ def fuseAvg(labels, out):
         img= load_nifti(nii._path)
         # Binary operation, if out>0.5, pipe the output and save as {labelname}.nii.gz
         # out is {labelname}.nii.gz
-        save_nifti(out, ((img.get_data()>0.5)*1).astype('uint8'), img.affine, img.header)
+        save_nifti(out, ((img.get_data()>0.5)*1).astype('uint8'), target_header.get_best_affine(), target_header)
 
 
     print("Made labelmap: " + out)
@@ -235,9 +231,9 @@ def makeAtlases(target, trainingTable, outPrefix, fusion, threads, debug):
 
             weights = weightsFromMIExp(mis, ALPHA_DEFAULT)
 
-
+        target_header= load_nifti(target._path).header
         pool = multiprocessing.Pool(threads)  # Use all available cores, otherwise specify the number you want as an argument
-        for labelname in list(trainingTable)[1:]:  #list(d) gets column names
+        for labelname in list(trainingTable)[1:]:  # list(d) gets column names
 
             out = os.path.abspath(outPrefix+ f'-{labelname}.nii.gz')
             if os.path.exists(out):
@@ -248,8 +244,8 @@ def makeAtlases(target, trainingTable, outPrefix, fusion, threads, debug):
             if fusion.lower() == 'avg':
                 print(' ')
                 # parellelize
-                # fuseAvg(labelmaps, out)
-                pool.apply_async(func= fuseAvg, args= (labelmaps, out, ))
+                # fuseAvg(labelmaps, out, target_header)
+                pool.apply_async(func= fuseAvg, args= (labelmaps, out, target_header, ))
 
             elif fusion.lower() == 'antsjointfusion':
                 print(' ')
@@ -262,8 +258,8 @@ def makeAtlases(target, trainingTable, outPrefix, fusion, threads, debug):
             elif fusion.lower() == 'wavg':
                 print(' ')
                 # parellelize
-                # fuseWeightedAvg(labelmaps, weights, out)
-                pool.apply_async(func= fuseWeightedAvg, args= (labelmaps, weights, out, ))
+                # fuseWeightedAvg(labelmaps, weights, out, target_header)
+                pool.apply_async(func= fuseWeightedAvg, args= (labelmaps, weights, out, target_header, ))
 
             else:
                 print('Unrecognized fusion option: {}. Skipping.'.format(fusion))
@@ -288,7 +284,7 @@ class Atlas(cli.Application):
             return 1  # error exit code
 
 
-@Atlas.subcommand("args")
+# @Atlas.subcommand("args")
 class AtlasArgs(cli.Application):
     """Specify training images and labelmaps via command line arguments."""
 
@@ -357,7 +353,7 @@ class AtlasArgs(cli.Application):
         logging.info('Made ' + self.out + '-*.nii.gz')
 
 
-@Atlas.subcommand("csv")
+# @Atlas.subcommand("csv")
 class AtlasCsv(cli.Application):
     """Specify training images and labelmaps via a csv file.
     Put the images with any header in the first column, 
@@ -384,14 +380,28 @@ class AtlasCsv(cli.Application):
         help='number of processes/threads to use (-1 for all available)',
         default= N_PROC)
     debug = cli.Flag('-d', help='Debug mode, saves intermediate labelmaps to atlas-debug-<pid> in output directory')
+    csvFile = cli.SwitchAttr(['--train'],
+        help='--train t1; --train t2; --train trainingImages.csv; '
+        'see pnlNipype/docs/TUTORIAL.md to know what each value means')
 
+    # @cli.positional(cli.ExistingFile)
+    def main(self):
+        
+        if self.csvFile=='t1' or self.csvFile=='t2':
+            PNLPIPE_SOFT = os.getenv('PNLPIPE_SOFT')
+            if not PNLPIPE_SOFT:
+                raise EnvironmentError('Define the environment variable PNLPIPE_SOFT from where training data could be obtained')
 
-    @cli.positional(cli.ExistingFile)
-    def main(self, csvFile):
-        trainingTable = pd.read_csv(csvFile)
+        if self.csvFile=='t1':
+            self.csvFile=glob(PNLPIPE_SOFT+'/trainingDataT1AHCC-*/trainingDataT1Masks-hdr.csv')[0]
+        elif self.csvFile=='t2':
+            self.csvFile=glob(PNLPIPE_SOFT+'/trainingDataT2Masks-*/trainingDataT2Masks-hdr.csv')[0]
+        
+        trainingTable = pd.read_csv(self.csvFile)
         makeAtlases(self.target, trainingTable, self.out, self.fusions, int(self.threads), self.debug)
         logging.info('Made ' + self.out + '-*.nii.gz')
 
 
 if __name__ == '__main__':
-    Atlas.run()
+    # Atlas.run()
+    AtlasCsv.run()
