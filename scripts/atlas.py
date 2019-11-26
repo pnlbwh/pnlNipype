@@ -284,6 +284,7 @@ class Atlas(cli.Application):
             return 1  # error exit code
 
 
+# with the omission of subcommands, this function is not used anymore
 # @Atlas.subcommand("args")
 class AtlasArgs(cli.Application):
     """Specify training images and labelmaps via command line arguments."""
