@@ -2,13 +2,14 @@
 
 from plumbum import cli, FG, local
 from plumbum.cmd import topup, applytopup, eddy_openmp, fslmaths, rm, fslmerge, cat, bet, gzip
-from util import BET_THRESHOLD, TemporaryDirectory, logfmt, load_nifti, FILEDIR, \
-    topup_params, applytopup_params, eddy_openmp_params
+from util import BET_THRESHOLD, TemporaryDirectory, logfmt, load_nifti, FILEDIR
 from os.path import join as pjoin, abspath, basename
 from subprocess import check_call
 from os import environ
 from shutil import copyfile
 from conversion import read_bvals, read_bvecs, write_bvals, write_bvecs
+from _eddy_config import obtain_fsl_eddy_params
+
 FSLDIR=environ['FSLDIR']
 
 import logging
@@ -73,6 +74,12 @@ class TopupEddyEpi(cli.Application):
         help='acuisition parameters file (.txt) containing TWO lines, first for primary4D (PA), second for secondary4D/3D(AP)',
         mandatory=True)
 
+    eddy_config_file= cli.SwitchAttr(
+        ['--config'],
+        cli.ExistingFile,
+        help='''config file for FSL eddy tools; see scripts/eddy_config.txt; 
+                copy this file to your directory, edit relevant sections, and provide as --config /path/to/my/eddy_config.txt''',
+        mandatory=True)
 
     betThreshold= cli.SwitchAttr(
         '-f',
@@ -225,6 +232,8 @@ class TopupEddyEpi(cli.Application):
             logging.info('Merging B0_PA and BO_AP')
             fslmerge('-t', B0_PA_AP_merged, B0_PA, B0_AP)
 
+
+            topup_params, applytopup_params, eddy_openmp_params= obtain_fsl_eddy_params(self.eddy_config_file._path)
 
             # Example for topup
             # === on merged b0 images ===
