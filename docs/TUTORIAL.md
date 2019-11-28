@@ -483,6 +483,9 @@ to learn more about Eddy correction.
         --acqp VALUE:ExistingFile        acquisition parameters file (.txt); required
         --bvals VALUE:ExistingFile       bvals file of the DWI); required
         --bvecs VALUE:ExistingFile       bvecs file of the DWI); required
+        --config VALUE:ExistingFile      config file for FSL eddy tools; see scripts/eddy_config.txt; 
+                                         copy this file to your directory, edit relevant sections, 
+                                         and provide as --config /path/to/my/eddy_config.txt; required
         --dwi VALUE:ExistingFile         nifti DWI image); required
         -f VALUE:str                     threshold for fsl bet mask; the default is 0.25
         --index VALUE:ExistingFile       mapping file (.txt) for each gradient --> acquisition
@@ -510,11 +513,11 @@ should look like the following:
     
 Then, you can run *fsl_eddy* as follows:
 
-    fsl_eddy --dwi dwiNifti --mask maskNifti --bvals bvalFile --bvecs bvecFile --acqp acqparams.txt --index index.txt --out /tmp/Eddy/
+    fsl_eddy --dwi dwiNifti --mask maskNifti --bvals bvalFile --bvecs bvecFile --acqp acqparams.txt --index index.txt --out /tmp/Eddy/ --config /path/to/my/eddy_config.txt
 
 
 
-**NOTE** Any additional arguments to *eddy_openmp*, *topup*, and *applytopup* can be provided via `scripts/eddy_config.txt` 
+**NOTE** Any additional arguments to *eddy_openmp*, *topup*, and *applytopup* can be provided by a copy of `scripts/eddy_config.txt` 
 file.
 
 
@@ -585,6 +588,9 @@ Epi and Eddy distortions.
                                          one bvec file is provided, the second bvec file is either
                                          assumed same (secondary4D) or "0.0 0.0 0.0" (secondary3D);
                                          required
+        --config VALUE:ExistingFile      config file for FSL eddy tools; see scripts/eddy_config.txt; 
+                                         copy this file to your directory, edit relevant sections, 
+                                         and provide as --config /path/to/my/eddy_config.txt; required
         -f VALUE:str                     threshold for fsl bet mask; the default is 0.25
         --imain VALUE:str                --dwi primary4D,secondary4D/3D primary: one 4D volume input,
                                          should be PA; secondary: another 3D/4D volume input, should
@@ -662,7 +668,7 @@ h) `--whichVol`: Now that mask for *eddy* is created, you can choose to correct 
     
     
 
-**NOTE 1** Any additional arguments to *eddy_openmp*, *topup*, and *applytopup* can be provided via `scripts/eddy_config.txt` 
+**NOTE 1** Any additional arguments to *eddy_openmp*, *topup*, and *applytopup* can be provided by a copy of `scripts/eddy_config.txt` 
 file.
     
     
@@ -673,16 +679,16 @@ and based on the assumption that first line is for primaryVolume while second li
 Putting them all together, example usage:
 
     fsl_topup_epi_eddy --imain primary4D,secondary4D --mask primaryMask,secondaryMask --bvals primaryBval,secondaryBval 
-    --bvecs primaryBvec,secondaryBvec --numb0 1 --whichVol 1,2 --acqp acqparams.txt --out /tmp/fsl_epi/
+    --bvecs primaryBvec,secondaryBvec --numb0 1 --whichVol 1,2 --acqp acqparams.txt --out /tmp/fsl_epi/ --config /path/to/my/eddy_config.txt
     
     fsl_topup_epi_eddy --imain primary4D,secondary3D --mask primaryMask,secondaryMask 
-    --bvals primaryBval --bvecs primaryBvec --numb0 -1 --whichVol 1 --acqp acqparams.txt --out /tmp/fsl_epi/
+    --bvals primaryBval --bvecs primaryBvec --numb0 -1 --whichVol 1 --acqp acqparams.txt --out /tmp/fsl_epi/ --config /path/to/my/eddy_config.txt
     
     fsl_topup_epi_eddy --imain primary4D,secondary3D 
-    --bvals primaryBval ---bvecs primaryBvec --numb0 -1 --whichVol 1,2 --acqp acqparams.txt --out /tmp/fsl_epi/
+    --bvals primaryBval ---bvecs primaryBvec --numb0 -1 --whichVol 1,2 --acqp acqparams.txt --out /tmp/fsl_epi/ --config /path/to/my/eddy_config.txt
     
     fsl_topup_epi_eddy --imain primary4D,secondary3D --mask primaryMask 
-    --bvals primaryBval --bvecs primaryBvec --numb0 1 --whichVol 1 --acqp acqparams.txt --out /tmp/fsl_epi/
+    --bvals primaryBval --bvecs primaryBvec --numb0 1 --whichVol 1 --acqp acqparams.txt --out /tmp/fsl_epi/ --config /path/to/my/eddy_config.txt
 
 
 
@@ -755,12 +761,19 @@ Notice the changes in bold.
         nifti_fs [SWITCHES] 
 
     Switches:
+
+        --expert VALUE:ExistingFile         expert options to use with recon-all for high-resolution data,
+                                            see https://surfer.nmr.mgh.harvard.edu/fswiki/SubmillimeterRecon;
+                                            the default is /tmp/pnlNipype/scripts/expert_file.txt
         -f, --force                         if --force is used, any previous output will be overwritten
         -i, --input VALUE:ExistingFile      t1 image in nifti format (nii, nii.gz); required
         -m, --mask VALUE:ExistingFile       mask the t1 before running Freesurfer; if not provided, -skullstrip is
                                             enabled with Freesurfer segmentation
         -n, --nproc VALUE:str               number of processes/threads to use (-1 for all available) for Freesurfer
                                             segmentation; the default is 1
+        --nohires                           omit high resolution freesurfer segmentation i.e. do not use -hires flag
+        --noskullstrip                      if you do not provide --mask but --input is already masked, 
+                                            omit further skull stripping by freesurfer
         -o, --outDir VALUE:str              output directory; required
         --t2 VALUE:ExistingFile             t2 image in nifti format (nii, nii.gz)
         --t2mask VALUE:ExistingFile         mask the t2 before running Freesurfer, if t2 is provided but not its mask,
@@ -771,6 +784,9 @@ Example usage:
     
     nifti_fs -i t1Nifti -m t1Mask -o /tmp/fs/
     nifti_fs -i t1Nifti -m t1Mask -o /tmp/fs/ --t2 t2Nifti --t2Mask
+    nifti_fs -i t1NiftiAlreadyMasked -o /tmp/fs/ --noskullstrip
+    nifti_fs -i t1NiftiAlreadyMasked -o /tmp/fs/ --noskullstrip --expert /my/expert_file.txt
+    nifti_fs -i t1NiftiAlreadyMasked -o /tmp/fs/ --noskullstrip --nohires --ncpu 8
     
 Note that, `nifti_fs` does not use multiprocessing by default. You can read more about parallel processing with FreeSurfer
 segmentation [here](https://surfer.nmr.mgh.harvard.edu/fswiki/ReleaseNotes/#whatsnew).
