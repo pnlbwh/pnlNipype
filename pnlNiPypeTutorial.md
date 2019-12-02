@@ -201,22 +201,9 @@ The next step in the pipeline involves making a “mask” for your structural d
 
 You will create brain masks for your data by using a training data set consisting of previously created and edited masks. We typically use T2 images (if you have acquired these) to make masks for both T2 and T1 images. There is a default training set that we use, however depending on your dataset you may need to create your own training data (e.g., if you are imaging children)
 
-First, make sure you are in the `strct` directory in your `PipelineTraining` directory. Make a new directory called `TrainingData`.
-
-Next, you need to create a `.csv` file in this TrainingData directory, that points to the training cases and training masks we will use. In this example you can enter:
+First, make sure you are in the `strct` directory in your `PipelineTraining` directory, then enter:
 ```
-cd /rfanfs/pnl-zorro/software/pnlpipe3/pnlpipe/soft_dir/trainingDataT2Masks-12a14d9/
-```
-
-Once in this directory, enter:
-```
-./mktrainingcsv.sh /rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining/strct/TrainingData
-```
-This will make a usable file for the masking script in your directory. You should now be able to see that `trainingDataT2Masks.csv` exists in `<yourdirectory>/PipelineTraining/strct/TrainingData`.
-
-`cd` to your `strct` directory and enter:
-```
-nifti_atlas csv /rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining/strct/TrainingData/trainingDataT2Masks-hdr.csv –t sample-T2-xc.nii.gz –o sample-T2-mask
+nifti_atlas –t sample-T2-xc.nii.gz –o sample-T2-mask -n 8 --train t2
 ```
 This command will generate a mask for your T2 image, however it takes several hours to finish running.
 
