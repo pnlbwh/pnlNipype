@@ -59,7 +59,7 @@ def work_flow(dwi, bsein, dwimask, t2, t2mask, bvals_file, bvecs_file, out, debu
 
         logging.info('5. Apply warp to the DWI')
         check_call((' ').join([pjoin(FILEDIR, 'antsApplyTransformsDWI.py'), '-i', dwi, '-m', dwimask,
-                               '-t', epiwarp, '-o', dwiepi, '-n', nproc]), shell=True)
+                               '-t', epiwarp, '-o', dwiepi, '-n', str(nproc)]), shell=True)
 
         # WarpTimeSeriesImageMultiTransform can also be used
         # dwimasked = tmpdir / 'masked_dwi.nii.gz'
@@ -67,20 +67,28 @@ def work_flow(dwi, bsein, dwimask, t2, t2mask, bvals_file, bvecs_file, out, debu
         # WarpTimeSeriesImageMultiTransform('4', dwimasked, dwiepi, '-R', dwimasked, '-i', epiwarp)
 
         logging.info('6. Apply warp to the DWI mask')
-        epimask = out._path + '-mask.nii.gz'
+        epimask = out._path + '_mask.nii.gz'
         antsApplyTransforms('-d', '3', '-i', dwimask, '-o', epimask,
                             '-n', 'NearestNeighbor', '-r', bse, '-t', epiwarp)
         fslmaths(epimask, '-mul', '1', epimask, '-odt', 'char')
+        
+        logging.info('7. Apply warp to the bse')
+        epibse = out._path + '_bse.nii.gz'
+        antsApplyTransforms('-d', '3', '-i', bse, '-o', epibse,
+                            '-n', 'NearestNeighbor', '-r', bse, '-t', epiwarp)
+        
+
 
         dwiepi.move(out._path + '.nii.gz')
         bvals_file.copy(out._path + '.bval')
         bvecs_file.copy(out._path + '.bvec')
+        
 
         if debug:
-            tmpdir.copy(out.dirname / ('epidebug-' + str(getpid())))
+            tmpdir.copy(out.dirname / ('epi-debug-' + str(getpid())))
 
 
-    return (out._path + '.nii.gz', out._path + '.bval', out._path + '.bvec', out._path + '-mask.nii.gz')
+    return (out._path + '.nii.gz', out._path + '.bval', out._path + '.bvec', out._path + '_mask.nii.gz', out._path+'_bse.nii.gz')
 
 
 class App(cli.Application):
@@ -105,7 +113,7 @@ class App(cli.Application):
             '--bse',
             cli.ExistingFile,
             help='b0 of the DWI',
-            mandatory=True)
+            mandatory=False)
 
     bvecs_file= cli.SwitchAttr(
             ['--bvecs'],
@@ -138,7 +146,7 @@ class App(cli.Application):
             mandatory=True)
 
     out = cli.SwitchAttr(
-            ['-o', '--output'],
+            ['-o', '--out_prefix'],
             help='Prefix for EPI corrected DWI, same prefix is used for saving bval, bvec, and mask',
             mandatory=True)
 

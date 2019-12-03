@@ -64,7 +64,7 @@ def work_flow(img, bval_file, out, bet_threshold):
 class App(cli.Application):
     """Extracts the brain mask of a 3D/4D nifti image using fsl bet command"""
 
-    img = cli.SwitchAttr(
+    img_file = cli.SwitchAttr(
         ['-i', '--input'],
         cli.ExistingFile,
         help='input 3D/4D nifti image',
@@ -75,8 +75,8 @@ class App(cli.Application):
         cli.ExistingFile,
         help='bval file for 4D DWI, default: inputPrefix.bval')
 
-    out = cli.SwitchAttr(
-        ['-o', '--outPrefix'],
+    out_prefix = cli.SwitchAttr(
+        ['-o', '--out_prefix'],
         help='prefix for output brain mask (default: input prefix), output file is named as prefix_mask.nii.gz',
         mandatory=False)
 
@@ -89,7 +89,7 @@ class App(cli.Application):
 
     def main(self):
 
-        work_flow(self.img, self.bval_file, self.out, self.bet_threshold)
+        work_flow(self.img_file, self.bval_file, self.out_prefix, self.bet_threshold)
 
 
 if __name__ == '__main__':

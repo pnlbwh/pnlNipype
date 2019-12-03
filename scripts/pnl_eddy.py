@@ -41,7 +41,7 @@ def work_flow(dwi, bvalFile, bvecFile, out, debug, overwrite, nproc):
             logging.error("{} exists, use '--force' to overwrite it".format(out))
             sys.exit(1)
 
-    outxfms = out.dirname / out.stem + '-xfms.tgz'
+    outxfms = out.dirname / out.stem + '_xfms.tgz'
 
     with TemporaryDirectory() as tmpdir, local.cwd(tmpdir):
         tmpdir = local.path(tmpdir)
@@ -56,30 +56,31 @@ def work_flow(dwi, bvalFile, bvecFile, out, debug, overwrite, nproc):
 
         logging.info('Register each volume to the B0')
         vols = sorted(tmpdir // (dicePrefix + '*.nii.gz'))
-
-        # use the following multi-processed loop
-        pool = Pool(int(nproc))
-        res = pool.map_async(_Register_vol, vols)
-        volsRegistered = res.get()
-        pool.close()
-        pool.join()
-
-        # or use the following for loop
-        # volsRegistered = []
-        # for vol in vols:
-        #     volnii = vol.with_suffix('.nii.gz')
-        #     ConvertBetweenFileFormats(vol, volnii, 'short')
-        #     logging.info('Run FSL flirt affine registration')
-        #     flirt('-interp' ,'sinc'
-        #           ,'-sincwidth' ,'7'
-        #           ,'-sincwindow' ,'blackman'
-        #           ,'-in', volnii
-        #           ,'-ref', 'b0.nii.gz'
-        #           ,'-nosearch'
-        #           ,'-o', volnii
-        #           ,'-omat', volnii.with_suffix('.txt', depth=2)
-        #           ,'-paddingsize', '1')
-        #     volsRegistered.append(volnii)
+        
+        if nproc>1:
+            # use the following multi-processed loop
+            pool = Pool(int(nproc))
+            res = pool.map_async(_Register_vol, vols)
+            volsRegistered = res.get()
+            pool.close()
+            pool.join()
+        
+        else:
+            # or use the following for loop
+            volsRegistered = []
+            for vol in vols:
+                volnii = vol.with_suffix('.nii.gz')
+                logging.info('Run FSL flirt affine registration')
+                flirt('-interp' ,'sinc'
+                      ,'-sincwidth' ,'7'
+                      ,'-sincwindow' ,'blackman'
+                      ,'-in', volnii
+                      ,'-ref', 'b0.nii.gz'
+                      ,'-nosearch'
+                      ,'-o', volnii
+                      ,'-omat', volnii.with_suffix('.txt', depth=2)
+                      ,'-paddingsize', '1')
+                volsRegistered.append(volnii)
 
         fslmerge('-t', 'EddyCorrect-DWI.nii.gz', volsRegistered)
         transforms = tmpdir.glob(dicePrefix + '*.txt')
@@ -135,7 +136,7 @@ class App(cli.Application):
     dwi = cli.SwitchAttr('-i', cli.ExistingFile, help='DWI in nifti', mandatory= True)
     bvalFile = cli.SwitchAttr('--bvals', cli.ExistingFile, help='bval file for DWI', mandatory= True)
     bvecFile = cli.SwitchAttr('--bvecs', cli.ExistingFile, help='bvec file for DWI', mandatory= True)
-    out = cli.SwitchAttr('-o', help='Prefix for eddy corrected DWI', mandatory= True)
+    out = cli.SwitchAttr(['-o', '--out_prefix'],help='Prefix for eddy corrected DWI', mandatory= True)
     overwrite = cli.Flag('--force', default=False, help='Force overwrite')
     nproc = cli.SwitchAttr(
         ['-n', '--nproc'], help='''number of threads to use, if other processes in your computer 

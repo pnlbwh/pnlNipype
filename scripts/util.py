@@ -1,6 +1,6 @@
 __version__ = '0.1.0'
 
-from os.path import abspath, dirname, join as pjoin
+from os.path import abspath, dirname, basename, isfile, isdir, join as pjoin
 import os
 from plumbum import local
 from tempfile import mkdtemp
@@ -15,14 +15,12 @@ ROOTDIR= dirname(LIBDIR)
 
 BET_THRESHOLD = '0.25'
 B0_THRESHOLD = 50
-ANTSREG_THREADS = '4'
-N_PROC = '4'
+ANTSREG_THREADS = '8'
+N_PROC = 1
 
 TMPDIR= local.path(os.getenv('PNLPIPE_TMPDIR','/tmp/'))
-# TMPDIR= local.path(os.getenv('PNLPIPE_TMPDIR',pjoin(os.environ['HOME'],'tmp'))
 if not TMPDIR.exists():
     TMPDIR.mkdir()
-
 
 import warnings
 with warnings.catch_warnings():

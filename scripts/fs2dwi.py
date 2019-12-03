@@ -3,17 +3,17 @@
 from plumbum import local, cli
 import sys, os, tempfile, psutil, warnings
 from plumbum.cmd import ResampleImageBySpacing, antsApplyTransforms, ImageMath
-from subprocess import check_call
+from subprocess import check_call, DEVNULL
 
-from util import load_nifti, N_CPU, FILEDIR, pjoin
-N_CPU= str(N_CPU)
+from util import load_nifti, N_PROC, FILEDIR, pjoin, ANTSREG_THREADS
+N_PROC= str(N_PROC)
 
 
 def rigid_registration(dim, moving, fixed, outPrefix):
 
     check_call(
         (' ').join(['antsRegistrationSyNMI.sh', '-d', str(dim), '-t', 'r', '-m', moving, '-f', fixed, '-o', outPrefix,
-                    '-n', N_CPU]), shell=True)
+                    '-n', ANTSREG_THREADS]), shell=True, stdout=DEVNULL)
 
 
 def registerFs2Dwi(tmpdir, namePrefix, b0masked, brain, wmparc, wmparc_out):
@@ -25,7 +25,7 @@ def registerFs2Dwi(tmpdir, namePrefix, b0masked, brain, wmparc, wmparc_out):
 
     print('Computing warp from brain.nii.gz to (resampled) baseline')
     check_call((' ').join(['antsRegistrationSyNMI.sh', '-m', brain, '-f', b0masked, '-o', pre,
-                           '-n', N_CPU]), shell=True)
+                           '-n', ANTSREG_THREADS]), shell=True, stdout=DEVNULL)
 
     print('Applying warp to wmparc.nii.gz to create (resampled) wmparcindwi.nii.gz')
     antsApplyTransforms('-d', '3', '-i', wmparc, '-t', warp, affine,
@@ -47,7 +47,7 @@ def registerFs2Dwi_T2(tmpdir, namePrefix, b0masked, t2masked, T2toBrainAffine, w
 
     print('Computing warp from t2 to (resampled) baseline')
     check_call((' ').join(['antsRegistrationSyNMI.sh', '-d', '3', '-m', t2masked, '-f', b0masked, '-o', pre,
-                           '-n', N_CPU]), shell=True)
+                           '-n', ANTSREG_THREADS]), shell=True, stdout=DEVNULL)
 
     print('Applying warp to wmparc.nii.gz to create (resampled) wmparcindwi.nii.gz')
     antsApplyTransforms('-d', '3', '-i', wmparc, '-t', warp, affine, T2toBrainAffine,
@@ -102,9 +102,6 @@ def work_flow_t2(dwi, dwimask, fsdir, fshome, out, t2, t2mask, debug):
         BrainToT2Affine = pre + '0GenericAffine.mat'
 
         print('Computing rigid registration from brain.nii.gz to t2')
-        # check_call(
-        #     (' ').join(['antsRegistrationSyNMI.sh', '-d', '3', '-t', 'r', '-m', brain, '-f', t2masked, '-o', pre,
-        #                 '-n', N_CPU]), shell=True)
         rigid_registration(3, brain, t2masked, pre)
         # generates three files for rigid registration:
         # pre0GenericAffine.mat  preInverseWarped.nii.gz  preWarped.nii.gz
@@ -153,12 +150,12 @@ def work_flow_t2(dwi, dwimask, fsdir, fshome, out, t2, t2mask, debug):
 
 
 
-def work_flow_direct(dwi, dwimask, fsdir, fshome, out, debug):
+def work_flow_direct(dwi, dwimask, bse, fsdir, fshome, out, debug):
 
     with tempfile.TemporaryDirectory() as tmpdir:
 
         tmpdir = local.path(tmpdir)
-
+        
         b0masked = tmpdir / "b0masked.nii.gz"  # Sylvain wants both
         b0maskedbrain = tmpdir / "b0maskedbrain.nii.gz"
 
@@ -181,12 +178,15 @@ def work_flow_direct(dwi, dwimask, fsdir, fshome, out, debug):
                     '--o', brain)
             label2vol('--seg', wmparcmgz, '--temp', brainmgz,
                       '--regheader', wmparcmgz, '--o', wmparc)
-
-        print('Extracting B0 from DWI and masking it')
-        check_call(
-            (' ').join([pjoin(FILEDIR, 'bse.py'), '-i', dwi, '-m', dwimask, '-o', b0masked]),
-            shell=True)
-        print('Made masked B0')
+        
+        if not bse:
+            print('Extracting B0 from DWI and masking it')
+            check_call(
+                (' ').join([pjoin(FILEDIR, 'bse.py'), '-i', dwi, '-m', dwimask, '-o', b0masked]),
+                shell=True)
+            print('Made masked B0')
+        else:
+            bse.copy(b0masked)
 
         dwi_res = load_nifti(str(b0masked)).header['pixdim'][1:4].round()
         brain_res = load_nifti(str(brain)).header['pixdim'][1:4].round()
@@ -238,14 +238,17 @@ class FsToDwi(cli.Application):
     dwi = cli.SwitchAttr(
         ['--dwi'],
         cli.ExistingFile,
-        help='target DWI',
-        mandatory=True)
+        help='target DWI')
+    
+    bse = cli.SwitchAttr(
+        ['--bse'],
+        cli.ExistingFile,
+        help='masked bse of DWI')
 
     dwimask = cli.SwitchAttr(
         ['--dwimask'],
         cli.ExistingFile,
-        help='DWI mask',
-        mandatory=True)
+        help='DWI mask')
 
     out = cli.SwitchAttr(
         ['-o', '--outDir'],
@@ -255,8 +258,7 @@ class FsToDwi(cli.Application):
     force= cli.Flag(
         ['--force'],
         help='turn on this flag to overwrite existing output',
-        default= False,
-        mandatory= False)
+        default= False)
 
     debug = cli.Flag(
         ['-d','--debug'],
@@ -269,18 +271,18 @@ class FsToDwi(cli.Application):
             print("No command given")
             sys.exit(1)
 
-        fshome = local.path(os.getenv('FREESURFER_HOME'))
+        self.fshome = local.path(os.getenv('FREESURFER_HOME'))
 
-        if not fshome:
+        if not self.fshome:
             print('Set FREESURFER_HOME first.')
             sys.exit(1)
 
         print('Making output directory')
-        out= local.path(self.out)
-        if out.exists() and self.force:
+        self.out= local.path(self.out)
+        if self.out.exists() and self.force:
             print('Deleting existing directory')
-            out.delete()
-        out.mkdir()
+            self.out.delete()
+        self.out.mkdir()
 
 
 @FsToDwi.subcommand("direct")
@@ -289,7 +291,7 @@ class Direct(cli.Application):
 
     def main(self):
 
-        work_flow_direct(self.parent.dwi, self.parent.dwimask, self.parent.fsdir, self.parent.fslhome, self.parent.out,
+        work_flow_direct(self.parent.dwi, self.parent.dwimask, self.parent.bse, self.parent.fsdir, self.parent.fshome, self.parent.out,
                          self.parent.debug)
 
 
@@ -318,3 +320,4 @@ class WithT2(cli.Application):
 
 if __name__ == '__main__':
     FsToDwi.run()
+

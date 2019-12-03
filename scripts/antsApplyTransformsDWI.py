@@ -47,26 +47,27 @@ class App(cli.Application):
 
             logging.info("Apply warp to each DWI volume")
             vols = sorted(tmpdir // (dicePrefix + '*.nii.gz'))
+            
+            if int(self.nproc)>1:
+                # use the following multi-processed loop
+                pool= Pool(int(self.nproc))
+                res= []
+                for vol in vols:
+                    res.append(pool.apply_async(_WarpImage, (self.dwimask, vol, self.xfm)))
 
-            # use the following multi-processed loop
-            pool= Pool(int(self.nproc))
-            res= []
-            for vol in vols:
-                res.append(pool.apply_async(_WarpImage, (self.dwimask, vol, self.xfm)))
+                volsWarped= [r.get() for r in res]
+                pool.close()
+                pool.join()
 
-            volsWarped= [r.get() for r in res]
-            pool.close()
-            pool.join()
-
-
-            # or use the following for loop
-            # volsWarped = []
-            # for vol in vols:
-            #     if self.dwimask:
-            #         fslmaths[vol, '-mas', self.dwimask, vol]
-            #     volwarped = vol.stem + '-warped.nrrd'
-            #     WarpImageMultiTransform('3', vol, volwarped, '-R', vol, self.xfm)
-            #     volsWarped.append(volwarped)
+            else:
+                # or use the following for loop
+                volsWarped = []
+                for vol in vols:
+                    if self.dwimask:
+                        fslmaths[vol, '-mas', self.dwimask, vol]
+                    volwarped = vol.stem + '-warped.nii.gz'
+                    WarpImageMultiTransform('3', vol, volwarped, '-R', vol, self.xfm)
+                    volsWarped.append(volwarped)
 
             logging.info("Join warped volumes together")
 

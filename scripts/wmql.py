@@ -37,22 +37,27 @@ def work_flow(ukf, fsindwi, query, out, nproc):
         tract_math[ukf, 'tract_remove_short_tracts', '2', ukfpruned] & FG
         if not ukfpruned.exists():
             raise Exception("tract_math failed to make '{}'".format(ukfpruned))
+        out=local.path(out)
+        if out.exists():
+            out.delete()
         out.mkdir()
         tract_querier['-t', ukfpruned, '-a', fsindwi, '-q', query, '-o', out / '_'] & FG
 
         logging.info('Convert vtk field data to tensor data')
 
-        # use the following multi-processed loop
-        pool = Pool(int(nproc))
-        pool.map_async(_activateTensors_py, out.glob('*.vtk'))
-        pool.close()
-        pool.join()
 
-        # or use the following for loop
-        # for vtk in out.glob('*.vtk'):
-        #     vtknew = vtk.dirname / (vtk.stem[2:] + ''.join(vtk.suffixes))
-        #     activateTensors_py(vtk, vtknew)
-        #     vtk.delete()
+        if int(nproc)>1:
+            # use the following multi-processed loop
+            pool = Pool(int(nproc))
+            pool.map_async(_activateTensors_py, out.glob('*.vtk'))
+            pool.close()
+            pool.join()
+        else:
+            # or use the following for loop
+            for vtk in out.glob('*.vtk'):
+                vtknew = vtk.dirname / (vtk.stem[2:] + ''.join(vtk.suffixes))
+                _activateTensors_py(vtk, vtknew)
+                vtk.delete()
 
 
 class App(cli.Application):
@@ -74,7 +79,7 @@ class App(cli.Application):
         mandatory=False,
         default=pjoin(FILEDIR, 'wmql-2.0.qry'))
     out = cli.SwitchAttr(
-        ['-o', '--out'], cli.NonexistentPath, help='output directory', mandatory=True)
+        ['-o', '--out'], help='output directory', mandatory=True)
 
     nproc = cli.SwitchAttr(
         ['-n', '--nproc'], help='''number of threads to use, if other processes in your computer 
@@ -87,3 +92,4 @@ class App(cli.Application):
 
 if __name__ == '__main__':
     App.run()
+

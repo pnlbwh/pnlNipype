@@ -11,6 +11,11 @@ def concat(l):
 
 
 def work_flow(wmqldirs, caseids, out):
+    
+    out=local.path(out)
+    if out.exists():
+        out.delete()
+    out.mkdir()
 
     PY2BIN = getenv('PY2BIN', None)
     if not PY2BIN:
@@ -57,12 +62,11 @@ class App(cli.Application):
 
     out = cli.SwitchAttr(
         ['-o'],
-        cli.NonexistentPath,
         help='Output directory',
         mandatory=True)
 
     def main(self):
-
+        
         work_flow(self.wmqldirs, self.caseids, self.out)
 
 

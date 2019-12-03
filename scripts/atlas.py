@@ -10,20 +10,9 @@ import multiprocessing
 from math import exp
 from conversion.antsUtil import antsReg
 from util import logfmt, save_nifti, TemporaryDirectory, load_nifti, N_CPU, N_PROC, dirname, pjoin
+from glob import glob
 
 SCRIPTDIR = os.path.dirname(os.path.realpath(__file__))
-
-
-# determine ANTS_VERSION
-# $ antsRegistration --version
-#   ANTs Version: 2.2.0.dev233-g19285
-#   Compiled: Sep  2 2018 23:23:33
-
-antsVerFile='/tmp/ANTS_VERSION_'+os.environ['USER']
-(antsRegistration['--version'] > antsVerFile) & FG
-with open(antsVerFile) as f:
-      content=f.read().split('\n')
-      ANTS_VERSION= content[0].split()[-1]
 
 import logging
 logger = logging.getLogger()
@@ -36,6 +25,7 @@ ANTSJOINTFUSION_PARAMS = ['--search-radius', 5
                          ,'--alpha', 0.4
                          ,'--beta', 3.0]
 
+# with the omission of subcommands, this function is not used anymore
 def grouper(iterable, n, fillvalue=None):
     "Collect data into fixed-length chunks or blocks"
     # grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx
@@ -84,11 +74,7 @@ def applyWarp(moving, warp, reference, out, interpolation='Linear'):
 
 def computeMI(target, img, miFile):
 
-    if ANTS_VERSION <= '2.1.0':
-        (MeasureImageSimilarity['3', '2', target, img] | head['-n', '-2'] | cut['-d ', '-f6'] > miFile)()
-
-    else:
-        (MeasureImageSimilarity['-d', '3', '-m', 'MI[{},{},1,256]'.format(target, img)] > miFile) & FG
+    (MeasureImageSimilarity['-d', '3', '-m', 'MI[{},{},1,256]'.format(target, img)] > miFile) & FG
 
 
 def weightsFromMIExp(mis, alpha):
@@ -198,12 +184,17 @@ def makeAtlases(target, trainingTable, outPrefix, fusion, threads, debug):
 
         logging.info('Create {} atlases: compute transforms from images to target and apply over images'.format(L))
 
-        pool = multiprocessing.Pool(threads)  # Use all available cores, otherwise specify the number you want as an argument
+        
+        if threads>1:
+            pool = multiprocessing.Pool(threads)  # Use all available cores, otherwise specify the number you want as an argument
 
-        pool.map_async(train2target, multiDataFrame.iterrows())
+            pool.map_async(train2target, multiDataFrame.iterrows())
 
-        pool.close()
-        pool.join()
+            pool.close()
+            pool.join()
+        else:
+            for row in multiDataFrame.iterrows():
+                train2target(row)
 
         logging.info('Fuse warped labelmaps to compute output labelmaps')
         atlasimages = tmpdir // 'atlas*.nii.gz'
@@ -237,9 +228,9 @@ def makeAtlases(target, trainingTable, outPrefix, fusion, threads, debug):
 
 
         pool = multiprocessing.Pool(threads)  # Use all available cores, otherwise specify the number you want as an argument
-        for labelname in list(trainingTable)[1:]:  #list(d) gets column names
+        for labelname in list(trainingTable)[1:]:  # list(d) gets column names
 
-            out = os.path.abspath(outPrefix+ f'-{labelname}.nii.gz')
+            out = os.path.abspath(outPrefix+ f'_{labelname}.nii.gz')
             if os.path.exists(out):
                 os.remove(out)
             labelmaps = tmpdir // (labelname + '*')
@@ -248,22 +239,22 @@ def makeAtlases(target, trainingTable, outPrefix, fusion, threads, debug):
             if fusion.lower() == 'avg':
                 print(' ')
                 # parellelize
-                # fuseAvg(labelmaps, out)
-                pool.apply_async(func= fuseAvg, args= (labelmaps, out, ))
+                fuseAvg(labelmaps, out)
+                # pool.apply_async(func= fuseAvg, args= (labelmaps, out, ))
 
             elif fusion.lower() == 'antsjointfusion':
                 print(' ')
                 # atlasimages are the warped images
                 # labelmaps are the warped labels
                 # parellelize
-                # fuseAntsJointFusion(target, atlasimages, labelmaps, out)
-                pool.apply_async(func= fuseAntsJointFusion, args= (target, atlasimages, labelmaps, out, ))
+                fuseAntsJointFusion(target, atlasimages, labelmaps, out)
+                # pool.apply_async(func= fuseAntsJointFusion, args= (target, atlasimages, labelmaps, out, ))
 
             elif fusion.lower() == 'wavg':
                 print(' ')
                 # parellelize
-                # fuseWeightedAvg(labelmaps, weights, out)
-                pool.apply_async(func= fuseWeightedAvg, args= (labelmaps, weights, out, ))
+                fuseWeightedAvg(labelmaps, weights, out)
+                # pool.apply_async(func= fuseWeightedAvg, args= (labelmaps, weights, out, ))
 
             else:
                 print('Unrecognized fusion option: {}. Skipping.'.format(fusion))
@@ -292,9 +283,10 @@ def work_flow_csv(target, out, fusions, threads, debug, csvFile):
 
     trainingTable = pd.read_csv(csvFile)
     makeAtlases(target, trainingTable, out, fusions, int(threads), debug)
-    logging.info('Made ' + out + '-*.nii.gz')
+    logging.info('Made ' + out + '_*.nii.gz')
 
 
+# with the omission of subcommands, this function is not used anymore
 def work_flow_args(target, out, fusions, threads, debug, images, labels, names):
 
     images = images.split()
@@ -325,10 +317,10 @@ def work_flow_args(target, out, fusions, threads, debug, images, labels, names):
         threads = N_CPU
 
     makeAtlases(target, trainingTable, out, fusions, threads, debug)
-    logging.info('Made ' + out + '-*.nii.gz')
+    logging.info('Made ' + out + '_*.nii.gz')
 
 
-@Atlas.subcommand("args")
+# @Atlas.subcommand("args")
 class AtlasArgs(cli.Application):
     """Specify training images and labelmaps via command line arguments."""
 
@@ -345,7 +337,7 @@ class AtlasArgs(cli.Application):
              'between the warped atlases and target image, antsJointFusion is local weighted averaging', default='wavg')
     out = cli.SwitchAttr(
         ['-o', '--outPrefix'],
-        help='output prefix, output labelmaps are saved as outPrefix-mask.nii.gz, outPrefix-cingr.nii.gz, ...',
+        help='output prefix, output labelmaps are saved as outPrefix_mask.nii.gz, outPrefix_cingr.nii.gz, ...',
         mandatory=True)
 
     images = cli.SwitchAttr(
@@ -370,7 +362,7 @@ class AtlasArgs(cli.Application):
         work_flow_args(self.target, self.out, self.fusions, self.threads, self.debug, self.images, self.labels, self.names)
 
 
-@Atlas.subcommand("csv")
+# @Atlas.subcommand("csv")
 class AtlasCsv(cli.Application):
     """Specify training images and labelmaps via a csv file.
     Put the images with any header in the first column, 
@@ -391,19 +383,33 @@ class AtlasCsv(cli.Application):
              'between the warped atlases and target image, antsJointFusion is local weighted averaging', default='wavg')
     out = cli.SwitchAttr(
         ['-o', '--outPrefix'],
-        help='output prefix, output labelmaps are saved as outPrefix-mask.nii.gz, outPrefix-cingr.nii.gz, ...',
+        help='output prefix, output labelmaps are saved as outPrefix_mask.nii.gz, outPrefix_cingr.nii.gz, ...',
         mandatory=True)
     threads= cli.SwitchAttr(['-n', '--nproc'],
         help='number of processes/threads to use (-1 for all available)',
         default= N_PROC)
     debug = cli.Flag('-d', help='Debug mode, saves intermediate labelmaps to atlas-debug-<pid> in output directory')
+    csvFile = cli.SwitchAttr(['--train'],
+        help='--train t1; --train t2; --train trainingImages.csv; '
+             'see pnlNipype/docs/TUTORIAL.md to know what each value means')
 
 
-    @cli.positional(cli.ExistingFile)
-    def main(self, csvFile):
-        work_flow_csv(self.target, self.out, self.fusions, self.threads, self.debug, csvFile)
+    def main(self):
+
+        if self.csvFile=='t1' or self.csvFile=='t2':
+            PNLPIPE_SOFT = os.getenv('PNLPIPE_SOFT')
+            if not PNLPIPE_SOFT:
+                raise EnvironmentError('Define the environment variable PNLPIPE_SOFT from where training data could be obtained')
+
+        if self.csvFile=='t1':
+            self.csvFile=glob(PNLPIPE_SOFT+'/trainingDataT1AHCC-*/trainingDataT1Masks-hdr.csv')[0]
+        elif self.csvFile=='t2':
+            self.csvFile=glob(PNLPIPE_SOFT+'/trainingDataT2Masks-*/trainingDataT2Masks-hdr.csv')[0]
+
+        work_flow_csv(self.target, self.out, self.fusions, self.threads, self.debug, self.csvFile)
 
 
 
 if __name__ == '__main__':
-    Atlas.run()
+    # Atlas.run()
+    AtlasCsv.run()
