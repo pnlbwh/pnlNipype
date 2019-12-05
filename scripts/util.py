@@ -13,10 +13,10 @@ ROOTDIR= dirname(LIBDIR)
 # sys.path.append(FILEDIR)
 # sys.path.append(LIBDIR)
 
-BET_THRESHOLD = '0.25'
-B0_THRESHOLD = 50
-ANTSREG_THREADS = '8'
-N_PROC = 1
+BET_THRESHOLD = '0.25' # string
+B0_THRESHOLD = 50 # int/float
+ANTSREG_THREADS = '8' # string
+N_PROC = 16 # int
 
 TMPDIR= local.path(os.getenv('PNLPIPE_TMPDIR','/tmp/'))
 if not TMPDIR.exists():
