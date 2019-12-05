@@ -127,7 +127,7 @@ sub-003GNX021
 
 # nipype working directory
 
-> tree dwi_pipeline/ -I "*dot|*rst|*pklz|*json|*txt|*_orig*|*_detailed*"
+> tree dwi_pipeline/ -I "*dot|\*rst|\*pklz|\*json|\*txt|\*_orig\*|\*_detailed\*"
 
 ```
 dwi_pipeline/
