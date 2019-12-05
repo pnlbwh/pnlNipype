@@ -1,4 +1,5 @@
 from nipype.interfaces.base import CommandLine, CommandLineInputSpec, File, TraitedSpec, traits, Directory
+from os.path import join as pjoin
 
 # ============================================================================================================
 class AlignInputSpec(CommandLineInputSpec):
@@ -87,7 +88,7 @@ class Masking(CommandLine):
 
 # ============================================================================================================
 class BseInputSpec(CommandLineInputSpec):
-    in_img = File(exists=True, mandatory=True, argstr='-i %s.nii.gz')
+    in_img = File(exists=True, mandatory=True, argstr='-i %s')
     in_bval = File(exists=True, mandatory=False, argstr='--bvals %s')
     bse_img = traits.String(mandatory=False, argstr='-o %s.nii.gz')
 
@@ -234,7 +235,7 @@ class Fs2DwiInputSpec(CommandLineInputSpec):
 
 
 class Fs2DwiOutputSpec(TraitedSpec):
-    fs2dwi_dir = Directory(desc='fs2dwi dir')
+    wmparc = File(desc='wmparc')
         
 
 class Fs2Dwi(CommandLine):
@@ -243,7 +244,7 @@ class Fs2Dwi(CommandLine):
     output_spec = Fs2DwiOutputSpec
 
     def _list_outputs(self):
-        return {'fs2dwi_dir': self.inputs.out_dir}
+        return {'wmparc': pjoin(self.inputs.out_dir,'wmparcInDwi.nii.gz')}
 
 
 
