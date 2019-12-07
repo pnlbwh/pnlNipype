@@ -250,12 +250,12 @@ class Fs2Dwi(CommandLine):
 
 # ============================================================================================================
 class FsSegInputSpec(CommandLineInputSpec):
-    fs_dir = traits.String(exists=True, mandatory=True, argstr='-o %s')
+    fs_dir = traits.String(mandatory=True, argstr='-o %s')
     t1_img = File(exists=True, mandatory=True, argstr='-i %s')
     t1_mask = File(exists=True, mandatory=True, argstr='-m %s')
 
 class FsSegOutputSpec(TraitedSpec):
-    fs_dir = Directory(desc='freesurfer dir')
+    fs_out_dir = Directory(desc='freesurfer dir')
 
 
 class FsSeg(CommandLine):
@@ -264,8 +264,8 @@ class FsSeg(CommandLine):
     input_spec = FsSegInputSpec
     output_spec = FsSegOutputSpec
     
-    def _list_ouputs(self):
-        return {'fs_dir': self.inputs.fs_dir}
+    def _list_outputs(self):
+        return {'fs_out_dir': self.inputs.fs_dir}
 
 
 
