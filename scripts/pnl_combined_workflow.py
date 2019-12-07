@@ -19,7 +19,7 @@ cases=['003GNX007']
 pipe_out_dir= '/tmp/dwi_pipeline'
 bids_derivatives= pjoin(bids_data_dir,'derivatives','pnlNipype')
 graph_type='orig'
-overwrite=False
+overwrite=True
 if overwrite:
     confirm= input('Are you sure you want to overwrite results? [y/n]:')
     if confirm!='y':
@@ -178,9 +178,11 @@ epi_wmqlqc_node= Node(WmqlQc(),name='epi_wmqlqc')
 
 fs2dwi_pipeline.connect([(pipe_inputs, inter_outputs, [('subject_id', 'id'), ('outDir','dir')]),
                          (eddy_pipeline, eddy_fs2dwi_node, [('multiply_by_mask.out_img','bse')]),
-                         (inter_outputs, eddy_fs2dwi_node, [('eddy_fs2dwi_dir','out_dir'),('fs_dir','fs_dir')]),
+                         (inter_outputs, eddy_fs2dwi_node, [('eddy_fs2dwi_dir','out_dir')]),
+                         (strct_pipeline, eddy_fs2dwi_node, [('freesurfer_seg.fs_out_dir', 'fs_dir')]),
                          (epi_pipeline, epi_fs2dwi_node, [('epi_correct.out_bse','bse')]),
-                         (inter_outputs, epi_fs2dwi_node, [('epi_fs2dwi_dir','out_dir'), ('fs_dir','fs_dir')]),
+                         (inter_outputs, epi_fs2dwi_node, [('epi_fs2dwi_dir','out_dir')]),
+                         (strct_pipeline, epi_fs2dwi_node, [('freesurfer_seg.fs_out_dir', 'fs_dir')]),
                          (eddy_pipeline, eddy_wmql_node, [('UKFTractography.out_tract','tract_file')]),
                          (inter_outputs, eddy_wmql_node, [('eddy_wmql_dir','out_dir')]),
                          (eddy_fs2dwi_node, eddy_wmql_node, [('wmparc','wmparc')]),
@@ -194,11 +196,12 @@ fs2dwi_pipeline.connect([(pipe_inputs, inter_outputs, [('subject_id', 'id'), ('o
                          (inter_outputs, epi_wmqlqc_node,  [('epi_wmqlqc_dir','out_dir')]),
                          (pipe_inputs, epi_wmqlqc_node, [('subject_id','subject_id')]),
                          ])
+                         
 
 
 fs2dwi_pipeline.write_graph(f'fs2dwi_pipeline_{graph_type}.dot', graph2use=graph_type)
 # fs2dwi_pipeline.run('MultiProc', plugin_args={'n_procs': 3})
 # fs2dwi_pipeline.run(updatehash=True)
-# fs2dwi_pipeline.run()
+fs2dwi_pipeline.run()
 
 
