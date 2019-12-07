@@ -259,8 +259,7 @@ class FsSegOutputSpec(TraitedSpec):
 
 
 class FsSeg(CommandLine):
-    # _cmd = 'fs.py'
-    _cmd = 'cp -a /home/tb571/Downloads/pnlpipe/_data/003_GNX_007/FreeSurferUsingMask-003_GNX_007-b13e54312f/* /home/tb571/Downloads/INTRuST_BIDS/derivatives/pnlNipype/sub-003GNX007/anat/freesurfer #'
+    _cmd = 'fs.py'
     input_spec = FsSegInputSpec
     output_spec = FsSegOutputSpec
     
