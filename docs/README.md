@@ -119,6 +119,9 @@ The rest of the software can be installed with *pnlpipe* infrastructure:
     
     git clone --recurse-submodules https://github.com/pnlbwh/pnlNipype.git && cd pnlNipype
     
+    # install the python packages required to run pnlNipype
+    pip install -r requirements.txt    
+    
     # define PYTHONPATH so following software installation scripts are found
     export PYTHONPATH=/abs/directory/of/pnlpipe_software/
     
@@ -140,11 +143,7 @@ The rest of the software can be installed with *pnlpipe* infrastructure:
     # https://github.com/pnlbwh
     cmd/install.py trainingDataT1AHCC
     cmd/install.py trainingDataT2Masks
-    
-
-    # install the python packages required to run pnlNipype
-    pip install -r requirements.txt    
-    
+        
     # finally, install whitematteanalysis according to https://github.com/pnlbwh/pnlpipe#4-whitematteranalysis-package
 
 
