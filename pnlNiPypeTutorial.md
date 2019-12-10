@@ -109,13 +109,9 @@ Then type the following command:
 ```
 pwd
 ```
-This command, which stands for "print working directory," will show you your current path. You may want to do this frequently to keep track of where you are and therefore where your commands are running.
+This command, which stands for "print working directory," will show you your current path. In our case, it should end with `PipelineTraining`. You may want to do this frequently to keep track of where you are and therefore where your commands are running.
 
-Now you can go into your `raw` directory with:
-```
-cd raw
-```
-In order to save space on the system, best practice is to zip the DICOM directory after you have converted it. To do this enter:
+In order to save space on the system, the best practice is to zip the DICOM directory after you have converted it. To do this enter:
 `tar -cf <DICOM directory.tar>  <DICOM directory>`. If you ever want to use the files again you can simply unzip the files by entering `tar -xvf <.tar file>`.
 
 In our case, the command will be as follows:
