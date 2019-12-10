@@ -95,20 +95,39 @@ Once this is completed, enter:
 ```
 dcm2niix -b y -z y -f sample-T2 -o strct/ raw/T2/
 ```
-The files `sample-T1.nii.gz` and `sample-T2.nii.gz` should now be in your `strct` directory, which you can see if you enter `ls` while in that directory
+The files `sample-T1.nii.gz` and `sample-T2.nii.gz` should now be in your `strct` directory, which you can see if you enter `ls` while in that directory (`cd strct`)
 
  * **Note:** `dcm2niix` can also be used to convert to `nrrd` files.
 
-  * If you want to convert to a `nrrd` (specifically, an `.nhdr` and a `.raw.gz` file), use the `-e` flag. For example, `dcm2niix -b y -z y -e y -f sample-T1 -o strct/ T1/`.
+  * If you want to convert to a `nrrd` (specifically, an `.nhdr` and a `.raw.gz` file), use the `-e` flag. For example, `dcm2niix -b y -z y -e y -f sample-T1 -o strct/ raw/T1/`.
 
-•	In order to save space on the system, best practice is to zip the DICOM directory after you have converted it. To do this enter:
+Now we want to clean up a bit. You can go up from your current directory with the following command:
+```
+cd ..
+```
+Then type the following command:
+```
+pwd
+```
+This command, which stands for "print working directory," will show you your current path. You may want to do this frequently to keep track of where you are and therefore where your commands are running.
+
+Now you can go into your `raw` directory with:
+```
+cd raw
+```
+In order to save space on the system, best practice is to zip the DICOM directory after you have converted it. To do this enter:
 `tar -cf <DICOM directory.tar>  <DICOM directory>`. If you ever want to use the files again you can simply unzip the files by entering `tar -xvf <.tar file>`.
+
+In our case, the command will be as follows:
+```
+tar -cf T1.tar T1
+```
 
 ## Axis Align and Centering
 
 The next step in the pipeline centers the images and aligns them on the x-y-z axis, in order to standardize the position and orientation of each image in space.
 
-`cd` to the directory with your structural `.nii` files (`strct`)
+`cd` to the directory with your structural `.nii` files (`strct`). You will need the `cd ..` command to get there.
 
 The command for axis aligning images is `nifti_align –-axisAlign --center -i <input file> -o <output file>`
 
