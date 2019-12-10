@@ -89,17 +89,17 @@ dcm2niix -b y -z y -f <file name> -o <output directory> <dicom directory>
 
 Make sure that you are in the `PipelineTraining` directory and then enter:
 ```
-dcm2niix -b y -z y -f sample-T1 -o strct/ raw/T1/
+dcm2niix -b y -z y -f sample-T1 -o strct/ T1/
 ```
 Once this is completed, enter:
 ```
-dcm2niix -b y -z y -f sample-T2 -o strct/ raw/T2/
+dcm2niix -b y -z y -f sample-T2 -o strct/ T2/
 ```
 The files `sample-T1.nii.gz` and `sample-T2.nii.gz` should now be in your `strct` directory, which you can see if you enter `ls` while in that directory (`cd strct`)
 
  * **Note:** `dcm2niix` can also be used to convert to `nrrd` files.
 
-  * If you want to convert to a `nrrd` (specifically, an `.nhdr` and a `.raw.gz` file), use the `-e` flag. For example, `dcm2niix -b y -z y -e y -f sample-T1 -o strct/ raw/T1/`.
+  * If you want to convert to a `nrrd` (specifically, an `.nhdr` and a `.raw.gz` file), use the `-e` flag. For example, `dcm2niix -b y -z y -e y -f sample-T1 -o strct/ T1/`.
 
 Now we want to clean up a bit. You can go up from your current directory with the following command:
 ```
