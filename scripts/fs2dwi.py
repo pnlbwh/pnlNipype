@@ -5,15 +5,14 @@ import sys, os, tempfile, psutil, warnings
 from plumbum.cmd import ResampleImageBySpacing, antsApplyTransforms, ImageMath
 from subprocess import check_call
 
-from util import load_nifti, N_CPU, FILEDIR, pjoin
-N_CPU= str(N_CPU)
+from util import load_nifti, ANTSREG_THREADS, FILEDIR, pjoin
 
 
 def rigid_registration(dim, moving, fixed, outPrefix):
 
     check_call(
         (' ').join(['antsRegistrationSyNMI.sh', '-d', str(dim), '-t', 'r', '-m', moving, '-f', fixed, '-o', outPrefix,
-                    '-n', N_CPU]), shell=True)
+                    '-n', ANTSREG_THREADS]), shell=True)
 
 
 def registerFs2Dwi(tmpdir, namePrefix, b0masked, brain, wmparc, wmparc_out):
@@ -25,7 +24,7 @@ def registerFs2Dwi(tmpdir, namePrefix, b0masked, brain, wmparc, wmparc_out):
 
     print('Computing warp from brain.nii.gz to (resampled) baseline')
     check_call((' ').join(['antsRegistrationSyNMI.sh', '-m', brain, '-f', b0masked, '-o', pre,
-                           '-n', N_CPU]), shell=True)
+                           '-n', ANTSREG_THREADS]), shell=True)
 
     print('Applying warp to wmparc.nii.gz to create (resampled) wmparcindwi.nii.gz')
     antsApplyTransforms('-d', '3', '-i', wmparc, '-t', warp, affine,
@@ -47,7 +46,7 @@ def registerFs2Dwi_T2(tmpdir, namePrefix, b0masked, t2masked, T2toBrainAffine, w
 
     print('Computing warp from t2 to (resampled) baseline')
     check_call((' ').join(['antsRegistrationSyNMI.sh', '-d', '3', '-m', t2masked, '-f', b0masked, '-o', pre,
-                           '-n', N_CPU]), shell=True)
+                           '-n', ANTSREG_THREADS]), shell=True)
 
     print('Applying warp to wmparc.nii.gz to create (resampled) wmparcindwi.nii.gz')
     antsApplyTransforms('-d', '3', '-i', wmparc, '-t', warp, affine, T2toBrainAffine,
@@ -252,9 +251,6 @@ class WithT2(cli.Application):
             BrainToT2Affine = pre + '0GenericAffine.mat'
 
             print('Computing rigid registration from brain.nii.gz to t2')
-            # check_call(
-            #     (' ').join(['antsRegistrationSyNMI.sh', '-d', '3', '-t', 'r', '-m', brain, '-f', t2masked, '-o', pre,
-            #                 '-n', N_CPU]), shell=True)
             rigid_registration(3, brain, t2masked, pre)
             # generates three files for rigid registration:
             # pre0GenericAffine.mat  preInverseWarped.nii.gz  preWarped.nii.gz
