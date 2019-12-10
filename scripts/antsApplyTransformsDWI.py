@@ -64,7 +64,7 @@ class App(cli.Application):
             # for vol in vols:
             #     if self.dwimask:
             #         fslmaths[vol, '-mas', self.dwimask, vol]
-            #     volwarped = vol.stem + '-warped.nrrd'
+            #     volwarped = vol.stem + '-warped.nii.gz'
             #     WarpImageMultiTransform('3', vol, volwarped, '-R', vol, self.xfm)
             #     volsWarped.append(volwarped)
 

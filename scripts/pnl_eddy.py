@@ -79,7 +79,6 @@ class App(cli.Application):
             # volsRegistered = []
             # for vol in vols:
             #     volnii = vol.with_suffix('.nii.gz')
-            #     ConvertBetweenFileFormats(vol, volnii, 'short')
             #     logging.info('Run FSL flirt affine registration')
             #     flirt('-interp' ,'sinc'
             #           ,'-sincwidth' ,'7'

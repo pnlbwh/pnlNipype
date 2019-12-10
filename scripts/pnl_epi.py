@@ -137,7 +137,7 @@ class App(cli.Application):
 
 
             if self.debug:
-                tmpdir.copy(self.out.dirname / ('epidebug-' + str(getpid())))
+                tmpdir.copy(self.out.dirname / ('epi-debug-' + str(getpid())))
 
 
 if __name__ == '__main__':
