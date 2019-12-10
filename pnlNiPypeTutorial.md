@@ -66,7 +66,7 @@ cp –r /rfanfs/pnl-zorro/Tutorial/Case01183_NiPype/raw/* /rfanfs/pnl-zorro/home
 
 This may take a while.
 
-In your **PipelineTraining** directory you should now find 3 files and 4 directories.  It is the 4 directories (Diffusion_b3000, T1, T2, and Other) that you care about, and you are now ready to begin the pipeline.
+In your `PipelineTraining` directory you should now find 3 files and 4 directories.  It is the 4 directories (Diffusion_b3000, T1, T2, and Other) that you care about, and you are now ready to begin the pipeline.
 
 In general, there are two types of neuroimaging data that you will be working with: **diffusion** imaging data and **structural** imaging data.  As you can see from the above figure, some steps of the pipeline are shared for both structural and diffusion data, and some are unique to one type of data. Furthermore, processing structural and diffusion data require different scripts and different use of the Slicer software. This tutorial will first go through structural data processing, and then diffusion data analysis.
 
@@ -75,7 +75,7 @@ In general, there are two types of neuroimaging data that you will be working wi
 
 ## Dicom to Nifti (.nii) Conversion
 
-Make a new directory in PipelineTraining for structural data processing by going back into **PipelineTraining** and entering `mkdir strct`.
+Make a new directory in PipelineTraining for structural data processing by going back into `PipelineTraining` and typing `mkdir strct`.
 
 Processing a structural image involves processing both T1 and T2 images, which are similar images of the brain, but with differing contrasts.  
 
@@ -84,13 +84,13 @@ We convert structural images from their raw forms (i.e. Dicoms, Bruker) to .nii 
 dcm2niix -b y -z y -f <file name> -o <output directory> <dicom directory>
 ```
 
-Make sure that you are in the PipelineTraining directory and then enter:
+Make sure that you are in the `PipelineTraining` directory and then enter:
 ```
-dcm2niix -b y -z y -f sample-T1 -o strct/ T1/
+dcm2niix -b y -z y -f sample-T1 -o strct/ raw/T1/
 ```
 Once this is completed, enter:
 ```
-dcm2niix -b y -z y -f sample-T2 -o strct/ T2/
+dcm2niix -b y -z y -f sample-T2 -o strct/ raw/T2/
 ```
 The files `sample-T1.nii.gz` and `sample-T2.nii.gz` should now be in your `strct` directory, which you can see if you enter `ls` while in that directory
 
