@@ -24,7 +24,6 @@ class App(cli.Application):
 
     out = cli.SwitchAttr(
         ['-o'],
-        cli.NonexistentPath,
         help='Output directory',
         mandatory=True)
 
@@ -45,7 +44,12 @@ class App(cli.Application):
         vtks = [(caseid, vtk) for (caseid, d) in tuples for vtk in d // '*.vtk']
         keyfn = lambda x : local.path(x).name[:-4]
         groupedvtks = itertools.groupby(sorted(vtks, key=keyfn), key=keyfn)
+        
+        self.out=local.path(self.out)
+        if self.out.exists():
+            self.out.delete()
         self.out.mkdir()
+        
         for group, vtks in groupedvtks:
             vtkdir = self.out / group
             qcdir = self.out / (group + '-qc')
