@@ -75,7 +75,10 @@ In general, there are two types of neuroimaging data that you will be working wi
 
 ## Dicom to Nifti (.nii) Conversion
 
-Make a new directory in PipelineTraining for structural data processing by going back into `PipelineTraining` and typing `mkdir strct`.
+Make a new directory in PipelineTraining for structural data processing by going back into `PipelineTraining` and typing:
+```
+mkdir strct
+```
 
 Processing a structural image involves processing both T1 and T2 images, which are similar images of the brain, but with differing contrasts.  
 
