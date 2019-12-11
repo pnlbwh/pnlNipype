@@ -341,7 +341,7 @@ class TopupEddyEpi(cli.Application):
                     bvals2= bvals1.copy()
                 elif dim2==4 and secondaryBval:
                     bvals2= read_bvals(secondaryBval)
-                elif dim2==1:
+                elif dim2==3:
                     bvals2=[0]
 
                 combinedBvals = tmpdir / 'combinedBvals.txt'
@@ -353,7 +353,7 @@ class TopupEddyEpi(cli.Application):
                     bvecs2= bvecs1.copy()
                 elif dim2==4 and secondaryBvec:
                     bvecs2= read_bvecs(secondaryBvec)
-                elif dim2==1:
+                elif dim2==3:
                     bvecs2=[[0,0,0]]
 
                 # join both bvecFiles
