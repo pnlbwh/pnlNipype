@@ -236,7 +236,7 @@ Open `sample-T2-mask.nii.gz` in **Slicer**, which should be in your `strct` dire
 
 You’ll need to convert the mask to a segmentation. Go to the “Segmentations” module, and go to “Export/import models and labelmaps.” Make sure “Import” and “Labelmap” are highlighted, and that your mask is the “Input node.” Click **Import**.
 
-Switch to the **“Segment Editor”** module. Click on the “Sample_T2-mask”, and make sure the segmentation is “mask” and the master volume is “sample-T2-xc”. 
+Switch to the **“Segment Editor”** module. Click on the “sample-t2-mask”, and make sure the segmentation is “mask” and the master volume is “sample-T2-xc”. 
 
 Because they use training data to make the masks, structural masks often do not need a lot or any editing. You should mainly edit large chunk of brain that are missing or large areas that are labeled that are not brain. Since it would be near impossible to be consistent, do not worry about editing single voxels around the edge of the brain. Sometimes this can be more harmful than beneficial, but on this example brain there are a few places that could use editing.
 
@@ -250,7 +250,7 @@ The tool that is mainly useful for editing the mask is the **Paint** tool, which
 
   * If you hover over the tack icon at the top left corner of each view in the colored bar, another bar will drop down and on that you will want to select **Link/unlink the slice controls (except scales) across all Slice Viewers** as this will make it so that any changes made will happen in all views
 
-  * If you then hover over the double chevrons next to the **Link/unlink** toggle, the menu will drop down further. Here you can lower the opacity of the mask by changing the number next to **Sample_T2-mask**. I usually like **0.6**. 
+  * If you then hover over the double chevrons next to the **Link/unlink** toggle, the menu will drop down further. Here you can lower the opacity of the mask by changing the number next to **sample-t2-mask**. I usually like **0.6**. 
 
   * You’ll notice that next to the opacity control on the right is the **Toggle between showing label map volume with regions outlined or filled**. As it sounds like this toggles whether you see the whole mask or just the outline and this can sometimes be useful.
 
@@ -295,14 +295,14 @@ nifti_makeRigidMask -l sample-T2-mask.nii.gz -i sample-T2-xc.nii.gz -t sample-T1
 
 There are a lot of settings that FreeSurfer has available for you to adjust what you want to do, but often times in this lab we use a standard set of settings which have been automated in a script called `nifti_fs`. Enter:
 ```
-nifti_fs –i sample-T1-xc.nii.gz –m sample-T1-mask.nii.gz –o sample_freesurfer
+nifti_fs –i sample-T1-xc.nii.gz –m sample-T1-mask.nii.gz –o sample-freesurfer
 ```
 This process will take about 12 hours to run to completion for each case.
 
-  * `sample_freesurfer` can also be found in the `Other` directory as part of your `PipelineTraining` directory. Stop **FreeSurfer** from running by entering **Control+c** and you can copy this directory into strct. Just remember to use the `-r` option here since there are many directories and files within this
+  * `sample-freesurfer` can also be found in the `Other` directory as part of your `PipelineTraining` directory. Stop **FreeSurfer** from running by entering **Control+c** and you can copy this directory into strct. Just remember to use the `-r` option here since there are many directories and files within this
 
 Once it has completed, you need to quality control your FreeSurfer labelmap. To start that you will need to start by opening it in Slicer. Enter:
-`/rfanfs/pnl-zorro/software/Slicer-4.8.1/Slicer`to open slicer and then open it going to **File** > **Add Data** > **Choose File** to Add then go to your `sample_freesurfer` directory in strct and then go into `mri` and open `wmparc.mgz`. Before selecting the final **OK** make sure you select **Show Options** and then select **LabelMap**. Also open `brain.mgz`, which can be found in the `sample_freesurfer/mri directory`.
+`/rfanfs/pnl-zorro/software/Slicer-4.8.1/Slicer`to open slicer and then open it going to **File** > **Add Data** > **Choose File** to Add then go to your `sample-freesurfer` directory in strct and then go into `mri` and open `wmparc.mgz`. Before selecting the final **OK** make sure you select **Show Options** and then select **LabelMap**. Also open `brain.mgz`, which can be found in the `sample-freesurfer/mri directory`.
 
 Now in order to actually see your label map transposed on the T1, you need to go to the **Modules** drop-down menu and select **Volumes**. First, make sure the Active Volume is `wmparc`. Then, under the **Volume Information** heading, make sure LabelMap is selected. Last, under the Display heading, for the **Lookup Table** dropdown box, go to **FreeSurfer** > **FreeSurferLabels**. You should end up with something that looks like this:
 
@@ -323,7 +323,7 @@ Two particularly common issues are missing temporal poles (below top) and inaccu
 <img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/inacc_temp_pole_fs.png" width="50%">
 
 
-Some useful information can be gained just from looking at the FreeSurfer output. To look at it go into the `stats` directory in `sample_freesurfer` and look at the files `aseg.stats` and `wmparc.stats` using the command `cat`.
+Some useful information can be gained just from looking at the FreeSurfer output. To look at it go into the `stats` directory in `sample-freesurfer` and look at the files `aseg.stats` and `wmparc.stats` using the command `cat`.
 
 
 
@@ -544,18 +544,18 @@ mv case-dwi-Ed.bvec case-dwi-epi.bvec
 ```
 You can now do the registration. First, make sure you are in the `PipelineTraining` directory and enter:
 ```
-nifti_fs2dwi --dwi Diffusion_b3000/sample-dwi-epi.nii.gz --dwimask Diffusion_b3000/sample-dwi-tensor-mask.nii.gz -f strct/sample_freesurfer -o sample_fs2dwi witht2 --t2 strct/sample-T2-masked.nii.gz --t2mask strct/sample-T2-mask.nii.gz
+nifti_fs2dwi --dwi Diffusion_b3000/sample-dwi-epi.nii.gz --dwimask Diffusion_b3000/sample-dwi-tensor-mask.nii.gz -f strct/sample-freesurfer -o sample-fs2dwi witht2 --t2 strct/sample-T2-masked.nii.gz --t2mask strct/sample-T2-mask.nii.gz
 ```
 It will take about 6 hours to run to completion, so type **Ctrl+c**.
 
-Since this takes a long time this is also available to be copied from the `Other` directory. Just be sure use the `-r` option since `sample_fs2dwi` contains lots of directories and files.
+Since this takes a long time this is also available to be copied from the `Other` directory. Just be sure use the `-r` option since `sample-fs2dwi` contains lots of directories and files.
 
 Note: If you do not have T2s as part of the case you are working with you will have to use a different version of this command, which will not lead to suboptimal but fine results. Its format is:
 ```
 nifti_fs2dwi --dwi <dwi_Ed> --dwimask <tensor_mask> -f <freesurfer_directory> -o <output_directory> direct
 ```
 
-Once the script has finished running, you will find that there is a file called `wmparcInBrain.nii.gz` in the `sample_fs2dwi` directory. Open this file along with `sample-dwi-epi.nii.gz` in Slicer to see if they are registered well. Make sure that `wmparcInBrain.nii.gz` is checked for Label Map.
+Once the script has finished running, you will find that there is a file called `wmparcInBrain.nii.gz` in the `sample-fs2dwi` directory. Open this file along with `sample-dwi-epi.nii.gz` in Slicer to see if they are registered well. Make sure that `wmparcInBrain.nii.gz` is checked for Label Map.
 
 When it opens, it will probably not appear as it should, and to fix this go to the **Volumes** module and for the **Active Volume** select `wmparcInBrain`. Then, under the **Display** heading, change Lookup Table to **FreeSurfer** > **FreeSurferLabels**. You should open up `b0maskedbrain.nii.gz` as well (as a normal Volume). It will look something like this:
 
@@ -604,12 +604,12 @@ and this defines individual tracts.
 Now go back to your PipelineTraining directory and enter:
 
 ```
-nifti_wmql -f sample_fs2dwi/wmparc-in-bse.nii.gz -i Diffusion_b3000/Tractography/sample-dwi-tracts.vtk  -q /rfanfs/pnl-zorro/software/pnlutil/pipeline/wmql-2.0.qry -o ./wmql
+nifti_wmql -f sample-fs2dwi/wmparc-in-bse.nii.gz -i Diffusion_b3000/Tractography/sample-dwi-tracts.vtk  -q /rfanfs/pnl-zorro/software/pnlutil/pipeline/wmql-2.0.qry -o ./wmql
 ```
 
 After it has finished running, you can go into the `wmql/` directory and see that it has generated files for all kinds of tracts.
 
-You would now use these files to QC whichever areas you are interested in the study, so for this example we can choose a random one, say `sample_af.left.vtk`, to have a look at.  Open the file in Slicer making sure to choose **FiberBundle** option for **Description** and also open `wmparc.mgz`  in the `sample_freesurfer/mri` directory with **Volume** selected.
+You would now use these files to QC whichever areas you are interested in the study, so for this example we can choose a random one, say `sample-af.left.vtk`, to have a look at.  Open the file in Slicer making sure to choose **FiberBundle** option for **Description** and also open `wmparc.mgz`  in the `sample-freesurfer/mri` directory with **Volume** selected.
 
 When it is open go to **Volumes** in **Modules** and under the **Display** header, change the **Lookup Table** value to **FreeSurferLabels**. At this point you should have something like this:
 
@@ -617,11 +617,19 @@ When it is open go to **Volumes** in **Modules** and under the **Display** heade
  
 The region you are looking at with the tracts is the left arcuate fasciculus. When doing the QC the main things you want to look for are that the tracts intersect the regions they are supposed to on the label map and that they have the shape they should. A good source of this information is the Catani & Thiebaut de Schotten paper mentioned above. The region you are looking at is supposed to connect the perisylvian cortex of the frontal and temporal lobes and the example seen here does seem to do that, although as I mentioned before they should be a little off in the example.
 
-The wm_quality_control_tractography.py script used before can also used here to do the same thing with individual tracts as long as all of the .vtk files for that tract are in the same directory.
+To QC individual tracts from WMQL, you first need to make sure that all of the .vtk files for that tract are in the same directory. If they are not all in the same directory to start, one way that you can do that without moving or copying all of the .vtk files is to make softlinks for them all, which is basically just a file that when accessed will redirect to the actual file. 
 
-If they are not all in the same directory to start, one way that you can do that without moving or copying all of the .vtk files is to make softlinks for them all, which is basically just a file that when accessed will redirect to the actual file. To do this you use the format:
+To do this you use the format:
 ```
 ln -s <full path to actual file> <full path to softlink directory>
+```
+Once you have done this, use the following format:
+```
+wmqlqc -i <input WMQL directory> -o <output WMQL directory> -s <case ID>
+```
+In our case, make sure you are in the `PipelineTraining` directory and enter the following:
+```
+wmqlqc -i wmql -o wmqlqc -s sample
 ```
 
 ## Extract Measures
@@ -630,13 +638,13 @@ For the final step of the pipeline you need to now extract all of the measures y
 
 * Way 1: Go into your `wmql/` directory. Let’s say we are still interested in the left AF. Enter:
 ```
-/rfanfs/pnl-zorro/software/pnlpipe3/pnlpipe/pnlscripts/measuretracts/measureTracts.py -i *.vtk -o sample_summarizetracts.csv
+/rfanfs/pnl-zorro/software/pnlpipe3/pnlpipe/pnlscripts/measuretracts/measureTracts.py -i *.vtk -o sample-summarizetracts.csv
 ```
-  * This will create a file called `sample_af.left.csv` in that directory as well.
+  * This will create a file called `sample-af.left.csv` in that directory as well.
 
   * You can open this file by entering:
 	```
-	oocalc sample_af.left.csv
+	oocalc sample-af.left.csv
 	```
 You can then use the left and right arrow keys to navigate through the csv file. To exit, press `q`.
 
@@ -644,11 +652,11 @@ If you want to run the script on many `.vtk` files at once and have them all in 
 
 * Way 2: In **Slicer**, you can go to the **Modules** drop-down and go to **Diffusion** > **Quantify** > **Tractography** > **Tractography Measurements**
 
-  * Now you will need to create a blank text file for the program to put the information into. You can do this by entering in terminal `touch sample_af.txt`.
+  * Now you will need to create a blank text file for the program to put the information into. You can do this by entering in terminal `touch sample-af.txt`.
 
   * Under the **IO** header, for **Select Input Type**, choose **Fibers_File_Folder**. For **Fibers File Folder** select your wmql directory and for **Output Text File** you can select the text file you just made. Then for Select Output Format choose **Column_Hierarchy** and for **Output Field Separator** choose **Tab** and press **Apply**.
 
-  * Now you can see the text file by entering `oocalc sample_af.left.txt`.
+  * Now you can see the text file by entering `oocalc sample-af.left.txt`.
 
 You may notice that there are some differences in what these two methods give you, so which you choose largely depends on what you’re looking for, and sometimes it may be necessary to use boths ways to get everything you need:
 
