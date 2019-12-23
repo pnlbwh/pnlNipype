@@ -148,14 +148,10 @@ class Direct(cli.Application):
             print('Made masked B0')
 
 
-            dwi_res= load_nifti(str(b0masked)).header['pixdim'][1:4].round()
-            brain_res= load_nifti(str(brain)).header['pixdim'][1:4].round()
+            dwi_res= load_nifti(str(b0masked)).header['pixdim'][1:4].round(decimals=2)
+            brain_res= load_nifti(str(brain)).header['pixdim'][1:4].round(decimals=2)
             print(f'DWI resolution: {dwi_res}')
             print(f'FreeSurfer brain resolution: {brain_res}')
-
-            if dwi_res.ptp() or brain_res.ptp():
-                print('Resolution is not uniform among all the axes')
-                sys.exit(1)
 
 
             print('Registering wmparc to B0')
@@ -256,14 +252,10 @@ class WithT2(cli.Application):
             # pre0GenericAffine.mat  pre1Warp.nii.gz  preWarped.nii.gz   pre1InverseWarp.nii.gz  preInverseWarped.nii.gz
 
 
-            dwi_res= load_nifti(str(b0masked)).header['pixdim'][1:4].round()
-            brain_res= load_nifti(str(brain)).header['pixdim'][1:4].round()
+            dwi_res= load_nifti(str(b0masked)).header['pixdim'][1:4].round(decimals=2)
+            brain_res= load_nifti(str(brain)).header['pixdim'][1:4].round(decimals=2)
             print(f'DWI resolution: {dwi_res}')
             print(f'FreeSurfer brain resolution: {brain_res}')
-
-            if dwi_res.ptp() or brain_res.ptp():
-                print('Resolution is not uniform among all the axes')
-                sys.exit(1)
 
 
             print('Registering wmparc to B0 through T2')
