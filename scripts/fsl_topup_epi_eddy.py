@@ -142,6 +142,8 @@ class TopupEddyEpi(cli.Application):
         # obtain 4D/3D info and time axis info
         dimension = load_nifti(primaryVol).header['dim']
         dim1 = dimension[0]
+        if dim1!=4:
+            raise AttributeError('primary volume must be 4D, however, secondary can be 3D/4D')
         numVol1 = dimension[4]
 
         dimension = load_nifti(secondaryVol).header['dim']
@@ -150,7 +152,7 @@ class TopupEddyEpi(cli.Application):
 
 
         temp= self.bvals_file.split(',')
-        if len(temp)>1:
+        if len(temp)>=1:
             primaryBval= abspath(temp[0])
         if len(temp)==2:
             secondaryBval= abspath(temp[1])
@@ -162,7 +164,7 @@ class TopupEddyEpi(cli.Application):
             raise AttributeError('--bvals are required')
 
         temp= self.bvecs_file.split(',')
-        if len(temp)>1:
+        if len(temp)>=1:
             primaryBvec= abspath(temp[0])
         if len(temp)==2:
             secondaryBvec= abspath(temp[1])
@@ -257,47 +259,38 @@ class TopupEddyEpi(cli.Application):
             logging.info('Running applytopup')
             
             topupMask= tmpdir / 'topup_mask.nii.gz'
-            if self.b0_brain_mask:
-                # applytopup on primary,secondary masks
-                
-                applytopup[f'--imain={primaryMask},{secondaryMask}',
+
+            # applytopup on primary4D,secondary4D/3D
+            topupOut= tmpdir / 'topup_out.nii.gz'
+            if dim2==4:
+                applytopup[f'--imain={primaryMaskedVol},{secondaryMaskedVol}',
                            f'--datain={self.acqparams_file}',
                            '--inindex=1,2',
                            f'--topup={topup_results}',
-                           f'--out={topupMask}',
+                           f'--out={topupOut}',
+                           '--verbose',
+                           applytopup_params.split()] & FG
+
+            else:
+                applytopup[f'--imain={B0_PA},{B0_AP}',
+                           f'--datain={self.acqparams_file}',
+                           '--inindex=1,2',
+                           f'--topup={topup_results}',
+                           f'--out={topupOut}',
                            '--verbose',
                            applytopup_params.split()] & FG
 
 
-            else:
-                # applytopup on primary4D,secondary4D/3D
-                topupOut= tmpdir / 'topup_out.nii.gz'
-                if dim2==4:
-                    applytopup[f'--imain={primaryMaskedVol},{secondaryMaskedVol}',
-                               f'--datain={self.acqparams_file}',
-                               '--inindex=1,2',
-                               f'--topup={topup_results}',
-                               f'--out={topupOut}',
-                               '--verbose',
-                               applytopup_params.split()] & FG
-                               
-                else:
-                    applytopup[f'--imain={B0_PA},{B0_AP}',
-                               f'--datain={self.acqparams_file}',
-                               '--inindex=1,2',
-                               f'--topup={topup_results}',
-                               f'--out={topupOut}',
-                               '--verbose',
-                               applytopup_params.split()] & FG
+            topupOutMean= tmpdir / 'topup_out_mean.nii.gz'
+            fslmaths[topupOut, '-Tmean', topupOutMean] & FG
+            bet[topupOutMean, topupMask._path.split('_mask.nii.gz')[0], '-m', '-n'] & FG
 
 
-                topupOutMean= tmpdir / 'topup_out_mean.nii.gz'
-                fslmaths[topupOut, '-Tmean', topupOutMean] & FG
-                bet[topupOutMean, topupMask._path.split('_mask.nii.gz')[0], '-m', '-n'] & FG
-
-
-            # threshold mean mask at 0.5 and obtain modified mask, use that mask for eddy_openmp
-            # fslmaths[topupMask, '-thr', '0', topupMask, '-odt' 'char']
+            # another approach could be
+            # threshold mean of primary,secondary mask at 0.5 and obtain modified mask, use that mask for eddy_openmp
+            # fslmerge[topupMask, '-t', primaryMask, secondaryMask] & FG
+            # fslmaths[topupMask, '-Tmean', topupMask] & FG
+            # fslmaths[topupMask, '-thr', '0.5', topupMask, '-odt' 'char'] & FG
 
             logging.info('Writing index.txt for topup')
             indexFile= tmpdir / 'index.txt'
@@ -382,6 +375,9 @@ class TopupEddyEpi(cli.Application):
             # copy bval,bvec to have same prefix as that of eddy corrected volume
             copyfile(outPrefix+'.eddy_rotated_bvecs', outPrefix+'.bvec')
             copyfile(primaryBval, outPrefix+'.bval')
+            
+            # rename topupMask to have same prefix as that of eddy corrected volume
+            topupMask.move(outPrefix+'_mask.nii.gz')
 
             tmpdir.move(self.outDir)
 
