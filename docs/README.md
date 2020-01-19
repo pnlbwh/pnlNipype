@@ -178,9 +178,13 @@ If you have already configured your environment following *pnlpipe*, you may pas
     export PATH=$PATH:$FSLDIR/bin
     export FREESURFER_HOME=~/freesurfer              # you may specify another directory where FreeSurfer is installed
     source $FREESURFER_HOME/SetUpFreeSurfer.sh
-    export ANTSPATH=/path/to/ANTs/bin/
-    export PATH=$ANTSPATH:ANTs/Scripts:$PATH         # define ANTSPATH and export ANTs scripts in your path
-    export PATH=~/dcm2niix/build/bin
+    
+    # source PNLPIPE_SOFT environments
+    source ${PNLPIPE_SOFT}/ANTs-bin-*/env.sh
+    source ${PNLPIPE_SOFT}/UKFTractography-*/env.sh
+    source ${PNLPIPE_SOFT}/dcm2niix-*/env.sh
+    source ${PNLPIPE_SOFT}/tract_querier-*/env.sh
+
     export PY2BIN=/absolute/path/to/miniconda2/bin   # for whitematteranalysis package
 
     
