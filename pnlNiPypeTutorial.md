@@ -150,7 +150,7 @@ done
 
 ## Quality Control (Parameter and Visual)
 
-After you axis align and center the structural images, you need to check the quality of the images themselves (visual), and the parameters used to acquire the images (parameter). Quality checking every image is crucial to ensure that we are only analyzing good data. Parameters are checked from the image header in the terminal, and the images themselves are checked in **Slicer**.
+After you axis align and center the structural images, you need to check the quality of the images themselves (visual), and the parameters used to acquire the images (parameter). Quality checking every image is crucial to ensure that we are only analyzing good data. Parameters are checked from the image header in the terminal, and the images themselves are checked in **fsleyes**.
 
 * **Note:** Whether or not each case passes or fails QC should be recorded in an Excel spread sheet on **LabArchives**.
 
@@ -175,21 +175,20 @@ There are several fields that you will need to check in the image header. Bear i
 
    * Many of these fields can also be compared between all cases at once by using a `for` loop and `| grep`.
 
-In addition to checking the image header, you need to do a visual QC of the images with **Slicer**. If you are not familiar with Slicer, there is a separate tutorial for Slicer How-To.
+In addition to checking the image header, you need to do a visual QC of the images with **fsleyes**.
 
 Before you start QCing your actual data, ask a Research Assistant for a QC tutorial! They can teach you what problems to look for in your structural images.
 
-* To open Slicer, enter:
+* To open fsleyes, enter:
 ```
-/rfanfs/pnl-zorro/software/Slicer-4.8.1/Slicer &
+fsleyes &
 ```
-The ampersand (&) allows you to open Slicer in a separate window, so that you can continue to use your terminal. If you forget to run Slicer without an ampersand at the end, you can pause it by going back into the terminal and pressing **ctrl+z**, then type `bg` to put it in the background. If you want to kill any process running in the background like this, you will need to bring it back into the foreground with `fg`, and then you can type **ctrl+c** as usual. You can also type **ctrl+shift+t** to open a new tab if you don't want to deal with background/foreground issues.
+The ampersand (&) allows you to open fsleyes in a separate window, so that you can continue to use your terminal. If you forget to run fsleyes without an ampersand at the end, you can pause it by going back into the terminal and pressing **ctrl+z**, then type `bg` to put it in the background. If you want to kill any process running in the background like this, you will need to bring it back into the foreground with `fg`, and then you can type **ctrl+c** as usual. You can also type **ctrl+shift+t** to open a new tab if you don't want to deal with background/foreground issues.
 
-Note that it may take a while for Slicer to load.
+Note that it may take a while for fsleyes to load.
 
-* To open your sample file go to **File** > **Add Data** > **Choose Files to Add**. Make sure that `/rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining/strct` is listed on the top after **Look in:** and then select `sample-T1-xc.nii.gz`.
+* To open your sample file go to **File** > **Add from file**. Make sure that `/rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining/strct` is listed on the top and then select `sample-T1-xc.nii.gz`.
 
-* Now that you have the file open, you will want to turn off the interpolation that Slicer automatically does. To do this go to the colored bar of one of the viewing windows and hover over the tack icon. On the bar that drops down, click the rings, which are next to the double chevrons. This will make any changes happen in all of the windows. Then click the double chevrons to get the rest of the menu and click on the button in the bottom row called **Interpolate background** next to the bar containing the filename. This will make the image look more pixelated, but we want interpolation off because it can hide some of the artifacts you are looking for.
 
 * You will want to examine your images for various potential artifacts and issues, e.g. **motion artifacts**, **ringing**, **ghosting of the skull or eyeballs**, **cut-offs and other artifacts**. If you see any of these problems in the scan, note it in your QC spreadsheet. Be sure to also check with your PI about what qualifies as a failed scan for your dataset.
 
@@ -230,7 +229,7 @@ This command will generate a mask for your T2 image, however it takes several ho
 
 [Link to the Manual Here](https://drive.google.com/file/d/0B_CbEBeE5Vr0SEwyS0RNWlJLbWs/view?usp=sharing)
 
-After you run `nifti_atlas`, you need to check the quality of your mask. Open **Slicer** by entering `/rfanfs/pnl-zorro/software/Slicer-4.8.1/Slicer`.
+After you run `nifti_atlas`, you need to check the quality of your mask. Open **Slicer** by entering `/rfanfs/pnl-zorro/software/Slicer-4.8.1-linux-amd64/Slicer`.
 
 Open `sample-T2-mask.nii.gz` in **Slicer**, which should be in your `strct` directory.  Make sure that you select **Show Options** in the upper right corner and then scroll over and select the **Label Map** option. You will also need to open `sample-T2-xc.nii.gz`.
 
@@ -273,7 +272,7 @@ It might be useful for you to see a full example of a mask. Make sure you are in
 cp /rfanfs/pnl-zorro/software/pnlutil/trainingDataT2Masks/01063* ./
 ```
 
-This will copy one of the T2 training masks and its corresponding raw file to your PipelineTraining directory. Enter ``/rfanfs/pnl-zorro/software/Slicer-4.8.1/Slicer``, and open these files (`01063-t2w-mask.nii.gz` and `01063-t2w.nii.gz`) from your PipelineTraining directory (**Ctrl+o** in **Slicer**). Remember to select **“Labelmap”** for the mask!
+This will copy one of the T2 training masks and its corresponding raw file to your PipelineTraining directory. Enter `/rfanfs/pnl-zorro/software/Slicer-4.8.1-linux-amd64/Slicer`, and open these files (`01063-t2w-mask.nii.gz` and `01063-t2w.nii.gz`) from your PipelineTraining directory (**Ctrl+o** in **Slicer**). Remember to select **“Labelmap”** for the mask!
 
   * Scroll through the mask to get a sense of what is and isn’t brain. It might take awhile to get comfortable, and that’s okay! Remember, you can always ask questions and ask for help. These will always be in your PipelineTraining directory, so if you ever want to look back and refer to some sample masks while you’re working on a project, feel free to do so.
 
@@ -455,7 +454,7 @@ nhdr_write.py --nifti sample-dwi-tensor-mask.nii.gz --nhdr sample-dwi-tensor-mas
 ```
 
 
-* Open Slicer using `/rfanfs/pnl-zorro/software/Slicer-4.8.1/Slicer` and open `sample-dwi-epi.nhdr`. The first thing you need to do is generate a DTI (Diffusion Tensor Image). This will show the orientation of the fibers in each voxel using color coding (red is left to right, blue is up and down, and green is forward to backward). Under Modules, go to **Diffusion** > **Diffusion Weighted Images** > **DWI to DTI Estimation**.
+* Open Slicer using `/rfanfs` and open `sample-dwi-epi.nhdr`. The first thing you need to do is generate a DTI (Diffusion Tensor Image). This will show the orientation of the fibers in each voxel using color coding (red is left to right, blue is up and down, and green is forward to backward). Under Modules, go to **Diffusion** > **Diffusion Weighted Images** > **DWI to DTI Estimation**.
 
   * For **Input DWI Volume**, select sample-dwi-epi.
   * For **Output DTI Volume**, you can create a new volume as **sample-dti**.
@@ -521,7 +520,7 @@ Other options that can be manipulated (depending on your B-value and the number 
 
 If you want to extract free water measures from your data, make sure to also include the flags ``--freeWater --recordFreeWater``.
 
-Once it is finished running, you can open it in slicer if you would like to see what it looks like when it is done. You will need to open `sample-dwi-tracts.vtk` in your `Tractography` directory. Be sure that before you hit **OK** you change the **Description** to **FiberBundle**.
+Once it is finished running, you can open it in Slicer if you would like to see what it looks like when it is done. You will need to open `sample-dwi-tracts.vtk` in your `Tractography` directory. Be sure that before you hit **OK** you change the **Description** to **FiberBundle**.
 
 When it opens you will notice that the whole thing is most likely pink, like this:
 
@@ -754,7 +753,7 @@ nifti_wmql -f wmparcInDwi.nii.gz -i dwi-xc-ed-tracts.vtk -o wmquery -q /rfanfs/p
 ## Data Inspection/Tract Measures in Slicer
 *NOTE: Loading Volumes does not work, you can only visualize Tracts*
 ```
-/rfanfs/pnl-zorro/software/pnlpipe3/Slicer-4.10.2-linux-amd64/Slicer
+/rfanfs/pnl-zorro/software/Slicer-4.8.1-linux-amd64/Slicer
 ```
 
 ## Tracts Segmentation through Clustering
