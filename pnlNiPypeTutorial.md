@@ -536,7 +536,7 @@ To continue on from this point you will need to have both the diffusion and the 
 
 The first step of post-processing involves registering the FreeSurfer labelmap that you made to the diffusion image since they don’t have the same resolution and aren’t in the same space. First, you will need to rename your bval and bvec files so that they match you dwi file. First, `cd` into your `Diffusion_b3000` directory. Then you can use the following two commands:
 ```
-mv case-dwi-Ed.bval case-dwi-epi.bval
+mv sample-dwi-Ed.bval sample-dwi-epi.bval
 ```
 ```
 mv case-dwi-Ed.bvec case-dwi-epi.bvec
