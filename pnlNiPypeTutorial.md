@@ -504,7 +504,7 @@ It is now time to generate a tractography image, which creates images that look 
 
 We will be using UKF Tractography to generate this image. In the `Diffusion_b3000` directory, make a new directory called `Tractography/`
 
-UKF Tractography works best for b-values (found in the `sample-dwi-epi.bval` file, which you can see with `cat sample-dwi-epi.bval`) where **700 <= b <= 3000**. If your b-value is not in this range, talk to your PI. Our b-value is acceptable for the current example. When you are in the `Diffusion_b3000` directory, enter:
+UKF Tractography works best for b-values where **700 <= b <= 3000**. These can be found in the `sample-dwi-epi.bval` file, which you can see with `cat sample-dwi-epi.bval`. Make sure you check with your PI that UKF Tractography will work well for your dataset. Our b-value is acceptable for the current example. When you are in the `Diffusion_b3000` directory, enter:
 ```
 ukf -i sample-dwi-epi.nii.gz --bvals sample-dwi-epi.bval --bvecs sample-dwi-epi.bvec  -m sample-dwi-tensor-mask.nii.gz -o Tractography/sample-dwi-tracts.vtk --params --numThreads,8,--recordTensors
 ```
@@ -520,7 +520,7 @@ Other options that can be manipulated (depending on your B-value and the number 
 
 If you want to extract free water measures from your data, make sure to also include the flags ``--freeWater --recordFreeWater``.
 
-Once it is finished running, you can open it in Slicer if you would like to see what it looks like when it is done. You will need to open `sample-dwi-tracts.vtk` in your `Tractography` directory. Be sure that before you hit **OK** you change the **Description** to **FiberBundle**.
+Once it is finished running, you can open it in Slicer if you would like to see what it looks like when it is done. You will need to open `sample-dwi-tracts.vtk` in your `Tractography` directory. Be sure that before you hit **OK**, you change the **Description** to **FiberBundle** after checking the box next to **Show Options**.
 
 When it opens you will notice that the whole thing is most likely pink, like this:
 
