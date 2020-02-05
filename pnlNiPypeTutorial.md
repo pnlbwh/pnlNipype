@@ -454,7 +454,7 @@ nhdr_write.py --nifti sample-dwi-tensor-mask.nii.gz --nhdr sample-dwi-tensor-mas
 ```
 
 
-* Open Slicer using `/rfanfs` and open `sample-dwi-epi.nhdr`. The first thing you need to do is generate a DTI (Diffusion Tensor Image). This will show the orientation of the fibers in each voxel using color coding (red is left to right, blue is up and down, and green is forward to backward). Under Modules, go to **Diffusion** > **Diffusion Weighted Images** > **DWI to DTI Estimation**.
+* Open Slicer using `/rfanfs/pnl-zorro/software/pnlpipe3/Slicer-4.10.2-linux-amd64/Slicer` and open `sample-dwi-epi.nhdr`. The first thing you need to do is generate a DTI (Diffusion Tensor Image). This will show the orientation of the fibers in each voxel using color coding (red is left to right, blue is up and down, and green is forward to backward). Under Modules, go to **Diffusion** > **Process** > **Diffusion Tensor Estimation**.
 
   * For **Input DWI Volume**, select sample-dwi-epi.
   * For **Output DTI Volume**, you can create a new volume as **sample-dti**.
