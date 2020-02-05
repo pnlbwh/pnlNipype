@@ -502,9 +502,9 @@ It is now time to generate a tractography image, which creates images that look 
 
 <img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/tractography.png" width=80%>
 
-In the `Diffusion_b3000` directory, make a new directory called `Tractography/`
+We will be using UKF Tractography to generate this image. In the `Diffusion_b3000` directory, make a new directory called `Tractography/`
 
-The script that make these images works best for b-values (found in the header) where **700 <= b <= 3000**. If your b-value is not in this range, talk to your PI. Our b-value is acceptable for the current example. When you are in the `Diffusion_b3000` directory, enter:
+UKF Tractography works best for b-values (found in the `sample-dwi-epi.bval` file, which you can see with `cat sample-dwi-epi.bval`) where **700 <= b <= 3000**. If your b-value is not in this range, talk to your PI. Our b-value is acceptable for the current example. When you are in the `Diffusion_b3000` directory, enter:
 ```
 ukf -i sample-dwi-epi.nii.gz --bvals sample-dwi-epi.bval --bvecs sample-dwi-epi.bvec  -m sample-dwi-tensor-mask.nii.gz -o Tractography/sample-dwi-tracts.vtk --params --numThreads,8,--recordTensors
 ```
