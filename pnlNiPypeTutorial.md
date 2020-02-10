@@ -547,7 +547,7 @@ nifti_fs2dwi --dwi Diffusion_b3000/sample-dwi-epi.nii.gz --dwimask Diffusion_b30
 ```
 It will take about 6 hours to run to completion, so type **Ctrl+c**.
 
-Since this takes a long time this is also available to be copied from the `Other` directory. Just be sure use the `-r` option since `sample-fs2dwi` contains lots of directories and files.
+Since this takes a long time this is also available to be copied from the `Other` directory. Just be sure use the `-r` option since `sample_fs2dwi` contains lots of directories and files.
 
 Note: If you do not have T2s as part of the case you are working with you will have to use a different version of this command, which will not lead to suboptimal but fine results. Its format is:
 ```
@@ -603,7 +603,7 @@ and this defines individual tracts.
 Now go back to your PipelineTraining directory and enter:
 
 ```
-nifti_wmql -f sample-fs2dwi/wmparc-in-bse.nii.gz -i Diffusion_b3000/Tractography/sample-dwi-tracts.vtk  -q /rfanfs/pnl-zorro/software/pnlutil/pipeline/wmql-2.0.qry -o ./wmql
+nifti_wmql -f sample_fs2dwi/wmparc-in-bse.nii.gz -i Diffusion_b3000/Tractography/sample-dwi-tracts.vtk  -q /rfanfs/pnl-zorro/software/pnlutil/pipeline/wmql-2.0.qry -o ./wmql
 ```
 
 After it has finished running, you can go into the `wmql/` directory and see that it has generated files for all kinds of tracts.
