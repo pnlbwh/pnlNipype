@@ -534,14 +534,7 @@ To continue on from this point you will need to have both the diffusion and the 
 
 ## FreeSurfer labelmap to dwi-space registration
 
-The first step of post-processing involves registering the FreeSurfer labelmap that you made to the diffusion image since they don’t have the same resolution and aren’t in the same space. First, you will need to rename your bval and bvec files so that they match you dwi file. First, `cd` into your `Diffusion_b3000` directory. Then you can use the following two commands:
-```
-mv sample-dwi-Ed.bval sample-dwi-epi.bval
-```
-```
-mv case-dwi-Ed.bvec case-dwi-epi.bvec
-```
-You can now do the registration. First, make sure you are in the `PipelineTraining` directory and enter:
+The first step of post-processing involves registering the FreeSurfer labelmap that you made to the diffusion image since they don’t have the same resolution and aren’t in the same space. First, make sure you are in the `PipelineTraining` directory and enter:
 ```
 nifti_fs2dwi --dwi Diffusion_b3000/sample-dwi-epi.nii.gz --dwimask Diffusion_b3000/sample-dwi-tensor-mask.nii.gz -f strct/sample-freesurfer -o sample-fs2dwi witht2 --t2 strct/sample-T2-masked.nii.gz --t2mask strct/sample-T2-mask.nii.gz
 ```
