@@ -125,16 +125,16 @@ The next step in the pipeline centers the images and aligns them on the x-y-z ax
 
 `cd` to the directory with your structural `.nii` files (`strct`). You will need the `cd ..` command to get there.
 
-The command for axis aligning images is `nifti_align –-axisAlign --center -i <input file> -o <output file>`
+The command for axis aligning images is `nifti_align --axisAlign --center -i <input file> -o <output file>`
 
 For your images, enter:
 ```
-nifti_align –-axisAlign –-center –i sample-T1.nii.gz –o sample-T1-xc
+nifti_align --axisAlign --center –i sample-T1.nii.gz –o sample-T1-xc
 ```
 
 Next enter:
 ```
- nifti_align –-axisAlign –-center –i sample-T2.nii.gz –o sample-T2-xc
+ nifti_align --axisAlign --center –i sample-T2.nii.gz –o sample-T2-xc
 ```
 
 The files `sample-T1-xc.nii.gz` and `sample-T2-xc.nii.gz` will now be in that directory as well, and will be axis aligned and centered.
