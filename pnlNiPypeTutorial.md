@@ -218,7 +218,7 @@ You will create brain masks for your data by using a training data set consistin
 
 First, make sure you are in the `strct` directory in your `PipelineTraining` directory, then enter:
 ```
-nifti_atlas –t sample-T2-xc.nii.gz –o sample-T2-mask -n 8 --train t2
+nifti_atlas –t sample-T2-xc.nii.gz –o sample-T2 -n 8 --train t2
 ```
 This command will generate a mask for your T2 image, however it takes several hours to finish running.
 
