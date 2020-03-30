@@ -23,8 +23,6 @@ class App(cli.Application):
     For NRRD data, you may run UKFTractography executable directly.
     See UKFTractography --help for more default values."""
 
-
-
     dwi = cli.SwitchAttr('-i', cli.ExistingFile, help='DWI in nifti', mandatory= True)
     dwimask = cli.SwitchAttr('-m', cli.ExistingFile, help='mask of the DWI in nifti', mandatory=True)
     bvalFile = cli.SwitchAttr('--bvals', cli.ExistingFile, help='bval file for DWI', mandatory= True)
@@ -34,7 +32,7 @@ class App(cli.Application):
     givenParams = cli.SwitchAttr('--params',
                 help='provide comma separated UKF parameters: --arg1,val1,--arg2,val2,--arg3,val3 (no spaces)')
 
-    print(f'\nukf.py uses the following default values: {ukfdefaults}\n')
+    print(f'\nukf.py uses the following default values (if not provided): {ukfdefaults}\n')
 
     def main(self):
 
