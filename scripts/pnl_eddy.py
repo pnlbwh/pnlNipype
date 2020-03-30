@@ -52,7 +52,7 @@ class App(cli.Application):
                 logging.error("{} exists, use '--force' to overwrite it".format(self.out))
                 sys.exit(1)
 
-        outxfms = self.out.dirname / self.out.stem+'-xfms.tgz'
+        outxfms = self.out.dirname / self.out.stem+'_xfms.tgz'
 
         with TemporaryDirectory() as tmpdir, local.cwd(tmpdir):
             tmpdir = local.path(tmpdir)

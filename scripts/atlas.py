@@ -235,7 +235,7 @@ def makeAtlases(target, trainingTable, outPrefix, fusion, threads, debug):
         pool = multiprocessing.Pool(threads)  # Use all available cores, otherwise specify the number you want as an argument
         for labelname in list(trainingTable)[1:]:  # list(d) gets column names
 
-            out = os.path.abspath(outPrefix+ f'-{labelname}.nii.gz')
+            out = os.path.abspath(outPrefix+ f'_{labelname}.nii.gz')
             if os.path.exists(out):
                 os.remove(out)
             labelmaps = tmpdir // (labelname + '*')
@@ -284,75 +284,6 @@ class Atlas(cli.Application):
             return 1  # error exit code
 
 
-# with the omission of subcommands, this function is not used anymore
-# @Atlas.subcommand("args")
-class AtlasArgs(cli.Application):
-    """Specify training images and labelmaps via command line arguments."""
-
-    target = cli.SwitchAttr(
-        ['-t', '--target'],
-        cli.ExistingFile,
-        help='target image',
-        mandatory=True)
-    fusions = cli.SwitchAttr(
-        ['--fusion'],
-        cli.Set("avg", "wavg", "antsJointFusion", case_sensitive=False),
-        help='Also create predicted labelmap(s) by combining the atlas labelmaps: '
-             'avg is naive mathematical average, wavg is weighted average where weights are computed from MI '
-             'between the warped atlases and target image, antsJointFusion is local weighted averaging', default='wavg')
-    out = cli.SwitchAttr(
-        ['-o', '--outPrefix'],
-        help='output prefix, output labelmaps are saved as outPrefix-mask.nii.gz, outPrefix-cingr.nii.gz, ...',
-        mandatory=True)
-
-    images = cli.SwitchAttr(
-        ['-i', '--images'],
-        help='list of images in quotations, e.g. "img1.nrrd img2.nrrd"',
-        mandatory=True)
-    labels = cli.SwitchAttr(
-        ['-l', '--labels'],
-        help='list of labelmap images in quotations, e.g. "mask1.nrrd mask2.nrrd cingr1.nrrd cingr2.nrrd"',
-        mandatory=True)
-    names = cli.SwitchAttr(
-        '--names',
-        help='list of names for generated labelmaps, e.g. "atlasmask atlascingr"',
-        mandatory=True)
-    threads= cli.SwitchAttr(['-n', '--nproc'],
-        help='number of processes/threads to use (-1 for all available)',
-        default= N_PROC)
-    debug = cli.Flag('-d', help='Debug mode, saves intermediate labelmaps to atlas-debug-<pid> in output directory')
-
-    def main(self):
-        images = self.images.split()
-        labels = self.labels.split()
-        labelnames = self.names.split()
-        quotient, remainder = divmod(len(labels), len(images))
-        if remainder != 0:
-            logging.error(
-                'Wrong number of labelmaps, must be a multiple of number of images ('
-                + str(len(images)) + '). Instead there is a remainder of ' +
-                str(remainder))
-            sys.exit(1)
-        if quotient != len(labelnames):
-            logging.error(
-                'Wrong number of names, must match number of labelmap training sets: '
-                + str(quotient))
-            sys.exit(1)
-        labelcols = grouper(labels, len(images))
-
-        trainingTable= {}
-        trainingTable['image']= images
-        for i, values in enumerate(labelcols):
-            trainingTable[labelnames[i]]= values
-        trainingTable= pd.DataFrame(trainingTable, columns=['image']+labelnames)
-
-        self.threads= int(self.threads)
-        if self.threads==-1 or self.threads>N_CPU:
-            self.threads= N_CPU
-
-        makeAtlases(self.target, trainingTable, self.out, self.fusions, self.threads, self.debug)
-        logging.info('Made ' + self.out + '-*.nii.gz')
-
 
 # @Atlas.subcommand("csv")
 class AtlasCsv(cli.Application):
@@ -377,7 +308,7 @@ class AtlasCsv(cli.Application):
              'between the warped atlases and target image, antsJointFusion is local weighted averaging', default='wavg')
     out = cli.SwitchAttr(
         ['-o', '--outPrefix'],
-        help='output prefix, output labelmaps are saved as outPrefix-mask.nii.gz, outPrefix-cingr.nii.gz, ...',
+        help='output prefix, output labelmaps are saved as outPrefix_mask.nii.gz, outPrefix_cingr.nii.gz, ...',
         mandatory=True)
     threads= cli.SwitchAttr(['-n', '--nproc'],
         help='number of processes/threads to use (-1 for all available)',
@@ -402,7 +333,7 @@ class AtlasCsv(cli.Application):
         
         trainingTable = pd.read_csv(self.csvFile)
         makeAtlases(self.target, trainingTable, self.out, self.fusions, int(self.threads), self.debug)
-        logging.info('Made ' + self.out + '-*.nii.gz')
+        logging.info('Made ' + self.out + '_*.nii.gz')
 
 
 if __name__ == '__main__':
