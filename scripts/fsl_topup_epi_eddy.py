@@ -89,7 +89,7 @@ class TopupEddyEpi(cli.Application):
 
 
     outDir= cli.SwitchAttr(
-        ['--out'],
+        ['-o', '--outDir'],
         cli.NonexistentPath,
         help='output directory',
         mandatory=True)
