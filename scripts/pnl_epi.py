@@ -32,6 +32,12 @@ class App(cli.Application):
             help='DWI',
             mandatory=True)
 
+    bse = cli.SwitchAttr(
+            '--bse',
+            cli.ExistingFile,
+            help='b0 of the DWI',
+            mandatory=False)
+
     bvecs_file= cli.SwitchAttr(
         ['--bvecs'],
         cli.ExistingFile,
@@ -90,7 +96,10 @@ class App(cli.Application):
             affine= tmpdir / 't2tobse_rigid0GenericAffine.mat'
 
             logging.info('1. Extract B0 and and mask it')
-            check_call((' ').join([pjoin(FILEDIR, 'bse.py'), '-m', self.dwimask, '-i', self.dwi, '-o', bse]), shell=True)
+            if not self.bse:
+                check_call((' ').join([pjoin(FILEDIR, 'bse.py'), '-m', self.dwimask, '-i', self.dwi, '-o', bse]), shell=True)
+            else:
+                self.bse.copy(bse)
 
             logging.info('2. Mask the T2')
             fslmaths(self.t2mask, '-mul', self.t2, t2masked)
@@ -125,7 +134,7 @@ class App(cli.Application):
             # WarpTimeSeriesImageMultiTransform('4', dwimasked, dwiepi, '-R', dwimasked, '-i', epiwarp)
 
             logging.info('6. Apply warp to the DWI mask')
-            epimask = self.out._path+'-mask.nii.gz'
+            epimask = self.out._path+'_mask.nii.gz'
             antsApplyTransforms('-d', '3', '-i', self.dwimask, '-o', epimask,
                                 '-n', 'NearestNeighbor', '-r', bse, '-t', epiwarp)
             fslmaths(epimask, '-mul', '1', epimask, '-odt', 'char')
