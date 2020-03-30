@@ -69,10 +69,9 @@ class Eddy(cli.Application):
         mandatory=False,
         default= BET_THRESHOLD)
 
-    outDir= cli.SwitchAttr(
-        ['--out'],
-        cli.NonexistentPath,
-        help='output directory',
+    outPrefix= cli.SwitchAttr(
+        '-o',
+        help='Prefix for eddy corrected DWI',
         mandatory=True)
 
 
@@ -80,16 +79,12 @@ class Eddy(cli.Application):
     def main(self):
 
 
-        prefix= self.dwi_file.name.split('.')[0]
-        outPrefix = pjoin(self.outDir._path, prefix+'_Ed')
-
-
-        if self.b0_brain_mask=='None':
+        if not self.b0_brain_mask:
             logging.info('Mask not provided, creating mask ...')
 
-            self.b0_brain_mask = outPrefix + '_mask.nii.gz'
+            self.b0_brain_mask = self.outPrefix + '_mask.nii.gz'
 
-            bet_mask(self.dwi_file, self.b0_brain_mask, 4, bvalFile= self.bvals_file, BET_THRESHOLD= self.betThreshold)
+            bet_mask(self.dwi_file, self.b0_brain_mask, dim= 4, bvalFile= self.bvals_file, BET_THRESHOLD= self.betThreshold)
 
 
         _, _, eddy_openmp_params= obtain_fsl_eddy_params(self.eddy_config_file._path)
@@ -100,14 +95,14 @@ class Eddy(cli.Application):
                     f'--index={self.index_file}',
                     f'--bvecs={self.bvecs_file}',
                     f'--bvals={self.bvals_file}',
-                    f'--out={outPrefix}',
+                    f'--out={self.outPrefix}',
                     '--verbose',
                     eddy_openmp_params.split()] & FG
 
 
         # copy bval,bvec to have same prefix as that of eddy corrected volume
-        copyfile(outPrefix + '.eddy_rotated_bvecs', outPrefix + '.bvec')
-        copyfile(self.bvals_file, outPrefix + '.bval')
+        copyfile(self.outPrefix + '.eddy_rotated_bvecs', self.outPrefix + '.bvec')
+        copyfile(self.bvals_file, self.outPrefix + '.bval')
 
 if __name__== '__main__':
     Eddy.run()
