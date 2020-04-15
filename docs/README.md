@@ -154,7 +154,13 @@ You may also build the following from source:
 
 * ANTs
 
-You can build ANTs from [source](https://github.com/ANTsX/ANTs). Additionally, you should define [ANTSPATH](https://github.com/ANTsX/ANTs/wiki/Compiling-ANTs-on-Linux-and-Mac-OS#set-path-and-antspath)
+You can build ANTs from [source](https://github.com/ANTsX/ANTs). Additionally, you should define [ANTSPATH](https://github.com/ANTsX/ANTs/wiki/Compiling-ANTs-on-Linux-and-Mac-OS#set-path-and-antspath). 
+The other alternative can be installing ANTs through `conda`. We have developed a conda package for `ANTs==2.3.0`. 
+You can get that by:
+    
+    conda install -c pnbwh ants
+
+
     
 * dcm2niix
 
