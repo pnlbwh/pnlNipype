@@ -1,3 +1,41 @@
+![](pnl-bwh-hms.png)
+
+
+Table of Contents
+=================
+
+      * [Set up sample files](#set-up-sample-files)
+      * [Copying the Sample Case to your Home Directory](#copying-the-sample-case-to-your-home-directory)
+   * [The Pipeline - Structural](#the-pipeline---structural)
+      * [Dicom to Nifti (.nii) Conversion](#dicom-to-nifti-nii-conversion)
+      * [Axis Align and Centering](#axis-align-and-centering)
+      * [Quality Control (Parameter and Visual)](#quality-control-parameter-and-visual)
+      * [Brain Masking and Mask QC](#brain-masking-and-mask-qc)
+      * [FreeSurfer Segmentation and QC](#freesurfer-segmentation-and-qc)
+   * [The Pipeline - Diffusion](#the-pipeline---diffusion)
+      * [Dicom to Nifti File Conversion](#dicom-to-nifti-file-conversion)
+      * [Axis Align and Center](#axis-align-and-center)
+      * [Quality Control (Parameter, Visual, and Auto)](#quality-control-parameter-visual-and-auto)
+      * [DIFFQC TOOL](#diffqc-tool)
+      * [Motion and Eddy Current Correction](#motion-and-eddy-current-correction)
+      * [Tensor Mask](#tensor-mask)
+      * [EPI correction](#epi-correction)
+      * [Two-Tensor Whole Brain Tractography](#two-tensor-whole-brain-tractography)
+      * [Finishing the Pipeline](#finishing-the-pipeline)
+      * [FreeSurfer labelmap to dwi-space registration](#freesurfer-labelmap-to-dwi-space-registration)
+   * [White Matter Analysis](#white-matter-analysis)
+      * [White Matter Query Language](#white-matter-query-language)
+      * [Extract Measures](#extract-measures)
+   * [Summary of Commands](#summary-of-commands)
+      * [Structural pipeline](#structural-pipeline)
+      * [Diffusion Pipeline](#diffusion-pipeline)
+      * [Tracts Segmentation with White Matter Query Language (WMQL)](#tracts-segmentation-with-white-matter-query-language-wmql)
+      * [Data Inspection/Tract Measures in Slicer](#data-inspectiontract-measures-in-slicer)
+      * [Tracts Segmentation through Clustering](#tracts-segmentation-through-clustering)
+
+Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
+
+
 This manual goes step by step through the processes involved in the PNL’s core image-processing pipeline with .nii. The goal of this tutorial is to teach new lab members and students the steps of the semi-automated, standardized processing pipeline seen below.
 
 **Important notes**
@@ -751,3 +789,4 @@ nifti_wmql -f wmparcInDwi.nii.gz -i dwi-xc-ed-tracts.vtk -o wmquery -q /rfanfs/p
 
 ## Tracts Segmentation through Clustering
 *To be added later*
+
