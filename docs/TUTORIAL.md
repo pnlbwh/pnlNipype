@@ -37,6 +37,7 @@ Table of Contents
       * [ii. Through T2 registration](#ii-through-t2-registration)
    * [White matter query](#white-matter-query)
    * [Render white matter tracts](#render-white-matter-tracts) 
+   * [Additional scripts](#additional-scripts) 
 
 Table of Contents created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
@@ -946,3 +947,56 @@ Example usage:
     
     wmqlqc -i /tmp/wmql_output_dir/ -o /tmp/htmls/ -s caseid
     wmqlqc -i "/tmp/wmql_output_dir1/ /tmp/wmql_output_dir2/" -o /tmp/htmls -s "caseid1 caseid2"
+
+
+# Additional scripts
+
+New addition to pnlNipype is a workflow for finding various quality attributes of DWMRI. It can be found in 
+`scripts/DWIqc/dwi_quality.py` and `scripts/DWIqc/dwi_quality_batch.py`.
+
+> scritps/DWIqc/dwi_quality.py -h
+
+    This script finds various DWMRI quality attributes:
+    
+     1. min_i{(b0<Gi)/b0} image and its mask
+     2. negative eigenvalue mask
+     3. fractional anisotropy FA, mean diffusivity MD, and mean kurtosis MK
+     4. masks out of range FA, MD, and MK
+     5. prints histogram for specified ranges
+     6. gives a summary of analysis
+     7. performs ROI based analysis:
+        labelMap is defined in template space
+        find b0 from the dwi
+        register t2 MNI to dwi through b0
+        find N_gradient number of stats for each label
+        make a DataFrame with labels as rows and stats as columns
+    
+    Looking at the attributes, user should be able to infer quality of the DWMRI and
+    changes inflicted upon it by some process.
+    
+    Usage:
+        dwi_quality.py [SWITCHES]
+    
+    Meta-switches:
+        -h, --help                                Prints this help message and quits
+        --help-all                                Prints help messages of all sub-commands and quits
+        -v, --version                             Prints the program's version and quits
+    
+    Switches:
+        --bval VALUE:ExistingFile                 bval for nifti image
+        --bvec VALUE:ExistingFile                 bvec for nifti image
+        --fa VALUE:str                            [low,high] (include brackets, no space), fractional anisotropy values outside the range are
+                                                  masked; the default is [0,1]
+        -i, --input VALUE:ExistingFile            input nifti/nrrd dwi file; required
+        -l, --labelMap VALUE:ExistingFile         labelMap in standard space
+        -m, --mask VALUE:ExistingFile             input nifti/nrrd dwi file; required
+        --md VALUE:str                            [low,high], (include brackets, no space), mean diffusivity values outside the range are
+                                                  masked; the default is [0,0.0003]
+        --mk VALUE:str                            [low,high] (include brackets, no space), mean kurtosis values outside the range are masked,
+                                                  requires at least three shells for dipy model; the default is [0,0.3]
+        -n, --name VALUE:str                      labelMap name
+        -o, --outDir VALUE:ExistingDirectory      output directory; the default is input directory
+        -t, --template VALUE:ExistingFile         t2 image in standard space (ex: T2_MNI.nii.gz)
+
+
+Any feedback on this new workflow is welcome.
