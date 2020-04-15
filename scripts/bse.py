@@ -4,7 +4,7 @@ from plumbum import cli, FG
 from plumbum.cmd import fslroi, ImageMath
 from conversion import read_bvals
 import os
-from util import load_nifti, save_nifti
+from util import load_nifti, save_nifti, B0_THRESHOLD
 
 import numpy as np
 
@@ -40,7 +40,7 @@ class App(cli.Application):
         ['-t', '--threshold'],
         help= 'threshold for b0',
         mandatory=False,
-        default= 45.)
+        default= B0_THRESHOLD)
 
     minimum= cli.Flag(['--min'],
         help= 'turn on this flag to choose minimum bvalue volume as the baseline image',
@@ -79,7 +79,7 @@ class App(cli.Application):
             idx= np.where([bval < self.b0_threshold for bval in bvals])[0]
 
 
-            if len(idx)>1:
+            if len(idx)>=1:
 
                 # default is the first b0
                 if not (self.minimum or self.average or self.all):

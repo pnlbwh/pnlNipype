@@ -3,8 +3,9 @@
 from plumbum import cli, FG
 from plumbum.cmd import eddy_openmp
 from bet_mask import bet_mask
-from util import BET_THRESHOLD, logfmt, pjoin, eddy_openmp_params
+from util import BET_THRESHOLD, logfmt, pjoin
 from shutil import copyfile
+from _eddy_config import obtain_fsl_eddy_params
 
 import logging
 logger = logging.getLogger()
@@ -49,6 +50,13 @@ class Eddy(cli.Application):
         help='acuisition parameters file (.txt)',
         mandatory=True)
 
+    eddy_config_file= cli.SwitchAttr(
+        ['--config'],
+        cli.ExistingFile,
+        help='''config file for FSL eddy tools; see scripts/eddy_config.txt; 
+                copy this file to your directory, edit relevant sections, and provide as --config /path/to/my/eddy_config.txt''',
+        mandatory=True)
+
     index_file= cli.SwitchAttr(
         ['--index'],
         cli.ExistingFile,
@@ -83,6 +91,8 @@ class Eddy(cli.Application):
 
             bet_mask(self.dwi_file, self.b0_brain_mask, 4, bvalFile= self.bvals_file, BET_THRESHOLD= self.betThreshold)
 
+
+        _, _, eddy_openmp_params= obtain_fsl_eddy_params(self.eddy_config_file._path)
 
         eddy_openmp[f'--imain={self.dwi_file}',
                     f'--mask={self.b0_brain_mask}',

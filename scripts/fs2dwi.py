@@ -5,29 +5,24 @@ import sys, os, tempfile, psutil, warnings
 from plumbum.cmd import ResampleImageBySpacing, antsApplyTransforms, ImageMath
 from subprocess import check_call
 
-# FILEDIR might be needed
-
-from util import load_nifti, N_CPU
-N_CPU= str(N_CPU)
+from util import load_nifti, ANTSREG_THREADS, FILEDIR, pjoin
 
 
 def rigid_registration(dim, moving, fixed, outPrefix):
 
-    check_call(
-        (' ').join(['antsRegistrationSyNMI.sh', '-d', str(dim), '-t', 'r', '-m', moving, '-f', fixed, '-o', outPrefix,
-                    '-n', N_CPU]), shell=True)
+    check_call((' ').join([pjoin(FILEDIR,'antsRegistrationSyNMI.sh'), '-d', str(dim), '-t', 'r', '-m', moving, 
+                           '-f', fixed, '-o', outPrefix, '-n', ANTSREG_THREADS]), shell=True)
 
 
 def registerFs2Dwi(tmpdir, namePrefix, b0masked, brain, wmparc, wmparc_out):
 
-    print('Registering wmparc to B0')
     pre = tmpdir / namePrefix
     affine = pre + '0GenericAffine.mat'
     warp = pre + '1Warp.nii.gz'
 
     print('Computing warp from brain.nii.gz to (resampled) baseline')
-    check_call((' ').join(['antsRegistrationSyNMI.sh', '-m', brain, '-f', b0masked, '-o', pre,
-                           '-n', N_CPU]), shell=True)
+    check_call((' ').join([pjoin(FILEDIR,'antsRegistrationSyNMI.sh'), '-d', '3', '-m', brain, '-f', b0masked, '-o', pre,
+                           '-n', ANTSREG_THREADS]), shell=True)
 
     print('Applying warp to wmparc.nii.gz to create (resampled) wmparcindwi.nii.gz')
     antsApplyTransforms('-d', '3', '-i', wmparc, '-t', warp, affine,
@@ -42,14 +37,13 @@ def registerFs2Dwi(tmpdir, namePrefix, b0masked, brain, wmparc, wmparc_out):
 
 def registerFs2Dwi_T2(tmpdir, namePrefix, b0masked, t2masked, T2toBrainAffine, wmparc, wmparc_out):
 
-    print('Registering wmparc to B0')
     pre = tmpdir / namePrefix
     affine = pre + '0GenericAffine.mat'
     warp = pre + '1Warp.nii.gz'
 
     print('Computing warp from t2 to (resampled) baseline')
-    check_call((' ').join(['antsRegistrationSyNMI.sh', '-d', '3', '-m', t2masked, '-f', b0masked, '-o', pre,
-                           '-n', N_CPU]), shell=True)
+    check_call((' ').join([pjoin(FILEDIR,'antsRegistrationSyNMI.sh'), '-d', '3', '-m', t2masked, '-f', b0masked, '-o', pre,
+                           '-n', ANTSREG_THREADS]), shell=True)
 
     print('Applying warp to wmparc.nii.gz to create (resampled) wmparcindwi.nii.gz')
     antsApplyTransforms('-d', '3', '-i', wmparc, '-t', warp, affine, T2toBrainAffine,
@@ -91,6 +85,10 @@ class FsToDwi(cli.Application):
         default= False,
         mandatory= False)
 
+    debug = cli.Flag(
+        ['-d','--debug'],
+        help='Debug mode, saves intermediate transforms to out/fs2dwi-debug-<pid>',
+        default= False)
 
     def main(self):
 
@@ -146,18 +144,14 @@ class Direct(cli.Application):
                           '--regheader', wmparcmgz, '--o', wmparc)
 
             print('Extracting B0 from DWI and masking it')
-            check_call((' ').join(['bse.py', '-i', self.parent.dwi, '-m', self.parent.dwimask, '-o', b0masked]), shell= True)
+            check_call((' ').join([pjoin(FILEDIR, 'bse.py'), '-i', self.parent.dwi, '-m', self.parent.dwimask, '-o', b0masked]), shell= True)
             print('Made masked B0')
 
 
-            dwi_res= load_nifti(str(b0masked)).header['pixdim'][1:4].round()
-            brain_res= load_nifti(str(brain)).header['pixdim'][1:4].round()
+            dwi_res= load_nifti(str(b0masked)).header['pixdim'][1:4].round(decimals=2)
+            brain_res= load_nifti(str(brain)).header['pixdim'][1:4].round(decimals=2)
             print(f'DWI resolution: {dwi_res}')
             print(f'FreeSurfer brain resolution: {brain_res}')
-
-            if dwi_res.ptp() or brain_res.ptp():
-                print('Resolution is not uniform among all the axes')
-                sys.exit(1)
 
 
             print('Registering wmparc to B0')
@@ -183,6 +177,9 @@ class Direct(cli.Application):
             if b0maskedbrain.exists():
                 b0maskedbrain.copy(self.parent.out)
                 wmparcinbrain.copy(self.parent.out)
+
+            if self.parent.debug:
+                tmpdir.copy(self.parent.out, 'fs2dwi-debug-' + str(os.getpid()))
 
 
         print('See output files in ', self.parent.out._path)
@@ -238,7 +235,7 @@ class WithT2(cli.Application):
                           '--regheader', wmparcmgz, '--o', wmparc)
 
             print('Extracting B0 from DWI and masking it')
-            check_call((' ').join(['bse.py', '-i', self.parent.dwi, '-m', self.parent.dwimask, '-o', b0masked]), shell= True)
+            check_call((' ').join([pjoin(FILEDIR, 'bse.py'), '-i', self.parent.dwi, '-m', self.parent.dwimask, '-o', b0masked]), shell= True)
             print('Made masked B0')
 
 
@@ -247,9 +244,6 @@ class WithT2(cli.Application):
             BrainToT2Affine = pre + '0GenericAffine.mat'
 
             print('Computing rigid registration from brain.nii.gz to t2')
-            # check_call(
-            #     (' ').join(['antsRegistrationSyNMI.sh', '-d', '3', '-t', 'r', '-m', brain, '-f', t2masked, '-o', pre,
-            #                 '-n', N_CPU]), shell=True)
             rigid_registration(3, brain, t2masked, pre)
             # generates three files for rigid registration:
             # pre0GenericAffine.mat  preInverseWarped.nii.gz  preWarped.nii.gz
@@ -258,14 +252,10 @@ class WithT2(cli.Application):
             # pre0GenericAffine.mat  pre1Warp.nii.gz  preWarped.nii.gz   pre1InverseWarp.nii.gz  preInverseWarped.nii.gz
 
 
-            dwi_res= load_nifti(str(b0masked)).header['pixdim'][1:4].round()
-            brain_res= load_nifti(str(brain)).header['pixdim'][1:4].round()
+            dwi_res= load_nifti(str(b0masked)).header['pixdim'][1:4].round(decimals=2)
+            brain_res= load_nifti(str(brain)).header['pixdim'][1:4].round(decimals=2)
             print(f'DWI resolution: {dwi_res}')
             print(f'FreeSurfer brain resolution: {brain_res}')
-
-            if dwi_res.ptp() or brain_res.ptp():
-                print('Resolution is not uniform among all the axes')
-                sys.exit(1)
 
 
             print('Registering wmparc to B0 through T2')
@@ -292,6 +282,10 @@ class WithT2(cli.Application):
             if b0maskedbrain.exists():
                 b0maskedbrain.copy(self.parent.out)
                 wmparcinbrain.copy(self.parent.out)
+
+            if self.parent.debug:
+                tmpdir.copy(self.parent.out, 'fs2dwi-debug-' + str(os.getpid()))
+
 
         print('See output files in ', self.parent.out._path)
 

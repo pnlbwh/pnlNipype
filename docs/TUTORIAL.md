@@ -1,4 +1,4 @@
-![](Misc/pnl-bwh-hms.png)
+![](./pnl-bwh-hms.png)
 
 [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.3258854.svg)](https://doi.org/10.5281/zenodo.3258854) [![Python](https://img.shields.io/badge/Python-3.6-green.svg)]() [![Platform](https://img.shields.io/badge/Platform-linux--64%20%7C%20osx--64-orange.svg)]()
 
@@ -10,8 +10,10 @@ Table of Contents
 
    * [Table of Contents](#table-of-contents)
    * [Citation](#citation)
+   * [Pipeline scripts overview](#pipeline-scripts-overview)
    * [pnlNipype graph](#pnlnipype-graph)
    * [DICOM to NIFTI](#dicom-to-nifti)
+   * [Temporary directory](#temporary-directory)
    * [Axis alignment](#axis-alignment)
    * [Masking](#masking)
       * [1. Structural mask](#1-structural-mask)
@@ -34,7 +36,7 @@ Table of Contents
       * [i. Direct registration](#i-direct-registration)
       * [ii. Through T2 registration](#ii-through-t2-registration)
    * [White matter query](#white-matter-query)
-
+   * [Render white matter tracts](#render-white-matter-tracts) 
 
 Table of Contents created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
@@ -52,10 +54,64 @@ https://github.com/pnlbwh/pnlNipype, 2019, DOI: 10.5281/zenodo.3258854
 **NOTE** All trivial *Meta-switches* and *Hidden-switches* have been omitted from help messages in this tutorial.
 
 
+# Pipeline scripts overview
+
+| Category           |  Script                            |  Function                                                             |
+|--------------------|------------------------------------|-----------------------------------------------------------------------|
+| General            |  **align.py**                      |  axis aligns and centers an image                                     |
+| General            |  **bet_mask.py**                   |  masks a 3D/4D MRI using FSL bet                                      |
+| General            |  **masking.py**                    |  skullstrips by applying a labelmap mask                              |
+| -                  |  -                                 |  -                                                                    |
+| DWI                |  **antsApplyTransformsDWI.py**     |  applies a transform to a DWI                                         |
+| DWI                |  **bse.py**                        |  extracts a baseline b0 image                                         |
+| -                  |  -                                 |  -                                                                    |
+| DWI                |  **pnl_epi.py**                    |  corrects EPI distortion via registration                             |
+| DWI                |  **fsl_topup_epi_eddy.py**         |  corrects EPI distortion using FSL topup and eddy_openmp              |
+| -                  |  -                                 |  -                                                                    |
+| DWI                |  **pnl_eddy.py**                   |  corrects eddy distortion via registration                            |
+| DWI                |  **fsl_eddy.py**                   |  corrects eddy distortion using FSL eddy_openmp                       |
+| DWI                |  **ukf.py**                        |  convenient script for running UKFTractography                        |
+| -                  |  -                                 |  -                                                                    |
+| Structural         |  **atlas.py**                      |  computes a brain mask from training data                             |
+| Structural         |  **makeRigidMask.py**              |  rigidly transforms a labelmap to align with another structural image |
+| Structural         |  **fs.py**                         |  convenient script for running freesurfer                             |
+| -                  |  -                                 |  -                                                                    |
+| Freesurfer to DWI  |  **fs2dwi.py**                     |  registers a freesurfer segmentation to a DWI                         |
+| Tractography       |  **wmql.py**                       |  simple wrapper for tract_querier                                     |
+
+
+The above executables are available as soft links in `pnlNipype/exec` directory as well:
+    
+| Soft link | Target script |
+|---|---|
+| fsl_eddy | ../scripts/fsl_eddy.py |
+| fsl_topup_epi_eddy | ../scripts/fsl_topup_epi_eddy.py |
+| masking | ../scripts/masking.py |
+| nifti_align | ../scripts/align.py |
+| nifti_antsApplyTransformsDWI | ../scripts/antsApplyTransformsDWI.py |
+| nifti_atlas | ../scripts/atlas.py |
+| nifti_bet_mask | ../scripts/bet_mask.py |
+| nifti_bse | ../scripts/bse.py |
+| nifti_fs | ../scripts/fs.py |
+| nifti_fs2dwi | ../scripts/fs2dwi.py |
+| nifti_makeRigidMask | ../scripts/makeRigidMask.py |
+| nifti_wmql | ../scripts/wmql.py |
+| pnl_eddy | ../scripts/pnl_eddy.py |
+| pnl_epi | ../scripts/pnl_epi.py |
+| ukf | ../scripts/ukf.py |
+
+
+For example, to execute axis alignment script, you can do either of the following:
+    
+    pnlNipype/exec/nifti_align -h
+    pnlNipype/scripts/align.py -h
+    
+They are the same thing.
+    
 
 # pnlNipype graph
 
-![](Misc/dag.png)
+![](./dag.png)
 
 
 
@@ -63,9 +119,17 @@ https://github.com/pnlbwh/pnlNipype, 2019, DOI: 10.5281/zenodo.3258854
 
 *pnlNipye* accepts 3D/4D MRI in NIFTI format. To generate NIFTI from DWI directly, use [dcm2niix](https://github.com/rordenlab/dcm2niix)
 
-    ./dcm2niix -o outputDir -f namePrefix -z y dicomDir
+    dcm2niix -o outputDir -f namePrefix -z y dicomDir
 
 
+# Temporary directory
+
+Both *pnlpipe* and *pnlNipype* have centralized control over various temporary directories created down the pipeline. 
+The temporary directories can be large, and may possibly clog the default `/tmp/` directory. You may define custom 
+temporary directory with environment variable `PNLPIPE_TMPDIR`:
+
+    mkdir ~/tmp/
+    export PNLPIPE_TMPDIR=~/tmp/
 
 # Axis alignment
 
@@ -77,12 +141,12 @@ hand, centering ensures the origin is set at half the image size across all axes
 There may be a neuroimaging software that fails if oblique/shifted MRI is provided. So, axis alignment and centering is 
 important. You can use the following script for this purpose:
 
-> ./align.py -h
+> nifti_align -h
 
     Axis alignment and centering of a 3D/4D NIFTI image
     
     Usage:
-        align.py [SWITCHES] 
+        nifti_align [SWITCHES] 
     
     Switches:
         --axisAlign                         turn on for axis alignment
@@ -95,9 +159,9 @@ important. You can use the following script for this purpose:
 
 Example usage:
 
-    ./niftiAlign.py -i dwiNifti --bvals bvalFile --bvecs bvecFile -o nifti-xc
-    ./niftiAlign.py -i t1Nifti --center
-    ./niftiAlign.py -i t2Nifti --axisAlign
+    nifti_align -i dwiNifti --bvals bvalFile --bvecs bvecFile -o nifti-xc
+    nifti_align -i t1Nifti --center
+    nifti_align -i t2Nifti --axisAlign
     
     
 You can choose to either `axisAlign` or `center` or both. The first example will do both by default. If you 
@@ -172,56 +236,17 @@ are applied on the corresponding training masks (or labelmaps). Thereby, a set o
 space of the target T1/T2 image. The set of candidate masks (or labelmaps) are fusioned to create final mask (or labelmap).
 
 
-> ./atlas.py --help-all
+> nifti_atlas --help-all
     
-    Makes atlas image/labelmap pairs for a target image. Option to merge labelmaps via averaging
-    or AntsJointFusion.
-
-    Usage:
-        atlas.py [SWITCHES] [SUBCOMMAND [SWITCHES]] args...
-
-    Sub-commands:
-        args               Specify training images and labelmaps via command line arguments.; see 'atlas.py args --help' for more info
-        csv                Specify training images and labelmaps via a csv file. Put the images with any header in the first column, and
-                           labelmaps with proper headers in the consecutive columns. The headers in the labelmap columns will be used to
-                           name the generated atlas labelmaps.; see 'atlas.py csv --help' for more info
-    
-    
-    ======================================================================
-    
-    Specify training images and labelmaps via command line arguments.
-
-    Usage:
-        atlas.py args [SWITCHES]
-
-    Switches:
-        -d                                                     Debug mode, saves intermediate labelmaps to atlas-debug-<pid> in output
-                                                               directory
-        --fusion VALUE:{'avg', 'wavg', 'antsJointFusion'}      Also create predicted labelmap(s) by combining the atlas labelmaps: avg
-                                                               is naive mathematical average, wavg is weighted average where weights are
-                                                               computed from MI between the warped atlases and target image,
-                                                               antsJointFusion is local weighted averaging; the default is wavg
-        -i, --images VALUE:str                                 list of images in quotations, e.g. "img1.nrrd img2.nrrd"; required
-        -l, --labels VALUE:str                                 list of labelmap images in quotations, e.g. "mask1.nrrd mask2.nrrd
-                                                               cingr1.nrrd cingr2.nrrd"; required
-        -n, --nproc VALUE:str                                  number of processes/threads to use (-1 for all available); the default is
-                                                               4
-        --names VALUE:str                                      list of names for generated labelmaps, e.g. "atlasmask atlascingr";
-                                                               required
-        -o, --outPrefix VALUE:str                              output prefix, output labelmaps are saved as outPrefix-mask.nii.gz,
-                                                               outPrefix-cingr.nii.gz, ...; required
-        -t, --target VALUE:ExistingFile                        target image; required
-
-    
-    ======================================================================
-    
+    Makes atlas image/labelmap pairs for a target image.
+    Option to merge labelmaps via averaging or AntsJointFusion.
     Specify training images and labelmaps via a csv file.
-    Put the images with any header in the first column,
-    and labelmaps with proper headers in the consecutive columns.
+    Put the images with any header in the first column, 
+    and labelmaps with proper headers in the consecutive columns. 
     The headers in the labelmap columns will be used to name the generated atlas labelmaps.
 
     Usage:
-        atlas.py csv [SWITCHES] csvFile
+        nifti_atlas [SWITCHES]
 
     Switches:
         -d                                                     Debug mode, saves intermediate labelmaps to atlas-debug-<pid> in output
@@ -235,17 +260,31 @@ space of the target T1/T2 image. The set of candidate masks (or labelmaps) are f
         -o, --outPrefix VALUE:str                              output prefix, output labelmaps are saved as outPrefix-mask.nii.gz,
                                                                outPrefix-cingr.nii.gz, ...; required
         -t, --target VALUE:ExistingFile                        target image; required
-
+        --train VALUE:str                                      --train t1; --train t2; --train trainingImages.csv; see pnlNipype/docs/TUTORIAL.md
+                                                               to know what each value means
 
 
 Example usage:
     
-    ./atlas.py csv -t t1Nifti -o /tmp/T1-labels -n 8 ~/pnlpipe/soft_dir/trainingDataT1AHCC-d6e5990/trainingDataT1AHCC-hdr.csv
+    nifti_atlas -t t1Nifti -o /tmp/T1-Mabs -n 8 --train t1
+    nifti_atlas -t t2Nifti -o /tmp/T2-Mabs -n 8 --train t2
+    nifti_atlas -t t1Nifti -o /tmp/T1-Mabs -n 8 --train ~/pnlpipe/soft_dir/trainingDataT1AHCC-d6e5990/trainingDataT1Masks-hdr.csv
+
+As shown in the above, pre-packaged training data can be specified with just `--train t1` or `--train t2` without having to provide path to csv file. 
+They are equivalent to the following:
+
+`--train t1`:
+> $PNLPIPE_SOFT/trainingDataT1AHCC-*/trainingDataT1Masks-hdr.csv
+
+`--train t2`:
+> $PNLPIPE_SOFT/trainingDataT2Masks-*/trainingDataT2Masks-hdr.csv
+
+**NOTE** For using shortcuts `t1` and `t2`, make sure to define the environment variable [`PNLPIPE_SOFT`](README.md#pnlpipe-software). Otherwise, provide path to csv file
     
-The `csvFile` used here is `trainingDataT1AHCC-d6e5990/trainingDataT1AHCC-hdr.csv` which can be generated by running 
+The csv file used here is `trainingDataT1AHCC-d6e5990/trainingDataT1AHCC-hdr.csv` which can be generated by running 
 [mktrainingfiles.sh](https://github.com/pnlbwh/trainingDataT1AHCC/blob/master/mktrainingfiles.sh) .
 
-`-n 8` specifies the number of processors you can use for this purpose. See [Multiprocessing](README.md/#multiprocessing) to learn more about it.
+Finally, `-n 8` specifies the number of processors you can use for this purpose. See [Multiprocessing](README.md/#multiprocessing) to learn more about it.
 
 
 
@@ -255,12 +294,12 @@ The `csvFile` used here is `trainingDataT1AHCC-d6e5990/trainingDataT1AHCC-hdr.cs
 At the very least, you can use FSL bet to create the mask. However, you should visually look at the mask for correctness 
 and edit it if necessary. The following is a generalized script for creating FSL bet mask from 3D/4D images.
 
-> ./bet_mask.py -h
+> nifti_bet_mask -h
 
     Extracts the brain mask of a 3D/4D nifti image using fsl bet command
     
     Usage:
-        bet_mask.py [SWITCHES] 
+        nifti_bet_mask [SWITCHES] 
     
     Switches:
         --bvals VALUE:ExistingFile           bval file for 4D DWI, default: inputPrefix.bval
@@ -272,8 +311,8 @@ and edit it if necessary. The following is a generalized script for creating FSL
 
 Example usage:
 
-    ./bet_mask.py -i dwiNifti --bvals bvalFile
-    ./bet_mask.py -i t1Nifti -o t1bet
+    nifti_bet_mask -i dwiNifti --bvals bvalFile
+    nifti_bet_mask -i t1Nifti -o t1bet
 
 For 4D diffusion weighted image, bet mask is created from first B0 image image. For 3D structural image, 
 it is created directly.
@@ -285,12 +324,12 @@ Sometimes, you have a batch of structural images (T1/T2) for all of which you do
 expensive mask)[#i-mask-from-training-data]. In that case, you can create mask from training data for only one subject 
 and rigidly register that mask to the space of other subjects. The following script emulates this function:
 
-> ./makeRigidMask.py -h
+> nifti_makeRigidMask -h
 
     Rigidly align a given labelmap (usually a mask) to make another labelmap
     
     Usage:
-        makeRigidMask.py [SWITCHES] 
+        nifti_makeRigidMask [SWITCHES] 
 
     Switches:
         -i, --input VALUE:ExistingFile         structural (nrrd/nii); required
@@ -300,7 +339,7 @@ and rigidly register that mask to the space of other subjects. The following scr
 
 Example usage:
     
-    ./makeRigidMask.py -i oneT1 -l atlasMaskForOneT1 -t otherT1 -o atlasMaskForOtherT1
+    nifti_makeRigidMask -i oneT1 -l atlasMaskForOneT1 -t otherT1 -o atlasMaskForOtherT1
     
 In the above script, the `oneT1` is rigidly registered to the space of `otherT1`. Transform obtained through this 
 registration is applied upon `atlasMaskForOneT1` to create `atlasMaskForOtherT1`.
@@ -319,14 +358,14 @@ zero Bvalue that may be used to create a mask for the DWI. The following script 
 has Bvalue less than a threshold. Alternatively, you can choose to have `--all`, `--avg`, and `--min` baseline images. 
 See the following help message to know more about those options.
 
-> ./bse.py -h
+> nifti_bse -h
 
     Extracts the baseline (b0) from a nifti DWI. Assumes
     the diffusion volumes are indexed by the last axis. Chooses the first b0 as the
     baseline image by default, with option to specify one.
     
     Usage:
-        bse.py [SWITCHES]
+        nifti_bse [SWITCHES]
     
     Switches:
         --all                               turn on this flag to choose all bvalue<threshold volumes as the baseline
@@ -335,7 +374,7 @@ See the following help message to know more about those options.
         --avg                               turn on this flag to choose the average of all bvalue<threshold volumes as
                                             the baseline image, you might want to use this only when eddy/motion
                                             correction has been done before
-        --bval VALUE:ExistingFile           bval file, default: dwiPrefix.bval
+        --bvals VALUE:ExistingFile           bval file, default: dwiPrefix.bval
         -i, --input VALUE:ExistingFile      DWI in nifti format; required
         -m, --mask VALUE:ExistingFile       mask of the DWI in nifti format; if mask is provided, then baseline image
                                             is masked
@@ -346,8 +385,8 @@ See the following help message to know more about those options.
 
 Example usage:
 
-    ./bse.py -i dwiNifti --bval bvalFile -o bseNifti
-    ./bse.py -i dwiNifti --bval bvalFile -o bseNifti --avg
+    nifti_bse -i dwiNifti --bvals bvalFile -o bseNifti
+    nifti_bse -i dwiNifti --bvals bvalFile -o bseNifti --avg
     
 
 ### ii. FSL Bet
@@ -358,12 +397,12 @@ Once you have the baseline image which is a 3D NIFTI, FSL bet mask creation is s
 
 ## 3. Multiply by mask
 
-> ./masking.py -h
+> masking -h
 
     Multiplies an image by its mask
     
     Usage:
-        masking.py [SWITCHES] 
+        masking [SWITCHES] 
     
     Switches:
         -d, --dimension VALUE:str           Input image dimension: 3/4; required
@@ -393,12 +432,12 @@ The advantage of the latter command is, you wouldn't have to provide dimension o
 This is the conventional PNL way of Eddy correction. It registers each volume to the baseline image. It also 
 applies the transform to appropriately rotate the corresponding bvecs.
 
-> ./pnl_eddy.py -h
+> pnl_eddy -h
 
     Eddy current correction.
     
     Usage:
-        pnl_eddy.py [SWITCHES]
+        pnl_eddy [SWITCHES]
     
     Switches:
         --bvals VALUE:ExistingFile      bval file for DWI; required
@@ -414,13 +453,13 @@ applies the transform to appropriately rotate the corresponding bvecs.
 
 Example usage:
     
-    ./pnl_eddy.py -i dwiNifti --bvals bvalFile --bvecs bvecFile -o dwiNifti-Ed        
+    pnl_eddy -i dwiNifti --bvals bvalFile --bvecs bvecFile -o dwiNifti-Ed
         
 
 ## ii. Using FSL eddy
 
 FSL *eddy_openmp* is the new way of Eddy correction. Running *eddy* is a little bit complicated and computationally 
-expensive than the *pnl_eddy.py*. The former attempts to combine the correction for susceptibility and 
+expensive than the *pnl_eddy*. The former attempts to combine the correction for susceptibility and 
 eddy currents/movements so that there is only one single resampling. *eddy_openmp* attempts to model the diffusion signal. 
 So, we need to inform eddy of the diffusion direction/weighting that was used for each volume. It can  can utilise the 
 information from different acquisitions that modulate how off-resonance translates into distortions. An example of this 
@@ -430,7 +469,7 @@ how each volume was acquired. The above information is provided through `--acqp`
 to learn more about Eddy correction.
 
 
-> ./fsl_eddy.py -h
+> fsl_eddy -h
 
     Eddy correction using eddy_openmp command in fsl
     For more info, see https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/eddy/UsersGuide
@@ -438,12 +477,15 @@ to learn more about Eddy correction.
     eddy_openmp
     
     Usage:
-        fsl_eddy.py [SWITCHES] 
+        fsl_eddy [SWITCHES] 
     
     Switches:
-        --acqp VALUE:ExistingFile        acuisition parameters file (.txt); required
+        --acqp VALUE:ExistingFile        acquisition parameters file (.txt); required
         --bvals VALUE:ExistingFile       bvals file of the DWI); required
         --bvecs VALUE:ExistingFile       bvecs file of the DWI); required
+        --config VALUE:ExistingFile      config file for FSL eddy tools; see scripts/eddy_config.txt; 
+                                         copy this file to your directory, edit relevant sections, 
+                                         and provide as --config /path/to/my/eddy_config.txt; required
         --dwi VALUE:ExistingFile         nifti DWI image); required
         -f VALUE:str                     threshold for fsl bet mask; the default is 0.25
         --index VALUE:ExistingFile       mapping file (.txt) for each gradient --> acquisition
@@ -469,13 +511,13 @@ should look like the following:
 
     1 1 1 1 1 2 2 2 2 2
     
-Then, you can run *fsl_eddy.py* as follows:
+Then, you can run *fsl_eddy* as follows:
 
-    ./fsl_eddy.py --dwi dwiNifti --mask maskNifti --bvals bvalFile --bvecs bvecFile --acqp acqparams.txt --index index.txt --out /tmp/Eddy/
+    fsl_eddy --dwi dwiNifti --mask maskNifti --bvals bvalFile --bvecs bvecFile --acqp acqparams.txt --index index.txt --out /tmp/Eddy/ --config /path/to/my/eddy_config.txt
 
 
 
-**NOTE** Any additional arguments to *eddy_openmp*, *topup*, and *applytopup* can be provided via `scripts/eddy_config.txt` 
+**NOTE** Any additional arguments to *eddy_openmp*, *topup*, and *applytopup* can be provided by a copy of `scripts/eddy_config.txt` 
 file.
 
 
@@ -490,29 +532,31 @@ In this method, T2 image is registered to the baseline image and the obtained tr
 diffusion weighted volumes. 
  
 
-> ./pnl_epi.py -h
+> pnl_epi -h
 
-    Epi distortion correction.    
+    Epi distortion correction.
     
     Usage:
-        pnl_epi.py [SWITCHES] 
+        pnl_epi [SWITCHES] 
 
     Switches:
-        -d, --debug                             Debug, save intermediate files in 'epidebug-<pid>'
-        --dwi VALUE:ExistingFile                DWI; required
-        --dwimask VALUE:ExistingFile            DWI mask; required
-        --force                                 Force overwrite if output already exists
-        -n, --nproc VALUE:str                   number of threads to use, if other processes in your
-                                                computer becomes sluggish/you run into memory error,
-                                                reduce --nproc; the default is 4
-        -o, --output VALUE:NonexistentPath      EPI corrected DWI; required
-        --t2 VALUE:ExistingFile                 T2w; required
-        --t2mask VALUE:ExistingFile             T2w mask; required
+        --bvals VALUE:ExistingFile        bvals file of the DWI; required
+        --bvecs VALUE:ExistingFile        bvecs file of the DWI; required
+        -d, --debug                       Debug, save intermediate files in 'epidebug-<pid>'
+        --dwi VALUE:ExistingFile          DWI; required
+        --dwimask VALUE:ExistingFile      DWI mask; required
+        --force                           Force overwrite if output already exists
+        -n, --nproc VALUE:str             number of threads to use, if other processes in your computer becomes 
+                                          sluggish/you run into memory error, reduce --nproc; the default is 4
+        -o, --output VALUE:str            Prefix for EPI corrected DWI, same prefix is used for saving 
+                                          bval, bvec, and mask; required
+        --t2 VALUE:ExistingFile           T2w; required
+        --t2mask VALUE:ExistingFile       T2w mask; required
         
 
 Example usage:
 
-    ./pnl_epi.py --dwi dwiNifti --dwimask --maskNifti --t2 t2Nifti --t2mask t2MaskNifti -o dwiEpNifti 
+    pnl_epi --dwi dwiNifti --dwimask maskNifti --t2 t2Nifti --t2mask t2MaskNifti -o dwiEpiPrefix 
         
 
 
@@ -521,7 +565,7 @@ Example usage:
 If you have two scans in anti-parallel directions (AP and PA), then you can use FSL *eddy_openmp* to correct for both 
 Epi and Eddy distortions.
 
-> ./fsl_topup_epi_eddy.py -h
+> fsl_topup_epi_eddy -h
 
     Epi and eddy correction using topup and eddy_openmp commands in fsl
     For more info, see:
@@ -532,7 +576,7 @@ Epi and Eddy distortions.
         topup
     
     Usage:
-        fsl_topup_epi_eddy.py [SWITCHES] 
+        fsl_topup_epi_eddy [SWITCHES] 
     
     Switches:
         --acqp VALUE:ExistingFile        acuisition parameters file (.txt) containing TWO lines, first
@@ -544,6 +588,9 @@ Epi and Eddy distortions.
                                          one bvec file is provided, the second bvec file is either
                                          assumed same (secondary4D) or "0.0 0.0 0.0" (secondary3D);
                                          required
+        --config VALUE:ExistingFile      config file for FSL eddy tools; see scripts/eddy_config.txt; 
+                                         copy this file to your directory, edit relevant sections, 
+                                         and provide as --config /path/to/my/eddy_config.txt; required
         -f VALUE:str                     threshold for fsl bet mask; the default is 0.25
         --imain VALUE:str                --dwi primary4D,secondary4D/3D primary: one 4D volume input,
                                          should be PA; secondary: another 3D/4D volume input, should
@@ -599,13 +646,13 @@ On the other hand, if you don't provide a mask, applytopup uses provided volumes
     
 In the only other case, it uses baseline images if primary is 4D but secondary is 3D (a B0 image):
 
-     applytopup --imain=primaryB0,secondary3D --inindex=1,2 --datatin=my_acq_param.txt --topup=my_topup_results --out=topupOut
+    applytopup --imain=primaryB0,secondary3D --inindex=1,2 --datatin=my_acq_param.txt --topup=my_topup_results --out=topupOut
 
 
 Notably, when mask is not provided, it is created at this stage from average of the volumes in `topupOut`:
 
-     fslmaths topupOut -Tmean topupOutMean
-     bet topupOutMean topupMask -m -n
+    fslmaths topupOut -Tmean topupOutMean
+    bet topupOutMean topupMask -m -n
     
     
 h) `--whichVol`: Now that mask for *eddy* is created, you can choose to correct only primary volume (`--whichVol 1`) 
@@ -621,8 +668,8 @@ h) `--whichVol`: Now that mask for *eddy* is created, you can choose to correct 
     
     
 
-**NOTE 1** Any additional arguments to *eddy_openmp*, *topup*, and *applytopup* can be provided via `scripts/eddy_config.txt` 
-file.    
+**NOTE 1** Any additional arguments to *eddy_openmp*, *topup*, and *applytopup* can be provided by a copy of `scripts/eddy_config.txt` 
+file.
     
     
 **NOTE 2** All acquisition parameters and indices required for *eddy* binaries are written from provided `--acqp` file 
@@ -631,69 +678,102 @@ and based on the assumption that first line is for primaryVolume while second li
 
 Putting them all together, example usage:
 
-    ./fsl_topup_epi_eddy.py --imain primary4D,secondary4D --mask primaryMask,secondaryMask --bvals primaryBval,secondaryBval 
-    --bvecs primaryBvec,secondaryBvec --numb0 1 --whichVol 1,2 --acqp acqparams.txt --out /tmp/fsl_epi/
+    fsl_topup_epi_eddy --imain primary4D,secondary4D --mask primaryMask,secondaryMask --bvals primaryBval,secondaryBval 
+    --bvecs primaryBvec,secondaryBvec --numb0 1 --whichVol 1,2 --acqp acqparams.txt --out /tmp/fsl_epi/ --config /path/to/my/eddy_config.txt
     
-    ./fsl_topup_epi_eddy.py --imain primary4D,secondary3D --mask primaryMask,secondaryMask 
-    --bvals primaryBval --bvecs primaryBvec --numb0 -1 --whichVol 1 --acqp acqparams.txt --out /tmp/fsl_epi/
+    fsl_topup_epi_eddy --imain primary4D,secondary3D --mask primaryMask,secondaryMask 
+    --bvals primaryBval --bvecs primaryBvec --numb0 -1 --whichVol 1 --acqp acqparams.txt --out /tmp/fsl_epi/ --config /path/to/my/eddy_config.txt
     
-    ./fsl_topup_epi_eddy.py --imain primary4D,secondary3D 
-    --bvals primaryBval ---bvecs primaryBvec --numb0 -1 --whichVol 1,2 --acqp acqparams.txt --out /tmp/fsl_epi/
+    fsl_topup_epi_eddy --imain primary4D,secondary3D 
+    --bvals primaryBval ---bvecs primaryBvec --numb0 -1 --whichVol 1,2 --acqp acqparams.txt --out /tmp/fsl_epi/ --config /path/to/my/eddy_config.txt
     
-    ./fsl_topup_epi_eddy.py --imain primary4D,secondary3D --mask primaryMask 
-    --bvals primaryBval --bvecs primaryBvec --numb0 1 --whichVol 1 --acqp acqparams.txt --out /tmp/fsl_epi/
+    fsl_topup_epi_eddy --imain primary4D,secondary3D --mask primaryMask 
+    --bvals primaryBval --bvecs primaryBvec --numb0 1 --whichVol 1 --acqp acqparams.txt --out /tmp/fsl_epi/ --config /path/to/my/eddy_config.txt
 
 
 
 # UKFTractography
 
-> ./ukf.py -h
+> ukf -h
+    
+    ukf.py uses the following default values: ['--numTensor', 2, '--stoppingFA', 0.15, '--seedingThreshold', 0.18, 
+    '--Qm', 0.001, '--Ql', 70, '--Rs', 0.015, '--stepLength', 0.3, '--recordLength', 1.7, '--stoppingThreshold', 0.1, 
+    '--seedsPerVoxel', 10, '--recordTensors']
 
-    Convenient script to run UKFTractography
+    ukf.py is a convenient script to run UKFTractography on NIFTI data.
+    For NRRD data, you may run UKFTractography executable directly.
+    See UKFTractography --help for more default values.
     
     Usage:
-        ukf.py [SWITCHES]
+        ukf [SWITCHES] 
+    
+    Meta-switches:
+        -h, --help                      Prints this help message and quits
+        --help-all                      Prints help messages of all sub-commands and quits
+        -v, --version                   Prints the program's version and quits
     
     Switches:
         --bvals VALUE:ExistingFile      bval file for DWI; required
         --bvecs VALUE:ExistingFile      bvec file for DWI; required
-        -i VALUE:ExistingFile          DWI in nifti; required
-        -m VALUE:ExistingFile          mask of the DWI in nifti; required
-        -o VALUE:str                   output tract file (.vtk); required
-        --params VALUE:str             provide comma separated UKF parameters: --arg1,val1,--
-                                       arg2,val2,--arg3,val3 (no spaces); the default is ['--
-                                       numTensor', 2, '--stoppingFA', 0.15, '--seedingThreshold',
-                                       0.18, '--Qm', 0.001, '--Ql', 70, '--Rs', 0.015, '--stepLength',
-                                       0.3, '--recordLength', 1.7, '--stoppingThreshold', 0.1, '--
-                                       seedsPerVoxel', 10, '--recordTensors']
+        -i VALUE:ExistingFile           DWI in nifti; required
+        -m VALUE:ExistingFile           mask of the DWI in nifti; required
+        -o VALUE:str                    output tract file (.vtk); required
+        --params VALUE:str              provide comma separated UKF parameters: 
+                                        --arg1,val1,--arg2,val2,--arg3,val3 (no spaces)
 
     
 
-The minimal usual would be:
+The minimal usage would be:
 
-    ./ukf.py -i dwiNifti --bvals bvalFile --bvecs bvecFile -m maskNifti -o /tmp/tracts.vtk
+    ukf -i dwiNifti --bvals bvalFile --bvecs bvecFile -m maskNifti -o /tmp/tracts.vtk
     
+
 However, you can give any additional paramaters with `--params`.
 
+The following parameters are defaults for this script:
+
+ukfdefaults = ['--numTensor', 2, '--stoppingFA', 0.15, '--seedingThreshold', 0.18, '--Qm', 0.001, '--Ql', 70,
+'--Rs', 0.015, '--stepLength', 0.3, '--recordLength', 1.7, '--stoppingThreshold', 0.1,
+'--seedsPerVoxel', 10, '--recordTensors']
+
+ 
+You may replace any parameter from the defaults by what you provide with `--params`. For example, if you provide: 
+
+    --params --stepLength,0.4,--stoppingThreshold,0.2,--recordFA,--maxBranchingAngle,45
+
+then parameters passed to UKFTractography will be:
+
+ukfdefaults = ['--numTensor', 2, '--stoppingFA', 0.15, '--seedingThreshold', 0.18, '--Qm', 0.001, '--Ql', 70,
+'--Rs', 0.015, **'--stepLength', 0.4,** '--recordLength', 1.7, **'--stoppingThreshold', 0.2,**
+'--seedsPerVoxel', 10, '--recordTensors', **'--recordFA'**, **'--maxBranchingAngle','45'**]
+
+Notice the changes in bold.
 
 
 # FreeSurfer
 
-> fs.py -h
+> nifti_fs -h
 
 
     Convenient script to run Freesurfer segmentation
     
     Usage:
-        fs.py [SWITCHES] 
+        nifti_fs [SWITCHES] 
 
     Switches:
+
+        --expert VALUE:ExistingFile         expert options to use with recon-all for high-resolution data,
+                                            see https://surfer.nmr.mgh.harvard.edu/fswiki/SubmillimeterRecon;
+                                            the default is /tmp/pnlNipype/scripts/expert_file.txt
         -f, --force                         if --force is used, any previous output will be overwritten
         -i, --input VALUE:ExistingFile      t1 image in nifti format (nii, nii.gz); required
         -m, --mask VALUE:ExistingFile       mask the t1 before running Freesurfer; if not provided, -skullstrip is
                                             enabled with Freesurfer segmentation
         -n, --nproc VALUE:str               number of processes/threads to use (-1 for all available) for Freesurfer
                                             segmentation; the default is 1
+        --nohires                           omit high resolution freesurfer segmentation i.e. do not use -hires flag
+        --noskullstrip                      if you do not provide --mask but --input is already masked, 
+                                            omit further skull stripping by freesurfer
         -o, --outDir VALUE:str              output directory; required
         --t2 VALUE:ExistingFile             t2 image in nifti format (nii, nii.gz)
         --t2mask VALUE:ExistingFile         mask the t2 before running Freesurfer, if t2 is provided but not its mask,
@@ -702,10 +782,13 @@ However, you can give any additional paramaters with `--params`.
 
 Example usage:
     
-    ./fs.py -i t1Nifti -m t1Mask -o /tmp/fs/
-    ./fs.py -i t1Nifti -m t1Mask -o /tmp/fs/ --t2 t2Nifti --t2Mask
+    nifti_fs -i t1Nifti -m t1Mask -o /tmp/fs/
+    nifti_fs -i t1Nifti -m t1Mask -o /tmp/fs/ --t2 t2Nifti --t2Mask
+    nifti_fs -i t1NiftiAlreadyMasked -o /tmp/fs/ --noskullstrip
+    nifti_fs -i t1NiftiAlreadyMasked -o /tmp/fs/ --noskullstrip --expert /my/expert_file.txt
+    nifti_fs -i t1NiftiAlreadyMasked -o /tmp/fs/ --noskullstrip --nohires --ncpu 8
     
-Note that, `fs.py` does not use multiprocessing by default. You can read more about parallel processing with FreeSurfer
+Note that, `nifti_fs` does not use multiprocessing by default. You can read more about parallel processing with FreeSurfer
 segmentation [here](https://surfer.nmr.mgh.harvard.edu/fswiki/ReleaseNotes/#whatsnew).
 
 
@@ -734,8 +817,7 @@ matrices. Using identity matrix, *brain.mgz* is converted to NIFTI volume `brain
 `FREESURFER_HOME/bin/mri_label2vol` converts a label or a set of labels into a volume. This command is necessary to convert 
 *wmparc.mgz* into a NIFTI volume `wmparc.nii.gz`.
 
-                label2vol('--seg', wmparcmgz, '--temp', brainmgz,
-                          '--regheader', wmparcmgz, '--o', wmparc)
+    label2vol('--seg', wmparcmgz, '--temp', brainmgz, '--regheader', wmparcmgz, '--o', wmparc)
 
 
 Now that we have both FreeSurfer space defining image and white matter percellation files in NIFTI format, we can perform
@@ -750,14 +832,15 @@ look at corresponding files: `wmparcInDwi.nii.gz` `wmparcInBrain.nii.gz`
  
 The script that does the above is:
 
-> fs2dwi.py --help-all
+> nifti_fs2dwi --help-all
 
     Registers Freesurfer labelmap to DWI space.
 
     Usage:
-        fs2dwi.py [SWITCHES] [SUBCOMMAND [SWITCHES]] 
+        nifti_fs2dwi [SWITCHES] [SUBCOMMAND [SWITCHES]] 
     
     Switches:
+        -d, --debug                                   Debug mode, saves intermediate transforms to out/fs2dwi-debug-<pid>
         --dwi VALUE:ExistingFile                      target DWI; required
         --dwimask VALUE:ExistingFile                  DWI mask; required
         -f, --freesurfer VALUE:ExistingDirectory      freesurfer subject directory; required
@@ -765,9 +848,9 @@ The script that does the above is:
         -o, --outDir VALUE:str                        output directory; required
     
     Sub-commands:
-        direct                                        Direct registration from Freesurfer to B0.; see 'fs2dwi.py
+        direct                                        Direct registration from Freesurfer to B0.; see 'nifti_fs2dwi
                                                       direct --help' for more info
-        witht2                                        Registration from Freesurfer to T2 to B0.; see 'fs2dwi.py witht2
+        witht2                                        Registration from Freesurfer to T2 to B0.; see 'nifti_fs2dwi witht2
                                                       --help' for more info
     
     
@@ -776,14 +859,14 @@ The script that does the above is:
     Direct registration from Freesurfer to B0.
     
     Usage:
-        fs2dwi.py direct  
+        nifti_fs2dwi direct  
     
     ================================================================
     
     Registration from Freesurfer to T2 to B0.
     
     Usage:
-        fs2dwi.py witht2 [SWITCHES] 
+        nifti_fs2dwi witht2 [SWITCHES] 
     
     Switches:
         --t2 VALUE:ExistingFile          T2 image; required
@@ -792,8 +875,8 @@ The script that does the above is:
 
 Example usage:
 
-    ./fs2dwi.py --dwi dwiNifti --dwimask dwiMaskNifti -f fsSubDir direct
-    ./fs2dwi.py --dwi dwiNifti --dwimask dwiMaskNifti -f fsSubDir witht2 --t2 t2Nifti --t2mask t2MaskNifti
+    nifti_fs2dwi --dwi dwiNifti --dwimask dwiMaskNifti -f fsSubDir -o /tmp/fs2dwi/ direct
+    nifti_fs2dwi --dwi dwiNifti --dwimask dwiMaskNifti -f fsSubDir -o /tmp/fs2dwi/ witht2 --t2 t2Nifti --t2mask t2MaskNifti
     
 
 ## i. Direct registration
@@ -802,7 +885,7 @@ Non linear registration:                    *brain.nii.gz* ----->  *b0.nii.gz*
 
 Warp (applying one transform from above):   *wmparc.nii.gz* ----> *wmparcInDwi.nii.gz*
 
-    ./fs2dwi.py --dwi dwiNifti --dwimask dwiMaskNifti -f fsSubDir direct
+    nifti_fs2dwi --dwi dwiNifti --dwimask dwiMaskNifti -f fsSubDir direct
 
 ## ii. Through T2 registration
 
@@ -813,22 +896,22 @@ Non linear registration:                     *brain.nii.gz* ----->  *b0.nii.gz*
 
 Warp (applying two transforms from above):   *wmparc.nii.gz* ---->  *T2.nii.gz* -----> *wmparcInDwi.nii.gz*
    
-    ./fs2dwi.py --dwi dwiNifti --dwimask dwiMaskNifti -f fsSubDir witht2 --t2 t2Nifti --t2mask t2MaskNifti
+    nifti_fs2dwi --dwi dwiNifti --dwimask dwiMaskNifti -f fsSubDir witht2 --t2 t2Nifti --t2mask t2MaskNifti
 
 
 # White matter query
 
 Queries a whole brain tract file and extracts specific tract files. 
 
-> wmql.py -h
+> nifti_wmql -h
  
     Runs tract_querier. Output is <out>/*.vtk
 
     Usage:
-        wmql.py [SWITCHES] 
+        nifti_wmql [SWITCHES] 
 
     Switches:
-        -f, --fsindwi VALUE:ExistingFile      Freesurfer labelmap in DWI space (nrrd or nifti); required
+        -f, --fsindwi VALUE:ExistingFile      Freesurfer labelmap in DWI space (nifti); required
         -i, --in VALUE:ExistingFile           tractography file (.vtk or .vtk.gz), must be in RAS space; required
         -n, --nproc VALUE:str                 number of threads to use, if other processes in your computer becomes
                                               sluggish/you run into memory error, reduce --nproc; the default is 4
@@ -839,6 +922,27 @@ Queries a whole brain tract file and extracts specific tract files.
 
 Example usage:
 
-    ./wmql.py -f `wmparcInDwi.nii.gz` -i tracts.vtk -o /tmp/wmquery/
+    nifti_wmql -f `wmparcInDwi.nii.gz` -i tracts.vtk -o /tmp/wmquery/
     
+
+# Render white matter tracts    
+
+Make html page of rendered wmql tracts.
+
+> wmqlqc -h
     
+    Usage:
+        wmqlqc [SWITCHES] 
+
+    Switches:
+        -i VALUE:str                  list of wmql directories, separated by space; list must be
+                                      enclosed within quotes; required
+        -o VALUE:NonexistentPath      Output directory; required
+        -s VALUE:str                  list of subject ids corresponding to wmql directories, separated
+                                      by space; list must be enclosed within quotes; required
+
+
+Example usage:
+    
+    wmqlqc -i /tmp/wmql_output_dir/ -o /tmp/htmls/ -s caseid
+    wmqlqc -i "/tmp/wmql_output_dir1/ /tmp/wmql_output_dir2/" -o /tmp/htmls -s "caseid1 caseid2"

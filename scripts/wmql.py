@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from __future__ import print_function
-from util import logfmt, TemporaryDirectory, FILEDIR, pjoin, N_PROC
+from util import logfmt, TemporaryDirectory, FILEDIR, pjoin, N_PROC, FILEDIR
 from plumbum import local, cli, FG
 from subprocess import check_call
 from multiprocessing import Pool
@@ -30,15 +30,15 @@ class App(cli.Application):
     fsindwi = cli.SwitchAttr(
         ['-f', '--fsindwi'],
         cli.ExistingFile,
-        help='Freesurfer labelmap in DWI space (nrrd or nifti)',
+        help='Freesurfer labelmap in DWI space (nifti)',
         mandatory=True)
     query = cli.SwitchAttr(
         ['-q', '--query'],
         help='tract_querier query file (e.g. wmql-2.0.qry)',
         mandatory=False,
-        default=local.path(__file__).dirname / 'wmql-2.0.qry')
+        default=pjoin(FILEDIR, 'wmql-2.0.qry'))
     out = cli.SwitchAttr(
-        ['-o', '--out'], cli.NonexistentPath, help='output directory', mandatory=True)
+        ['-o', '--out'], help='output directory', mandatory=True)
 
     nproc = cli.SwitchAttr(
         ['-n', '--nproc'], help='''number of threads to use, if other processes in your computer 
@@ -62,7 +62,12 @@ class App(cli.Application):
             tract_math[ukf, 'tract_remove_short_tracts', '2', ukfpruned] & FG
             if not ukfpruned.exists():
                 raise Exception("tract_math failed to make '{}'".format(ukfpruned))
+            
+            self.out=local.path(self.out)
+            if self.out.exists():
+                self.out.delete()
             self.out.mkdir()
+            
             tract_querier['-t', ukfpruned, '-a', fsindwi, '-q', self.query, '-o', self.out / '_'] & FG
 
             logging.info('Convert vtk field data to tensor data')
@@ -76,7 +81,7 @@ class App(cli.Application):
             # or use the following for loop
             # for vtk in self.out.glob('*.vtk'):
             #     vtknew = vtk.dirname / (vtk.stem[2:] + ''.join(vtk.suffixes))
-            #     activateTensors_py(vtk, vtknew)
+            #     _activateTensors_py(vtk, vtknew)
             #     vtk.delete()
 
 if __name__ == '__main__':

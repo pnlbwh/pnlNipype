@@ -19,7 +19,11 @@ ukfdefaults = ['--numTensor', 2, '--stoppingFA', 0.15, '--seedingThreshold', 0.1
 
 
 class App(cli.Application):
-    """Convenient script to run UKFTractography"""
+    """ukf.py is a convenient script to run UKFTractography on NIFTI data.
+    For NRRD data, you may run UKFTractography executable directly.
+    See UKFTractography --help for more default values."""
+
+
 
     dwi = cli.SwitchAttr('-i', cli.ExistingFile, help='DWI in nifti', mandatory= True)
     dwimask = cli.SwitchAttr('-m', cli.ExistingFile, help='mask of the DWI in nifti', mandatory=True)
@@ -28,7 +32,9 @@ class App(cli.Application):
     out = cli.SwitchAttr('-o', help='output tract file (.vtk)', mandatory= True)
 
     givenParams = cli.SwitchAttr('--params',
-                help='provide comma separated UKF parameters: --arg1,val1,--arg2,val2,--arg3,val3 (no spaces)', default= ukfdefaults)
+                help='provide comma separated UKF parameters: --arg1,val1,--arg2,val2,--arg3,val3 (no spaces)')
+
+    print(f'\nukf.py uses the following default values: {ukfdefaults}\n')
 
     def main(self):
 
@@ -43,7 +49,7 @@ class App(cli.Application):
             # TODO when UKFTractography supports float32, it should be removed
             # typecast to short
             short= load_nifti(self.dwi._path)
-            save_nifti(shortdwi, short.get_data().astype('int16'), short.affine, short.header)
+            save_nifti(shortdwi._path, short.get_data().astype('int16'), short.affine, short.header)
 
             short= load_nifti(self.dwimask._path)
             save_nifti(shortmask._path, short.get_data().astype('int16'), short.affine, short.header)
@@ -54,22 +60,25 @@ class App(cli.Application):
             # convert the mask to NRRD
             nhdr_write(shortmask._path, None, None, tmpdwimask._path)
 
+            key_val_pair=[]
 
-            key_val_pair= self.givenParams.split(',')
+            if self.givenParams:
+                key_val_pair= self.givenParams.split(',')
 
-            for i in range(0,len(ukfdefaults),2):
+                for i in range(0,len(ukfdefaults)-1,2): # -1 to pass --recordTensors which is always a default
 
-                try:
-                    ind= key_val_pair.index(ukfdefaults[i])
-                    ukfdefaults[i + 1] = key_val_pair[ind + 1]
-                    key_val_pair[ind:ind+2]=[]
-                except ValueError:
-                    pass
+                    try:
+                        ind= key_val_pair.index(ukfdefaults[i])
+                        ukfdefaults[i + 1] = key_val_pair[ind + 1]
+                        # since ukfdefault[i+1] has been already replaced by key_val_pair[ind+1]
+                        # remove key_val_pair[ind] and [ind+1] to prevent double specification
+                        key_val_pair[ind:ind+2]=[]
+                    except ValueError:
+                        pass
 
 
             params = ['--dwiFile', tmpdwi, '--maskFile', tmpdwimask,
-                      '--seedsFile', tmpdwimask, '--tracts',
-                      self.out] + list(ukfdefaults) + key_val_pair
+                      '--seedsFile', tmpdwimask, '--tracts', self.out] + list(ukfdefaults) + key_val_pair
 
 
             logging.info('Peforming UKF tractography of {}'.format(tmpdwi))
