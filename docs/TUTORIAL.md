@@ -841,6 +841,7 @@ The script that does the above is:
         nifti_fs2dwi [SWITCHES] [SUBCOMMAND [SWITCHES]] 
     
     Switches:
+        --bvals VALUE:ExistingFile                    bvals file of the DWI; required
         -d, --debug                                   Debug mode, saves intermediate transforms to out/fs2dwi-debug-<pid>
         --dwi VALUE:ExistingFile                      target DWI; required
         --dwimask VALUE:ExistingFile                  DWI mask; required
