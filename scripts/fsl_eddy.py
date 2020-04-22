@@ -81,6 +81,7 @@ class Eddy(cli.Application):
 
 
         prefix= self.dwi_file.name.split('.')[0]
+        self.outDir.mkdir()
         outPrefix = pjoin(self.outDir._path, prefix+'_Ed')
 
 
