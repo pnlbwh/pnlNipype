@@ -90,7 +90,8 @@ class App(cli.Application):
             affine= tmpdir / 't2tobse_rigid0GenericAffine.mat'
 
             logging.info('1. Extract B0 and and mask it')
-            check_call((' ').join([pjoin(FILEDIR, 'bse.py'), '-m', self.dwimask, '-i', self.dwi, '-o', bse]), shell=True)
+            check_call((' ').join([pjoin(FILEDIR, 'bse.py'), '-m', self.dwimask, '-i', self.dwi, 
+                                   '--bvals', self.bvals_file, '-o', bse]), shell=True)
 
             logging.info('2. Mask the T2')
             fslmaths(self.t2mask, '-mul', self.t2, t2masked)

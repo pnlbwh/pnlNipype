@@ -63,7 +63,8 @@ class App(cli.Application):
             fslsplit[self.dwi] & FG
 
             logging.info('Extract the B0')
-            check_call((' ').join([pjoin(FILEDIR,'bse.py'), '-i', self.dwi._path, '-o', 'b0.nii.gz']), shell= True)
+            check_call((' ').join([pjoin(FILEDIR,'bse.py'), '-i', self.dwi._path, 
+                                   '--bvals', self.bvalFile, '-o', 'b0.nii.gz']), shell= True)
 
             logging.info('Register each volume to the B0')
             vols = sorted(tmpdir // (dicePrefix + '*.nii.gz'))
