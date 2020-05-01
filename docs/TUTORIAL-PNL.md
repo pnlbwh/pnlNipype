@@ -1,42 +1,43 @@
 ![](pnl-bwh-hms.png)
 
-
 Table of Contents
 =================
 
-      * [Set up sample files](#set-up-sample-files)
-      * [Copying the Sample Case to your Home Directory](#copying-the-sample-case-to-your-home-directory)
+   * [Table of Contents](#table-of-contents)
+   * [PNL Pipeline Tutorial - Introduction](#pnl-pipeline-tutorial---introduction)
+      * [Setting Up Your Sample Files](#setting-up-your-sample-files)
+      * [Copying the Sample Case to Your Home Directory](#copying-the-sample-case-to-your-home-directory)
    * [The Pipeline - Structural](#the-pipeline---structural)
       * [Dicom to Nifti (.nii) Conversion](#dicom-to-nifti-nii-conversion)
-      * [Axis Align and Centering](#axis-align-and-centering)
+      * [Axis Aligning and Centering](#axis-aligning-and-centering)
       * [Quality Control (Parameter and Visual)](#quality-control-parameter-and-visual)
       * [Brain Masking and Mask QC](#brain-masking-and-mask-qc)
       * [FreeSurfer Segmentation and QC](#freesurfer-segmentation-and-qc)
    * [The Pipeline - Diffusion](#the-pipeline---diffusion)
       * [Dicom to Nifti File Conversion](#dicom-to-nifti-file-conversion)
-      * [Axis Align and Center](#axis-align-and-center)
+      * [Axis Aligning and Centering](#axis-aligning-and-centering-1)
       * [Quality Control (Parameter, Visual, and Auto)](#quality-control-parameter-visual-and-auto)
-      * [DIFFQC TOOL](#diffqc-tool)
       * [Motion and Eddy Current Correction](#motion-and-eddy-current-correction)
       * [Tensor Mask](#tensor-mask)
-      * [EPI correction](#epi-correction)
+      * [EPI Distortion Correction](#epi-distortion-correction)
       * [Two-Tensor Whole Brain Tractography](#two-tensor-whole-brain-tractography)
       * [Finishing the Pipeline](#finishing-the-pipeline)
-      * [FreeSurfer labelmap to dwi-space registration](#freesurfer-labelmap-to-dwi-space-registration)
+      * [FreeSurfer Labelmap to DWI-Space Registration](#freesurfer-labelmap-to-dwi-space-registration)
    * [White Matter Analysis](#white-matter-analysis)
       * [White Matter Query Language](#white-matter-query-language)
       * [Extract Measures](#extract-measures)
    * [Summary of Commands](#summary-of-commands)
-      * [Structural pipeline](#structural-pipeline)
+      * [Structural Pipeline](#structural-pipeline)
       * [Diffusion Pipeline](#diffusion-pipeline)
-      * [Tracts Segmentation with White Matter Query Language (WMQL)](#tracts-segmentation-with-white-matter-query-language-wmql)
+      * [Tracts Segmentation With White Matter Query Language (WMQL)](#tracts-segmentation-with-white-matter-query-language-wmql)
       * [Data Inspection/Tract Measures in Slicer](#data-inspectiontract-measures-in-slicer)
-      * [Tracts Segmentation through Clustering](#tracts-segmentation-through-clustering)
+      * [Tracts Segmentation Through Clustering](#tracts-segmentation-through-clustering)
 
 Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
+# PNL Pipeline Tutorial - Introduction
 
-This manual goes step by step through the processes involved in the PNL’s core image-processing pipeline with .nii. The goal of this tutorial is to teach new lab members and students the steps of the semi-automated, standardized processing pipeline seen below.
+This manual goes step by step through the processes involved in the PNL's core image-processing pipeline with .nii. The goal of this tutorial is to teach new lab members and students the steps of the semi-automated, standardized processing pipeline seen below.
 
 **Important notes**
 
@@ -55,23 +56,23 @@ And here are some things to keep in mind as you go through this tutorial:
 
 Once you have gone through this tutorial, you should also reference the [tutorial on the PNL GitHub](https://github.com/pnlbwh/pnlNipype/blob/master/docs/TUTORIAL.md). The main GitHub page can be found [here](https://github.com/pnlbwh)
 
-## Set up sample files
+## Setting Up Your Sample Files
 
 The pipeline relies heavily on the use of the Linux operating system, which unlike Microsoft Windows or Mac OS X, is text and terminal based.  It is best to gain some familiarity with Linux (with a Linux tutorial) before beginning this pipeline tutorial. However, all the steps used in Linux will be explained along the way. 
 
-If you haven’t worked with Linux before, it’s important to know that spacing, capitalization, and typos all matter when inputting commands. If one of the scripts associated with the pipeline gives you an error message when you try to run it, it may be because of one of these things, so this is always the first place to look when figuring out the issue.
+If you haven't worked with Linux before, it's important to know that spacing, capitalization, and typos all matter when inputting commands. If one of the scripts associated with the pipeline gives you an error message when you try to run it, it may be because of one of these things, so this is always the first place to look when figuring out the issue.
 
 If you have questions at any point, ask an RA! They will be more than happy to help you out and might teach you a neat trick/shortcut along the way.
 
 In order to practice each step in the pipeline, we will use a sample case located in `/rfanfs/pnl-zorro/Tutorial/Case01183_NiPype/raw`
 
-## Copying the Sample Case to your Home Directory
+## Copying the Sample Case to Your Home Directory
 
-Before beginning this tutorial, you will need to copy the directory with the sample case in it into a directory in your own “home” directory.
+Before beginning this tutorial, you will need to copy the directory with the sample case in it into a directory in your own "home" directory.
 
 After logging into your account on a lab computer, go to the **Applications** drop-down menu > **System Tools** > **Terminal** to open the Linux terminal
  
-Before we begin, we’ll need to make sure that your bashrc is sourced. Type: 
+Before we begin, we'll need to make sure that your bashrc is sourced. Type: 
  ```
  echo source /rfanfs/pnl-zorro/software/pnlpipe3/bashrc3 >> ~/.bashrc
  ```
@@ -81,7 +82,7 @@ Before we begin, we’ll need to make sure that your bashrc is sourced. Type:
  ```
  
   
-If you don’t already have a directory in the lab’s home directory you will need to make one. Enter:
+If you don't already have a directory in the lab's home directory you will need to make one. Enter:
 ```
 cd /rfanfs/pnl-zorro/home
 ```
@@ -99,7 +100,7 @@ mkdir PipelineTraining
 
 To copy the sample case into this PipelineTraining directory, enter:
 ```
-cp –r /rfanfs/pnl-zorro/Tutorial/Case01183_NiPype/raw/* /rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining
+cp -r /rfanfs/pnl-zorro/Tutorial/Case01183_NiPype/raw/* /rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining
 ```
 
 This may take a while.
@@ -157,7 +158,7 @@ In our case, the command will be as follows:
 tar -cf T1.tar T1
 ```
 
-## Axis Align and Centering
+## Axis Aligning and Centering
 
 The next step in the pipeline centers the images and aligns them on the x-y-z axis, in order to standardize the position and orientation of each image in space.
 
@@ -167,12 +168,12 @@ The command for axis aligning images is `nifti_align --axisAlign --center -i <in
 
 For your images, enter:
 ```
-nifti_align --axisAlign --center –i sample-T1.nii.gz –o sample-T1-xc
+nifti_align --axisAlign --center -i sample-T1.nii.gz -o sample-T1-xc
 ```
 
 Next enter:
 ```
- nifti_align --axisAlign --center –i sample-T2.nii.gz –o sample-T2-xc
+ nifti_align --axisAlign --center -i sample-T2.nii.gz -o sample-T2-xc
 ```
 
 The files `sample-T1-xc.nii.gz` and `sample-T2-xc.nii.gz` will now be in that directory as well, and will be axis aligned and centered.
@@ -250,20 +251,20 @@ Example of ringing. If you look closely at the top of the image you will see rin
 
 ## Brain Masking and Mask QC
 
-The next step in the pipeline involves making a “mask” for your structural data in order to define what is brain and what is not brain in the image. Structural masking is very important for other processing, especially for getting good Freesurfer output, and for accurate registration of brain images.
+The next step in the pipeline involves making a "mask" for your structural data in order to define what is brain and what is not brain in the image. Structural masking is very important for other processing, especially for getting good Freesurfer output, and for accurate registration of brain images.
 
 You will create brain masks for your data by using a training data set consisting of previously created and edited masks. We typically use T2 images (if you have acquired these) to make masks for both T2 and T1 images. There is a default training set that we use, however depending on your dataset you may need to create your own training data (e.g., if you are imaging children)
 
 First, make sure you are in the `strct` directory in your `PipelineTraining` directory, then enter:
 ```
-nifti_atlas –t sample-T2-xc.nii.gz –o sample-T2 -n 8 --train t2
+nifti_atlas -t sample-T2-xc.nii.gz -o sample-T2 -n 8 --train t2
 ```
 This command will generate a mask for your T2 image, however it takes several hours to finish running.
 
 * Because `nifti_atlas` takes so long to run, we have saved you the trouble of having to wait for the script to finish on your data. Instead, you can find an already generated sample T2 mask for your data in the `Other` directory in `PipelineTraining`. The file is called `sample-T2-mask.nii.gz`.
 * Now you can enter control+c into the terminal to stop the `nifti_atlas` script, and you can copy the mask file into your `strct` directory for use in further processing. Follow the same template as you did when you copied the sample files at the beginning of this tutorial, though you will not need the `-r` this time, since it is just one file.
 
-•	In addition to the brief overview of masking laid out below, there is also a manual dedicated just to masking that you can take a look at. It is a little outdated because it uses an older version of 3D Slicer, but the main part about how to edit structural masks effectively continues to be relevant. You should pay particular attention to the section “Initial Editing” through “Reviewing the Mask”. You don’t have to do it how the maker of the manual does it exactly, but she offers many helpful pieces of advice:
+* In addition to the brief overview of masking laid out below, there is also a manual dedicated just to masking that you can take a look at. It is a little outdated because it uses an older version of 3D Slicer, but the main part about how to edit structural masks effectively continues to be relevant. You should pay particular attention to the section "Initial Editing" through "Reviewing the Mask". You don't have to do it how the maker of the manual does it exactly, but she offers many helpful pieces of advice:
 
 [Link to the Manual Here](https://drive.google.com/file/d/0B_CbEBeE5Vr0SEwyS0RNWlJLbWs/view?usp=sharing)
 
@@ -271,13 +272,13 @@ After you run `nifti_atlas`, you need to check the quality of your mask. Open **
 
 Open `sample-T2-mask.nii.gz` in **Slicer**, which should be in your `strct` directory.  Make sure that you select **Show Options** in the upper right corner and then scroll over and select the **Label Map** option. You will also need to open `sample-T2-xc.nii.gz`.
 
-You’ll need to convert the mask to a segmentation. Go to the “Segmentations” module, and go to “Export/import models and labelmaps.” Make sure “Import” and “Labelmap” are highlighted, and that your mask is the “Input node.” Click **Import**.
+you'll need to convert the mask to a segmentation. Go to the "Segmentations" module, and go to "Export/import models and labelmaps". Make sure "Import" and "Labelmap" are highlighted, and that your mask is the "Input node". Click **Import**.
 
-Switch to the **“Segment Editor”** module. Click on the “sample-t2-mask”, and make sure the segmentation is “mask” and the master volume is “sample-T2-xc”. 
+Switch to the **"Segment Editor"** module. Click on the "sample-t2-mask", and make sure the segmentation is "mask" and the master volume is "sample-T2-xc". 
 
 Because they use training data to make the masks, structural masks often do not need a lot or any editing. You should mainly edit large chunk of brain that are missing or large areas that are labeled that are not brain. Since it would be near impossible to be consistent, do not worry about editing single voxels around the edge of the brain. Sometimes this can be more harmful than beneficial, but on this example brain there are a few places that could use editing.
 
-You now have a set of tools before you on the left portion of the screen that you can use to make sure that all of the brain and only brain is covered by the mask, although it is best to be over-inclusive as opposed to under inclusive. I’ve found it’s best to start by selecting the **Margin** tool, which is the second one in the second row under **Effects**. Make sure “Grow” is selected and then choose **Apply** as this will make sure the edges are covered.
+You now have a set of tools before you on the left portion of the screen that you can use to make sure that all of the brain and only brain is covered by the mask, although it is best to be over-inclusive as opposed to under inclusive. We've found it's best to start by selecting the **Margin** tool, which is the second one in the second row under **Effects**. Make sure "Grow" is selected and then choose **Apply** as this will make sure the edges are covered.
 
 The tool that is mainly useful for editing the mask is the **Paint** tool, which is the second tool in the first row. Also feel free to experiment with the other tools to see if you can make good use of them  
 
@@ -289,19 +290,19 @@ The tool that is mainly useful for editing the mask is the **Paint** tool, which
 
   * If you then hover over the double chevrons next to the **Link/unlink** toggle, the menu will drop down further. Here you can lower the opacity of the mask by changing the number next to **sample-t2-mask**. I usually like **0.6**. 
 
-  * You’ll notice that next to the opacity control on the right is the **Toggle between showing label map volume with regions outlined or filled**. As it sounds like this toggles whether you see the whole mask or just the outline and this can sometimes be useful.
+  * you'll notice that next to the opacity control on the right is the **Toggle between showing label map volume with regions outlined or filled**. As it sounds like this toggles whether you see the whole mask or just the outline and this can sometimes be useful.
 
   * Two rows below the outline toggle is the **Interpolate background** toggle and it is often easiest to use the pixelated option, although both are useful in some situations.
 
-  * There are also a number of things that can be done using the keyboard, but in order for these to work you have to click on of the viewing windows after you’ve selected the paint tool. 
+  * There are also a number of things that can be done using the keyboard, but in order for these to work you have to click on of the viewing windows after you've selected the paint tool. 
 
     * Pressing the `g` key will toggle whether or not the mask is shown
     * Pressing the `3` key toggles whether you are applying or getting rid of mask.  Which setting you are on is shown on the left by the colored bar under **PaintEffect**
     * Pressing Shift and scrolling with the mouse scroll wheel. will make the brush larger and smaller
     * Pressing the `z` key will undo the last edit you made, and the `y` key will redo the last edit you made.
-    * Pressing the `+` and `–` keys will make the brush larger and smaller
+    * Pressing the `+` and `-` keys will make the brush larger and smaller
 
-When masking, make sure that you go through every slice on all three viewing windows. It is typical to start with the axial view (red) and go through at least twice.  For the inferior part of the brain, we don’t begin the mast until you can see the cerebellum.  We don’t include the eyes or optic nerves as brain, and there are a bunch of structures you will see that look like they might be brain but are not, but you will learn to recognize these as you go. Be sure to ask if you are unsure to start.  Make sure before you are done that there are no single-voxel islands. The final mask should look something like this:
+When masking, make sure that you go through every slice on all three viewing windows. It is typical to start with the axial view (red) and go through at least twice.  For the inferior part of the brain, we don't begin the mast until you can see the cerebellum.  We don't include the eyes or optic nerves as brain, and there are a bunch of structures you will see that look like they might be brain but are not, but you will learn to recognize these as you go. Be sure to ask if you are unsure to start.  Make sure before you are done that there are no single-voxel islands. The final mask should look something like this:
 
 <img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/t2mask.png" width="80%">
 
@@ -310,11 +311,11 @@ It might be useful for you to see a full example of a mask. Make sure you are in
 cp /rfanfs/pnl-zorro/software/pnlutil/trainingDataT2Masks/01063* ./
 ```
 
-This will copy one of the T2 training masks and its corresponding raw file to your PipelineTraining directory. Enter `/rfanfs/pnl-zorro/software/Slicer-4.8.1-linux-amd64/Slicer`, and open these files (`01063-t2w-mask.nii.gz` and `01063-t2w.nii.gz`) from your PipelineTraining directory (**Ctrl+o** in **Slicer**). Remember to select **“Labelmap”** for the mask!
+This will copy one of the T2 training masks and its corresponding raw file to your PipelineTraining directory. Enter `/rfanfs/pnl-zorro/software/Slicer-4.8.1-linux-amd64/Slicer`, and open these files (`01063-t2w-mask.nii.gz` and `01063-t2w.nii.gz`) from your PipelineTraining directory (**Ctrl+o** in **Slicer**). Remember to select **"Labelmap"** for the mask!
 
-  * Scroll through the mask to get a sense of what is and isn’t brain. It might take awhile to get comfortable, and that’s okay! Remember, you can always ask questions and ask for help. These will always be in your PipelineTraining directory, so if you ever want to look back and refer to some sample masks while you’re working on a project, feel free to do so.
+  * Scroll through the mask to get a sense of what is and isn't brain. It might take awhile to get comfortable, and that's okay! Remember, you can always ask questions and ask for help. These will always be in your PipelineTraining directory, so if you ever want to look back and refer to some sample masks while you're working on a project, feel free to do so.
 
-To turn the mask back into a labelmap, go back to the **Segmentations** module. Go back to “Export/import models and labelmaps.” Make sure “Export” and “Labelmap” are highlighted, and that your mask is the “Output node.” Click **Advanced** and select the reference volume (the image that you are masking). For this example, the file will be `sample-t2-xc`. Click **Export**. Make sure to save your mask with **Ctrl+s**, and make sure that you know the path of where you’re saving it to.
+To turn the mask back into a labelmap, go back to the **Segmentations** module. Go back to "Export/import models and labelmaps". Make sure "Export" and "Labelmap" are highlighted, and that your mask is the "Output node" Click **Advanced** and select the reference volume (the image that you are masking). For this example, the file will be `sample-t2-xc`. Click **Export**. Make sure to save your mask with **Ctrl+s**, and make sure that you know the path of where you're saving it to.
 
 ## FreeSurfer Segmentation and QC
 
@@ -325,14 +326,14 @@ You will now need to complete an additional step so that the T2 mask you just ma
 nifti_makeRigidMask -l sample-T2-mask.nii.gz -i sample-T2-xc.nii.gz -t sample-T1-xc.nii.gz -o sample-T1-mask.nii.gz
 ```
 
-  * The `-l` flag is the labelmap that you’re moving to another image.
+  * The `-l` flag is the labelmap that you're moving to another image.
   * The `-i` flag is the input T2 .nii.gz image
   * The `-t` flag is the target image for which you want the new mask.
   * The `-o` flag is the output mask that will be generated.
 
 There are a lot of settings that FreeSurfer has available for you to adjust what you want to do, but often times in this lab we use a standard set of settings which have been automated in a script called `nifti_fs`. Enter:
 ```
-nifti_fs –i sample-T1-xc.nii.gz –m sample-T1-mask.nii.gz –o sample-freesurfer
+nifti_fs -i sample-T1-xc.nii.gz -m sample-T1-mask.nii.gz -o sample-freesurfer
 ```
 This process will take about 12 hours to run to completion for each case.
 
@@ -345,7 +346,7 @@ Now in order to actually see your label map transposed on the T1, you need to go
 
 <img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/good_fs.png" width="80%">
 
-The first thing to look for that will be immediately obvious is whether the label map and the T1 image are aligned in the same way. The easiest way to do many of these checks is to reduce the opacity of the label map in the same way that you did with the masks you’ve made.
+The first thing to look for that will be immediately obvious is whether the label map and the T1 image are aligned in the same way. The easiest way to do many of these checks is to reduce the opacity of the label map in the same way that you did with the masks you've made.
 
 Next you will want to scroll through all of the slices of the brain and check if major portions of brain are missing anywhere. FreeSurfer does tend to be a little under inclusive with the cortical gray matter but that is considered okay. Here are a few examples of brains that were bad enough that they failed the check due to large missing chunks:
 
@@ -375,20 +376,20 @@ dcm2niix -b y -z y -f sample-dwi -o ./Diffusion_b3000 ./Diffusion_b3000
 
 After a bit of a wait and some output messages printed on your screen,  and you should now have a file called `sample-dwi.nii.gz` in your `Diffusion_b3000` directory (along with `sample-dwi.bval`, `sample-dwi.bvec`, and `sample-dwi.json`), which you can see by entering `ls`.
 
-A `.bval` file is a text file where the B-value for every gradient is listed in order separated by a space. A `.bvec` file is a text file with the x,y,z vectors of each gradient listed in order separated by a space between directions and a return between gradients. This is information you can get from the file’s header, which you can learn more about below in the **Quality Control (Parameter, Visual, and Auto)** section. 
+A `.bval` file is a text file where the B-value for every gradient is listed in order separated by a space. A `.bvec` file is a text file with the x,y,z vectors of each gradient listed in order separated by a space between directions and a return between gradients. This is information you can get from the file's header, which you can learn more about below in the **Quality Control (Parameter, Visual, and Auto)** section. 
 
-## Axis Align and Center
+## Axis Aligning and Centering
 
-To make it so that you don’t have to write the whole file path for everything, make sure you are in the directory with your `.nii.gz` file, which should be `Diffusion_b3000`
+To make it so that you don't have to write the whole file path for everything, make sure you are in the directory with your `.nii.gz` file, which should be `Diffusion_b3000`
 
-Similarly to how you axis-aligned and centered your structural images, we’ll do the same for our diffusion images. Type:
+Similarly to how you axis-aligned and centered your structural images, we'll do the same for our diffusion images. Type:
 ```
-nifti_align -–axisAlign --center -i sample-dwi.nii.gz -–bvals sample-dwi.bval -–bvecs sample-dwi.bvec -o sample-dwi-xc 
+nifti_align --axisAlign --center -i sample-dwi.nii.gz --bvals sample-dwi.bval --bvecs sample-dwi.bvec -o sample-dwi-xc 
 ```
 
 Like with the structural portion, you are now done with the versions of the image prior to the axis aligned and centered one so to save space it would now be best to clean these old files. Once you've checked  that sample-dwi-xc.nii.gz has been outputted with `ls`, use the `rm` command to remove the old, non-xced `sample-dwi.nii.gz`.
 
-* **Note:** REMOVING FILES USING RM IS A PERMANENT ACTION AND IF YOU REMOVE FILES THAT YOU NEED, THEY ARE **GONE**. Because of this be very careful when you remove files and only remove and only remove files that you are 100% sure you and nobody else will ever need again. If you don’t know what it is, do not remove it. Also, as a good rule of thumb it is best to never remove files that you did not make because you never know what they could be being used for. Basically, the only files we ever remove are ones that are redundant, such as in the example above.
+* **Note:** REMOVING FILES USING RM IS A PERMANENT ACTION AND IF YOU REMOVE FILES THAT YOU NEED, THEY ARE **GONE**. Because of this be very careful when you remove files and only remove and only remove files that you are 100% sure you and nobody else will ever need again. If you don't know what it is, do not remove it. Also, as a good rule of thumb it is best to never remove files that you did not make because you never know what they could be being used for. Basically, the only files we ever remove are ones that are redundant, such as in the example above.
 
 Right now you are only doing a single case, but often you will want to do this for many cases.  You can save a lot of time by using a `for`  loop in the shell, so when you eventually find yourself in this situation, ask someone to show you how these work.
 
@@ -408,7 +409,7 @@ Bear in mind that, unless otherwise specified, the value for each field listed i
 
 * If you type `cat sample-dwi-xc.bval`, you can see the b-values from all the gradients. The highest should be consistent across all cases, and should be a reasonable value (usually, these tend to be between 2000-3000).
 
-* If you type `cat sample-dwi-xc.bvec`, you can see the vectors from each gradient. There should be 73 lines and the three numbers (x,y,z vectors) for each gradient should roughly match between cases.  If either there are not all of the gradients or the numbers don’t match in a case, the case is failed.
+* If you type `cat sample-dwi-xc.bvec`, you can see the vectors from each gradient. There should be 73 lines and the three numbers (x,y,z vectors) for each gradient should roughly match between cases.  If either there are not all of the gradients or the numbers don't match in a case, the case is failed.
 
 * Many of these fields can also be compared between all cases at once using a for loop.
 
@@ -436,16 +437,11 @@ An example of ghosting where you can see the back of the skull is shown a second
 
 An example of a signal drop.
 
-Before turning now to the automated QC tool, check with your PI about how severe these different things need to be to disqualify a case and in the case of dropped signal, check also if you will be getting rid of gradients within a case that have dropped signal or if you will keep them.
-
-
-## DIFFQC TOOL
-This is a placeholder for more info to come!
-
+Before turning now to an automated QC tool, check with your PI about how severe these different things need to be to disqualify a case and in the case of dropped signal, check also if you will be getting rid of gradients within a case that have dropped signal or if you will keep them.
 
 ## Motion and Eddy Current Correction
 
-Now that you ideally have only the cases and gradients that are usable for further processing (which we’ll say is all of them in this example), you can correct for motion and eddy currents. Make sure you are still in the `Diffusion_b3000 directory` and enter:
+Now that you ideally have only the cases and gradients that are usable for further processing (which we'll say is all of them in this example), you can correct for motion and eddy currents. Make sure you are still in the `Diffusion_b3000 directory` and enter:
 ```
 pnl_eddy --bvals sample-dwi-xc.bval --bvecs sample-dwi-xc.bvec -i sample-dwi-xc.nii.gz -o sample-dwi-Ed
 ```
@@ -457,7 +453,7 @@ Since this takes a long time, it is also available to be copied from the `Other`
 
 To mask a diffusion image, follow the instructions [here](https://confluence.partners.org/pages/viewpage.action?spaceKey=PNL&title=Segment+Editor+Diffusion+Masking) to mask `sample-dwi-Ed.nii.gz` (in the `Diffusion_b3000` directory). Be sure to save the output mask into your `Diffusion_b3000` directory as `sample-dwi-tensor-mask.nii.gz`.
 
-## EPI correction
+## EPI Distortion Correction
 
 To further correct for distortions caused by magnet interactions and magnetic inhomogeneity (which leads to intensity loss and voxel shifts), you will now have to run an EPI correction. This is done by co-registering it with the T2 image, which means that you need to have T2 images for the case to do this step and also that you will need to have masked the T2 file (step 5 of the structural pipeline) so that you can use it for this. If T2 images were not taken for the particular case (they were for this example) then you will have to skip this step. 
 
@@ -476,7 +472,7 @@ pnl_epi --dwi Diffusion_b3000/sample-dwi-Ed.nii.gz --dwimask Diffusion_b3000/sam
 
 * Since this takes a long time, `sample-dwi-epi.nii.gz` is also available to be copied from the `Other` directory into your `Diffusion_b3000` directory.
 
-* If this is the first case that you are doing in a data set, and for this tutorial we can pretend that it is, you should check the glyphs of the case’s DTI because sometimes they are incorrect, which will lead to the tractography being incorrect as well.
+* If this is the first case that you are doing in a data set, and for this tutorial we can pretend that it is, you should check the glyphs of the case's DTI because sometimes they are incorrect, which will lead to the tractography being incorrect as well.
 
 * Even if you know little about how the glyphs should look there is an easy trick that is generally good enough when making this determination. This involves looking at the corpus callosum, which is the most major white matter bundle connecting the two hemispheres.
 
@@ -503,7 +499,7 @@ nhdr_write.py --nifti sample-dwi-tensor-mask.nii.gz --nhdr sample-dwi-tensor-mas
 
 <img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/dti.png" width=80%>
 
-* Looking at the coronal view (green) scroll to a slice that has a red “U”-shape in the upper middle part of the brain. There are a lot of them, but any will do. This structure is the corpus callosum and it looks like this:
+* Looking at the coronal view (green) scroll to a slice that has a red "U" shape in the upper middle part of the brain. There are a lot of them, but any will do. This structure is the corpus callosum and it looks like this:
 
 <img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/dti_corpus.png" width=80%>
 
@@ -516,7 +512,7 @@ nhdr_write.py --nifti sample-dwi-tensor-mask.nii.gz --nhdr sample-dwi-tensor-mas
 
 <img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/glyph_corpus.png" width=80%>
 
-* The area where the corpus callosum was will probably have turned to dark blue, but if it is correct the lines will follow the “u” shape to make a somewhat smooth curve. If it is incorrect, the lines will not follow the “u” shape, but instead might just all be horizontal or even form more of an “n” shape. This can be seen here:
+* The area where the corpus callosum was will probably have turned to dark blue, but if it is correct the lines will follow the "U" shape to make a somewhat smooth curve. If it is incorrect, the lines will not follow the "U" shape, but instead might just all be horizontal or even form more of an "N" shape. This can be seen here:
 
 <img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/bad_glyph_corpus.png" width=80%>
 	  
@@ -524,14 +520,14 @@ nhdr_write.py --nifti sample-dwi-tensor-mask.nii.gz --nhdr sample-dwi-tensor-mas
 
 <img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/glyph_corpus_axial.png" width=80%>
 
-* This is how the corpus callosum should look in the in the axial view (red) if you are looking at the middle slice or thereabouts. The upper portion should be arranged like a “u” while the lower portion should be arranged like an “n”. Make sure you look at both parts of the corpus callosum because it is possible for one to be correct while the other is not:
+* This is how the corpus callosum should look in the in the axial view (red) if you are looking at the middle slice or thereabouts. The upper portion should be arranged like a "U" while the lower portion should be arranged like an "N". Make sure you look at both parts of the corpus callosum because it is possible for one to be correct while the other is not:
 
 <img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/glyph_corpus_sagit.png" width=80%>
 * This is how the corpus callosum should look in the sagittal view (yellow) if you are looking at around the middle slice. The glyphs should look like they are more or less arranged straight in and out parallel with your view:
 
-* They should all look correct in this sample case, but if it doesn’t look correct, you can fix it by changing the header of the epi-corrected file. To do that, back in the terminal, enter `gedit sample-dwi-epi.nii.gz`. The header will come up in a text editor. You are interested in the **measurement frame**. The first thing you can try is changing any non-zero numbers in the first set of coordinates to negative. Then save and load the epi-corrected image in Slicer again and do the whole process over again.
+* They should all look correct in this sample case, but if it doesn't look correct, you can fix it by changing the header of the epi-corrected file. To do that, back in the terminal, enter `gedit sample-dwi-epi.nii.gz`. The header will come up in a text editor. You are interested in the **measurement frame**. The first thing you can try is changing any non-zero numbers in the first set of coordinates to negative. Then save and load the epi-corrected image in Slicer again and do the whole process over again.
 
-If this time the glyphs look correct in the corpus callosum, you have fixed it for that case. If they still don’t look correct, change the first set of coordinates back to positive and make the second set negative. There are 7 possible permutations of negatives that you can try if necessary. It is usually the case that the proper measurement frame is the same for every case in a dataset, but this is not always the case, especially if the data was acquired on more than one scanner or over a long period of time. Because of that, before you then make this change to the header of every epi-corrected dwi for every case in the dataset, you should check this on a handful of other cases as well. 
+If this time the glyphs look correct in the corpus callosum, you have fixed it for that case. If they still don't look correct, change the first set of coordinates back to positive and make the second set negative. There are 7 possible permutations of negatives that you can try if necessary. It is usually the case that the proper measurement frame is the same for every case in a dataset, but this is not always the case, especially if the data was acquired on more than one scanner or over a long period of time. Because of that, before you then make this change to the header of every epi-corrected dwi for every case in the dataset, you should check this on a handful of other cases as well. 
 
 
 ## Two-Tensor Whole Brain Tractography
@@ -570,9 +566,9 @@ There are more interesting color schemes, however, that will tell you different 
 
 To continue on from this point you will need to have both the diffusion and the structural steps completed, since these use both of them. 
 
-## FreeSurfer labelmap to dwi-space registration
+## FreeSurfer Labelmap to DWI-Space Registration
 
-The first step of post-processing involves registering the FreeSurfer labelmap that you made to the diffusion image since they don’t have the same resolution and aren’t in the same space. First, make sure you are in the `PipelineTraining` directory and enter:
+The first step of post-processing involves registering the FreeSurfer labelmap that you made to the diffusion image since they don't have the same resolution and aren't in the same space. First, make sure you are in the `PipelineTraining` directory and enter:
 ```
 nifti_fs2dwi --dwi Diffusion_b3000/sample-dwi-epi.nii.gz --dwimask Diffusion_b3000/sample-dwi-tensor-mask.nii.gz -f strct/sample-freesurfer -o sample-fs2dwi witht2 --t2 strct/sample-T2-masked.nii.gz --t2mask strct/sample-T2-mask.nii.gz
 ```
@@ -604,7 +600,7 @@ wm_quality_control_tractography Tractography/ tractQC/
 
 Next, go into your new `tractQC` directory. To do a visual QC, enter `gio open view_<area>.html`. There are 6 different areas that you can look at (**ant**, **inf**, **left**, **post**, **right**, and **sup**) and you should inspect each of them carefully.
 
-* One paper that is very helpful in determining what to look for is “A diffusion tensor imaging tractography atlas for virtual in vivo dissections” (Catani & Thiebaut de Schotten, 2008) so give it a look.
+* One paper that is very helpful in determining what to look for is "A diffusion tensor imaging tractography atlas for virtual in vivo dissections" (Catani & Thiebaut de Schotten, 2008) so give it a look.
 
 Then to do a data QC, make sure you are still in the `tractQC` directory and enter:
 ```
@@ -619,13 +615,13 @@ Talk with your PI in the case where any case fails any of the QCs.
 
 ## White Matter Query Language
 
-At this time you will use white matter query language to put the FreeSurfer output in the same space as the tractography by using Demian’s method to automatically select fibers connecting specific regions from the whole brain tractography.
+At this time you will use white matter query language to put the FreeSurfer output in the same space as the tractography by using Demian's method to automatically select fibers connecting specific regions from the whole brain tractography.
 
 Something that would be good to do before you actually run the script is to have a look at the query files that you will have to use to reference the area you are interested in looking at. To do this go to `/projects/schiz/software/LabPython/tract_querier/queries`. Once here, enter:
 ```
 gedit FreeSurfer.qry
 ```
-and a window should pop up. Don’t change anything in this window but you’ll notice that it contains the names of all of the different brain regions followed by the number code given to them in the FreeSurfer output. When looking at a FreeSurfer labelmap, when you put your mouse over a color-coded brain region this is the number that pops up in the bottom left hand corner of the screen along with the brain region abbreviation.  If you exit out of this you can also enter:
+and a window should pop up. don't change anything in this window but you'll notice that it contains the names of all of the different brain regions followed by the number code given to them in the FreeSurfer output. When looking at a FreeSurfer labelmap, when you put your mouse over a color-coded brain region this is the number that pops up in the bottom left hand corner of the screen along with the brain region abbreviation.  If you exit out of this you can also enter:
 ```
 gedit freesurfer_queries_new.qry
 ```
@@ -666,7 +662,7 @@ wmqlqc -i wmql -o wmqlqc -s sample
 
 For the final step of the pipeline you need to now extract all of the measures you want from the images. There are two ways to do this:
 
-* Way 1: Go into your `wmql/` directory. Let’s say we are still interested in the left AF. Enter:
+* Way 1: Go into your `wmql/` directory. Let's say we are still interested in the left AF. Enter:
 ```
 /rfanfs/pnl-zorro/software/pnlpipe3/pnlpipe/pnlscripts/measuretracts/measureTracts.py -i *.vtk -o sample-summarizetracts.csv
 ```
@@ -688,7 +684,7 @@ If you want to run the script on many `.vtk` files at once and have them all in 
 
   * Now you can see the text file by entering `oocalc sample-af.left.txt`.
 
-You may notice that there are some differences in what these two methods give you, so which you choose largely depends on what you’re looking for, and sometimes it may be necessary to use boths ways to get everything you need:
+You may notice that there are some differences in what these two methods give you, so which you choose largely depends on what you're looking for, and sometimes it may be necessary to use boths ways to get everything you need:
 
 Way 1 will give you FA, AD, RD, and Trace among other less commonly used diffusion measures. It will give you not only the mean of these values for the case, but also the minimum and maximum values. Be careful to mind that the values it gives you are 1000 times the values you will typically see, including what you get using Way 2. This is alright but something you need to keep in mind during analyses. Way 1 will not give you FW or associated measures like FAt and so on.
 
@@ -713,7 +709,7 @@ Go to your pipeline folder
 cd $folder
 ```
 
-## Structural pipeline
+## Structural Pipeline
 Data conversion
 ```
 dcm2niix -o . -f t1 -z y /rfanfs/pnl-zorro/Tutorial/Case01183_NiPype/raw/T1
@@ -770,7 +766,7 @@ Unscented Kalman Filtered Tractography -
 ukf -i dwi-xc-ed.nii.gz --bvals dwi-xc-ed.bval --bvecs dwi-xc-ed.bvec -m dwi-xc-ed_mask.nii.gz -o dwi-xc-ed-tracts.vtk --params '--seedsPerVoxel','2','--recordTensors','--freeWater','--recordFreeWater'
 ```
 
-## Tracts Segmentation with White Matter Query Language (WMQL)
+## Tracts Segmentation With White Matter Query Language (WMQL)
 
 Register FreeSurfer "wmparc" file to the diffusion space
 ```
@@ -787,6 +783,5 @@ nifti_wmql -f wmparcInDwi.nii.gz -i dwi-xc-ed-tracts.vtk -o wmquery -q /rfanfs/p
 /rfanfs/pnl-zorro/software/Slicer-4.8.1-linux-amd64/Slicer
 ```
 
-## Tracts Segmentation through Clustering
+## Tracts Segmentation Through Clustering
 *To be added later*
-
