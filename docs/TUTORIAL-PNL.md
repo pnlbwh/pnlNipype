@@ -33,7 +33,7 @@ Table of Contents
       * [Data Inspection/Tract Measures in Slicer](#data-inspectiontract-measures-in-slicer)
       * [Tracts Segmentation Through Clustering](#tracts-segmentation-through-clustering)
 
-Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
+Table of Contents created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 # PNL Pipeline Tutorial - Introduction
 
