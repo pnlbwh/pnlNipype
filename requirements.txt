@@ -5,6 +5,7 @@ numpy
 pandas
 vtk
 nibabel
+dipy
 psutil
 python_log_indenter
 pynrrd
