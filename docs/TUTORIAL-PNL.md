@@ -6,7 +6,7 @@ If this pipeline is useful in your research, please cite as below:
 
 Billah, Tashrif; Bouix, Sylvain; Rathi, Yogesh; NIFTI MRI processing pipeline, https://github.com/pnlbwh/pnlNipype, 2019, DOI: 10.5281/zenodo.3258854
 
-This PNL specific tutorial is edited by Monica Gabriella Lyons. A generalized tutorial is available [here](TUTORIAL.md). Installation instruction can be found [here](README.md).
+This PNL specific tutorial is edited by Monica Lyons. A generalized tutorial is available [here](TUTORIAL.md). Installation instruction can be found [here](README.md).
 
 Table of Contents
 =================
