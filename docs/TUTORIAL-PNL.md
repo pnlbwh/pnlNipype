@@ -241,20 +241,20 @@ Note that it may take a while for fsleyes to load.
 
 * Be sure to QC both your T1 and your T2 images (`sample-T2-xc.nii.gz`)
 
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/motion_vs_normal.png" width="70%">
+![](../Misc/motion_vs_normal.png)
 
 An example of a severe motion artifact (A) compared with a good image (B).
 
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/ghosting.png" width="70%">
+![](../Misc/ghosting.png)
 
 An example of ghosting where you can see the back of the skull is shown a second time in the middle of the brain.
 
 
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/ringing.png" width="70%">
+![](../Misc/ringing.png)
 
 Example of ringing. If you look closely at the top of the image you will see ringing forming around the outside of the brain (which has been magnified below)
 
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/ringing_closeup.png" width="70%">
+![](../Misc/ringing_closeup.png)
 
 
 ## Brain Masking and Mask QC
@@ -312,7 +312,7 @@ The tool that is mainly useful for editing the mask is the **Paint** tool, which
 
 When masking, make sure that you go through every slice on all three viewing windows. It is typical to start with the axial view (red) and go through at least twice.  For the inferior part of the brain, we don't begin the mast until you can see the cerebellum.  We don't include the eyes or optic nerves as brain, and there are a bunch of structures you will see that look like they might be brain but are not, but you will learn to recognize these as you go. Be sure to ask if you are unsure to start.  Make sure before you are done that there are no single-voxel islands. The final mask should look something like this:
 
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/t2mask.png" width="80%">
+![](../Misc/t2mask.png)
 
 It might be useful for you to see a full example of a mask. Make sure you are in your PipelineTraining directory, and enter:
 ```
@@ -352,21 +352,21 @@ Once it has completed, you need to quality control your FreeSurfer labelmap. To 
 
 Now in order to actually see your label map transposed on the T1, you need to go to the **Modules** drop-down menu and select **Volumes**. First, make sure the Active Volume is `wmparc`. Then, under the **Volume Information** heading, make sure LabelMap is selected. Last, under the Display heading, for the **Lookup Table** dropdown box, go to **FreeSurfer** > **FreeSurferLabels**. You should end up with something that looks like this:
 
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/good_fs.png" width="80%">
+![](../Misc/good_fs.png)
 
 The first thing to look for that will be immediately obvious is whether the label map and the T1 image are aligned in the same way. The easiest way to do many of these checks is to reduce the opacity of the label map in the same way that you did with the masks you've made.
 
 Next you will want to scroll through all of the slices of the brain and check if major portions of brain are missing anywhere. FreeSurfer does tend to be a little under inclusive with the cortical gray matter but that is considered okay. Here are a few examples of brains that were bad enough that they failed the check due to large missing chunks:
 
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/fs_fail_1.png" width="50%">
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/fs_fail_2.png" width="50%">
+![](../Misc/fs_fail_1.png)
+![](../Misc/fs_fail_2.png)
 
 
 Two particularly common issues are missing temporal poles (below top) and inaccurate amygdala hippocampal complex (below bottom). Often times these issues will not cause the images to fail the check but they should be recorded. If these are areas that are of interest in the study you are working on, you will need to discuss with your PI how to address this. Below the areas that should be covered are outlined in red:
 
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/inacc_amyg_hipp_fs.png" width="50%">
+![](../Misc/inacc_amyg_hipp_fs.png)
 
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/inacc_temp_pole_fs.png" width="50%">
+![](../Misc/inacc_temp_pole_fs.png)
 
 
 Some useful information can be gained just from looking at the FreeSurfer output. To look at it go into the `stats` directory in `sample-freesurfer` and look at the files `aseg.stats` and `wmparc.stats` using the command `cat`.
@@ -433,15 +433,15 @@ For now, you will want to look through all 73 gradients for a few different thin
 
 
 
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/motion_vs_normal.png" width=70%>
+![](../Misc/motion_vs_normal)
 
 An example of a severe motion artifact (A) compared with a good image (B).
 
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/ghosting.png" width=70%>
+![](../Misc/ghosting)
 
 An example of ghosting where you can see the back of the skull is shown a second time in the middle of the brain.
 
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/signal_drop.png" width=70%>
+![](../Misc/signal_drop)
 
 An example of a signal drop.
 
@@ -505,11 +505,11 @@ nhdr_write.py --nifti sample-dwi-tensor-mask.nii.gz --nhdr sample-dwi-tensor-mas
 
 * Going to the drop-down pin in the top left corner of a viewing window and the the double chevrons under that, you will have to change the bottom right box from the baseline to **sample-dti**. Select the rings next to the chevrons to do this for all views.  You will get an image that looks like this:
 
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/dti.png" width=80%>
+![](../Misc/dti.png)
 
 * Looking at the coronal view (green) scroll to a slice that has a red "U" shape in the upper middle part of the brain. There are a lot of them, but any will do. This structure is the corpus callosum and it looks like this:
 
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/dti_corpus.png" width=80%>
+![](../Misc/dti_corpus.png)
 
 
 * Then go to the **Volumes** module and make sure that the **Active Volume** is **sample-dti**.
@@ -518,19 +518,19 @@ nhdr_write.py --nifti sample-dwi-tensor-mask.nii.gz --nhdr sample-dwi-tensor-mas
 
 * You should now see this on your screen:
 
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/glyph_corpus.png" width=80%>
+![](../Misc/glyph_corpus.png)
 
 * The area where the corpus callosum was will probably have turned to dark blue, but if it is correct the lines will follow the "U" shape to make a somewhat smooth curve. If it is incorrect, the lines will not follow the "U" shape, but instead might just all be horizontal or even form more of an "N" shape. This can be seen here:
 
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/bad_glyph_corpus.png" width=80%>
+![](../Misc/bad_glyph_corpus.png)
 	  
 * You will also need to check the corpus callosum in the other two views (red and yellow). To do this you simply uncheck **Green** for slice visibility and select the color you want.
 
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/glyph_corpus_axial.png" width=80%>
+![](../Misc/glyph_corpus_axial.png)
 
 * This is how the corpus callosum should look in the in the axial view (red) if you are looking at the middle slice or thereabouts. The upper portion should be arranged like a "U" while the lower portion should be arranged like an "N". Make sure you look at both parts of the corpus callosum because it is possible for one to be correct while the other is not:
 
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/glyph_corpus_sagit.png" width=80%>
+![](../Misc/glyph_corpus_sagit.png)
 * This is how the corpus callosum should look in the sagittal view (yellow) if you are looking at around the middle slice. The glyphs should look like they are more or less arranged straight in and out parallel with your view:
 
 * They should all look correct in this sample case, but if it doesn't look correct, you can fix it by changing the header of the epi-corrected file. To do that, back in the terminal, enter `gedit sample-dwi-epi.nii.gz`. The header will come up in a text editor. You are interested in the **measurement frame**. The first thing you can try is changing any non-zero numbers in the first set of coordinates to negative. Then save and load the epi-corrected image in Slicer again and do the whole process over again.
@@ -542,7 +542,7 @@ If this time the glyphs look correct in the corpus callosum, you have fixed it f
 
 It is now time to generate a tractography image, which creates images that look like this:
 
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/tractography.png" width=80%>
+![](../Misc/tractography.png)
 
 We will be using UKF Tractography to generate this image. In the `Diffusion_b3000` directory, make a new directory called `Tractography/`
 
@@ -566,7 +566,7 @@ Once it is finished running, you can open it in Slicer if you would like to see 
 
 When it opens you will notice that the whole thing is most likely pink, like this:
 
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/tractography_slicer.png" width=80%>
+![](../Misc/tractography_slicer.png)
 	
 There are more interesting color schemes, however, that will tell you different information about the image. You can change between these by going to the **Modules** drop down and selecting **Diffusion** > **Tractography Display**. Under the **Advanced Display** heading you can play around with the different options to look at different things. 
 
@@ -593,7 +593,7 @@ Once the script has finished running, you will find that there is a file called 
 
 When it opens, it will probably not appear as it should, and to fix this go to the **Volumes** module and for the **Active Volume** select `wmparcInBrain`. Then, under the **Display** heading, change Lookup Table to **FreeSurfer** > **FreeSurferLabels**. You should open up `b0maskedbrain.nii.gz` as well (as a normal Volume). It will look something like this:
 
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/fs_in_dwi.png" width=80%>
+![](../Misc/fs_in_dwi.png)
 
 To check if the registration is good you scroll through the different views similar to how you did when quality checking the FreeSurfer labelmap during step 6 of the structural portion of the pipeline. 
 
@@ -647,7 +647,7 @@ You would now use these files to QC whichever areas you are interested in the st
 
 When it is open go to **Volumes** in **Modules** and under the **Display** header, change the **Lookup Table** value to **FreeSurferLabels**. At this point you should have something like this:
 
-<img src="https://github.com/monicalyons/pnlNipype/blob/monicalyons-patch-1/Misc/fiber_and_fs.png" width=80%>
+![](../Misc/fiber_and_fs.png)
  
 The region you are looking at with the tracts is the left arcuate fasciculus. When doing the QC the main things you want to look for are that the tracts intersect the regions they are supposed to on the label map and that they have the shape they should. A good source of this information is the Catani & Thiebaut de Schotten paper mentioned above. The region you are looking at is supposed to connect the perisylvian cortex of the frontal and temporal lobes and the example seen here does seem to do that, although as I mentioned before they should be a little off in the example.
 
