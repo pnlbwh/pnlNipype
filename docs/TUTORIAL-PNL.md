@@ -433,15 +433,15 @@ For now, you will want to look through all 73 gradients for a few different thin
 
 
 
-![](../Misc/motion_vs_normal)
+![](../Misc/motion_vs_normal.png)
 
 An example of a severe motion artifact (A) compared with a good image (B).
 
-![](../Misc/ghosting)
+![](../Misc/ghosting.png)
 
 An example of ghosting where you can see the back of the skull is shown a second time in the middle of the brain.
 
-![](../Misc/signal_drop)
+![](../Misc/signal_drop.png)
 
 An example of a signal drop.
 
