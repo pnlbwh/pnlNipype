@@ -39,7 +39,6 @@ def obtainB0(inVol, bvalFile, outVol, num_b0):
         raise ValueError('Invalid --numb0')
 
 
-
 class TopupEddyEpi(cli.Application):
     '''Epi and eddy correction using topup and eddy_openmp/cuda commands in fsl
     For more info, see:
@@ -122,6 +121,72 @@ class TopupEddyEpi(cli.Application):
     #     '--force',
     #     help= 'overwrite output directory',
     #     default= False)
+
+
+    def _eddy_openmp(self, modData, modBvals, modBvecs):
+
+        eddy_openmp[f'--imain={modData}',
+                    f'--mask={topupMask}',
+                    f'--acqp={self.acqparams_file}',
+                    f'--index={indexFile}',
+                    f'--bvecs={modBvecs}',
+                    f'--bvals={modBvals}',
+                    f'--out={outPrefix}',
+                    f'--topup={topup_results}',
+                    '--verbose',
+                    eddy_openmp_params.split()] & FG
+
+        if '--repol' in eddy_openmp_params:
+            bvals = np.array(read_bvals(modBvals))
+            ind = np.where(bvals <= REPOL_BSHELL_GREATER)
+
+            if len(ind):
+                print('Doing eddy_openmp/cuda again without --repol option '
+                      'to obtain eddy correction w/o outlier replacement for b<=500 shells\n')
+
+            eddy_openmp_params = eddy_openmp_params.split()
+            eddy_openmp_params.remove('--repol')
+            print(eddy_openmp_params)
+            print('')
+            wo_repol_outDir = self.outDir.join('wo_repol')
+            wo_repol_outDir.mkdir()
+            wo_repol_outPrefix = pjoin(wo_repol_outDir, prefix + '_Ed')
+
+
+            eddy_openmp[f'--imain={modData}',
+                        f'--mask={topupMask}',
+                        f'--acqp={self.acqparams_file}',
+                        f'--index={indexFile}',
+                        f'--bvecs={modBvecs}',
+                        f'--bvals={modBvals}',
+                        f'--out={outPrefix}',
+                        f'--topup={topup_results}',
+                        '--verbose',
+                        eddy_openmp_params.split()] & FG
+
+
+            repol_bvecs = np.array(read_bvecs(outPrefix + '.eddy_rotated_bvecs'))
+            wo_repol_bvecs = np.array(read_bvecs(wo_repol_outPrefix + '.eddy_rotated_bvecs'))
+
+            merged_bvecs = repol_bvecs.copy()
+            merged_bvecs[ind, :] = wo_repol_bvecs[ind, :]
+
+            repol_data = load(outPrefix + '.nii.gz')
+            wo_repol_data = load(wo_repol_outPrefix + '.nii.gz')
+            merged_data = repol_data.get_fdata().copy()
+            merged_data[..., ind] = wo_repol_data.get_fdata()[..., ind]
+
+            save_nifti(outPrefix + '.nii.gz', merged_data, repol_data.affine, hdr=repol_data.header)
+
+            # copy bval,bvec to have same prefix as that of eddy corrected volume
+            write_bvecs(outPrefix + '.bvec', merged_bvecs)
+            copyfile(modBvals, outPrefix + '.bval')
+
+        else:
+            # copy bval,bvec to have same prefix as that of eddy corrected volume
+            copyfile(outPrefix + '.eddy_rotated_bvecs', outPrefix + '.bvec')
+            copyfile(modBvals, outPrefix + '.bval')
+
 
 
     def main(self):
@@ -317,16 +382,17 @@ class TopupEddyEpi(cli.Application):
             if len(temp)==1 and temp[0]=='1':
                 # correct only primary4D volume
 
-                eddy_openmp[f'--imain={primaryMaskedVol}',
-                            f'--mask={topupMask}',
-                            f'--acqp={self.acqparams_file}',
-                            f'--index={indexFile}',
-                            f'--bvecs={primaryBvec}',
-                            f'--bvals={primaryBval}',
-                            f'--out={outPrefix}',
-                            f'--topup={topup_results}',
-                            '--verbose',
-                            eddy_openmp_params.split()] & FG
+                self._eddy_openmp(primaryMaskedVol, primaryBval, primaryBvec)
+                # eddy_openmp[f'--imain={primaryMaskedVol}',
+                #             f'--mask={topupMask}',
+                #             f'--acqp={self.acqparams_file}',
+                #             f'--index={indexFile}',
+                #             f'--bvecs={primaryBvec}',
+                #             f'--bvals={primaryBval}',
+                #             f'--out={outPrefix}',
+                #             f'--topup={topup_results}',
+                #             '--verbose',
+                #             eddy_openmp_params.split()] & FG
 
 
 
@@ -368,16 +434,19 @@ class TopupEddyEpi(cli.Application):
                 combinedData= tmpdir / 'combinedData.nii.gz'
                 fslmerge('-t', combinedData, primaryMaskedVol, secondaryMaskedVol)
 
-                eddy_openmp[f'--imain={combinedData}',
-                            f'--mask={topupMask}',
-                            f'--acqp={self.acqparams_file}',
-                            f'--index={indexFile}',
-                            f'--bvecs={combinedBvecs}',
-                            f'--bvals={combinedBvals}',
-                            f'--out={outPrefix}',
-                            f'--topup={topup_results}',
-                            '--verbose',
-                            eddy_openmp_params.split()] & FG
+
+                # call self._eddy_openmp
+                self._eddy_openmp(combinedData, combinedBvals, combinedBvecs)
+                # eddy_openmp[f'--imain={combinedData}',
+                #             f'--mask={topupMask}',
+                #             f'--acqp={self.acqparams_file}',
+                #             f'--index={indexFile}',
+                #             f'--bvecs={combinedBvecs}',
+                #             f'--bvals={combinedBvals}',
+                #             f'--out={outPrefix}',
+                #             f'--topup={topup_results}',
+                #             '--verbose',
+                #             eddy_openmp_params.split()] & FG
 
 
             else:
@@ -385,8 +454,8 @@ class TopupEddyEpi(cli.Application):
 
 
             # copy bval,bvec to have same prefix as that of eddy corrected volume
-            copyfile(outPrefix+'.eddy_rotated_bvecs', outPrefix+'.bvec')
-            copyfile(primaryBval, outPrefix+'.bval')
+            # copyfile(outPrefix+'.eddy_rotated_bvecs', outPrefix+'.bvec')
+            # copyfile(primaryBval, outPrefix+'.bval')
             
             # rename topupMask to have same prefix as that of eddy corrected volume
             topupMask.move(outPrefix+'_mask.nii.gz')
