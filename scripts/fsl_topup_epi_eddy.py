@@ -1,7 +1,19 @@
 #!/usr/bin/env python
 
 from plumbum import cli, FG, local
-from plumbum.cmd import topup, applytopup, eddy_openmp, fslmaths, rm, fslmerge, cat, bet, gzip
+from plumbum.cmd import topup, applytopup, fslmaths, rm, fslmerge, cat, bet, gzip
+
+try:
+    from plumbum.cmd import nvcc
+    nvcc['--version'] & FG
+    print('\nCUDA found, looking for eddy_cuda executable\n'
+          'make sure you have created a softlink according to '
+          'https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/eddy/UsersGuide')
+    from plumbum.cmd import eddy_cuda as eddy_openmp
+    print('eddy_cuda executable found\n')
+except:
+    from plumbum.cmd import eddy_openmp
+
 from util import BET_THRESHOLD, TemporaryDirectory, logfmt, load_nifti, FILEDIR
 from os.path import join as pjoin, abspath, basename
 from subprocess import check_call
@@ -29,13 +41,13 @@ def obtainB0(inVol, bvalFile, outVol, num_b0):
 
 
 class TopupEddyEpi(cli.Application):
-    '''Epi and eddy correction using topup and eddy_openmp commands in fsl
+    '''Epi and eddy correction using topup and eddy_openmp/cuda commands in fsl
     For more info, see:
         https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/eddy/UsersGuide
         https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/topup/TopupUsersGuide
     You can also view the help message:
-        eddy_openmp
-        topup
+        `eddy_openmp` or `eddy_cuda`
+        `topup`
     '''
 
     dwi_file= cli.SwitchAttr(
