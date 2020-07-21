@@ -17,6 +17,7 @@ BET_THRESHOLD = '0.25'
 B0_THRESHOLD = 50
 ANTSREG_THREADS = '4'
 N_PROC = '4'
+REPOL_BSHELL_GREATER= 500
 
 TMPDIR= local.path(os.getenv('PNLPIPE_TMPDIR','/tmp/'))
 # TMPDIR= local.path(os.getenv('PNLPIPE_TMPDIR',pjoin(os.environ['HOME'],'tmp'))

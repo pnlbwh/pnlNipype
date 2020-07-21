@@ -14,7 +14,7 @@ try:
 except:
     from plumbum.cmd import eddy_openmp
 
-from util import BET_THRESHOLD, TemporaryDirectory, logfmt, load_nifti, FILEDIR
+from util import BET_THRESHOLD, TemporaryDirectory, logfmt, load_nifti, FILEDIR, REPOL_BSHELL_GREATER
 from os.path import join as pjoin, abspath, basename
 from subprocess import check_call
 from os import environ
@@ -123,7 +123,7 @@ class TopupEddyEpi(cli.Application):
     #     default= False)
 
 
-    def _eddy_openmp(self, modData, modBvals, modBvecs):
+    def _eddy_openmp(self, modData, modBvals, modBvecs, topupMask):
 
         eddy_openmp[f'--imain={modData}',
                     f'--mask={topupMask}',
@@ -382,7 +382,7 @@ class TopupEddyEpi(cli.Application):
             if len(temp)==1 and temp[0]=='1':
                 # correct only primary4D volume
 
-                self._eddy_openmp(primaryMaskedVol, primaryBval, primaryBvec)
+                self._eddy_openmp(primaryMaskedVol, primaryBval, primaryBvec, topupMask)
                 # eddy_openmp[f'--imain={primaryMaskedVol}',
                 #             f'--mask={topupMask}',
                 #             f'--acqp={self.acqparams_file}',
@@ -436,7 +436,7 @@ class TopupEddyEpi(cli.Application):
 
 
                 # call self._eddy_openmp
-                self._eddy_openmp(combinedData, combinedBvals, combinedBvecs)
+                self._eddy_openmp(combinedData, combinedBvals, combinedBvecs, topupMask)
                 # eddy_openmp[f'--imain={combinedData}',
                 #             f'--mask={topupMask}',
                 #             f'--acqp={self.acqparams_file}',
