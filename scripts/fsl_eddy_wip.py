@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from plumbum import cli, FG
-from plumbum.cmd import eddy_openmp
+from plumbum.cmd import eddy_cuda as eddy_openmp
 from bet_mask import bet_mask
 from util import BET_THRESHOLD, logfmt, pjoin
 from shutil import copyfile
@@ -98,7 +98,7 @@ class Eddy(cli.Application):
 
 
         _, _, eddy_openmp_params= obtain_fsl_eddy_params(self.eddy_config_file._path)
-
+        
         eddy_openmp[f'--imain={self.dwi_file}',
                     f'--mask={self.b0_brain_mask}',
                     f'--acqp={self.acqparams_file}',
@@ -108,10 +108,12 @@ class Eddy(cli.Application):
                     f'--out={outPrefix}',
                     '--verbose',
                     eddy_openmp_params.split()] & FG
-
+        
 
         if '--repol' in eddy_openmp_params:
+            eddy_openmp_params= eddy_openmp_params.split()
             eddy_openmp_params.remove('--repol')
+            print(eddy_openmp_params)
             wo_repol_outDir= self.outDir.join('wo_repol')
             wo_repol_outDir.mkdir()
             wo_repol_outPrefix = pjoin(wo_repol_outDir, prefix + '_Ed')
@@ -124,7 +126,7 @@ class Eddy(cli.Application):
                         f'--bvals={self.bvals_file}',
                         f'--out={wo_repol_outPrefix}',
                         '--verbose',
-                        eddy_openmp_params.split()] & FG
+                        eddy_openmp_params] & FG
 
             bvals= np.array(read_bvals(self.bvals_file))
             repol_bvecs= np.array(read_bvecs(outPrefix + '.eddy_rotated_bvecs'))
@@ -133,16 +135,16 @@ class Eddy(cli.Application):
             ind= np.where(bvals>REPOL_BSHELL_GREATER)
 
             merged_bvecs= wo_repol_bvecs.copy()
-            # FIXME
             merged_bvecs[ind,: ]= repol_bvecs[ind,: ]
 
-            repol_data= nib.load(outPrefix + '.nii.gz')
-            wo_repol_data= nib.load(wo_repol_outPrefix + '.nii.gz')
+            repol_data= load(outPrefix + '.nii.gz')
+            wo_repol_data= load(wo_repol_outPrefix + '.nii.gz')
             merged_data= wo_repol_data.get_fdata().copy()
-            # FIXME
-            merged_data[...,ind]= repol_data[...,ind]
+            merged_data[...,ind]= repol_data.get_fdata()[...,ind]
 
             save_nifti(outPrefix + '.nii.gz', merged_data, repol_data.affine, hdr=repol_data.header)
+            
+            # copy bval,bvec to have same prefix as that of eddy corrected volume
             write_bvecs(outPrefix + '.bvec', merged_bvecs)
             copyfile(self.bvals_file, outPrefix + '.bval')
 
@@ -150,6 +152,7 @@ class Eddy(cli.Application):
             # copy bval,bvec to have same prefix as that of eddy corrected volume
             copyfile(outPrefix + '.eddy_rotated_bvecs', outPrefix + '.bvec')
             copyfile(self.bvals_file, outPrefix + '.bval')
+
 
 if __name__== '__main__':
     Eddy.run()
