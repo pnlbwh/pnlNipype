@@ -1,23 +1,36 @@
 #!/usr/bin/env python
 
 from plumbum import cli, FG
-from plumbum.cmd import eddy_openmp
+try:
+    from plumbum.cmd import nvcc
+    nvcc['--version'] & FG
+    print('\nCUDA found, looking for eddy_cuda executable\n'
+          'make sure you have created a softlink according to '
+          'https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/eddy/UsersGuide')
+    from plumbum.cmd import eddy_cuda as eddy_openmp
+    print('eddy_cuda executable found\n')
+except:
+     from plumbum.cmd import eddy_openmp
+
 from bet_mask import bet_mask
-from util import BET_THRESHOLD, logfmt, pjoin
+from util import BET_THRESHOLD, logfmt, pjoin, B0_THRESHOLD, REPOL_BSHELL_GREATER
 from shutil import copyfile
 from _eddy_config import obtain_fsl_eddy_params
+from nibabel import load
+from util import save_nifti
+from conversion import read_bvals, read_bvecs, write_bvecs
+import numpy as np
 
 import logging
 logger = logging.getLogger()
 logging.basicConfig(level=logging.DEBUG, format=logfmt(__file__))
 
 
-
 class Eddy(cli.Application):
-    '''Eddy correction using eddy_openmp command in fsl
+    '''Eddy correction using eddy_openmp/cuda command in fsl
     For more info, see https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/eddy/UsersGuide
-    You can also view the help message:
-    eddy_openmp
+    You can also view the help message typing:
+    `eddy_openmp` or `eddy_cuda`
     '''
 
     dwi_file= cli.SwitchAttr(
@@ -94,7 +107,11 @@ class Eddy(cli.Application):
 
 
         _, _, eddy_openmp_params= obtain_fsl_eddy_params(self.eddy_config_file._path)
-
+        
+        print('eddy_openmp/cuda parameters')
+        print(eddy_openmp_params)
+        print('')
+        
         eddy_openmp[f'--imain={self.dwi_file}',
                     f'--mask={self.b0_brain_mask}',
                     f'--acqp={self.acqparams_file}',
@@ -104,11 +121,58 @@ class Eddy(cli.Application):
                     f'--out={outPrefix}',
                     '--verbose',
                     eddy_openmp_params.split()] & FG
+        
+        
+        bvals= np.array(read_bvals(self.bvals_file))
+        ind= [i for i in range(len(bvals)) if bvals[i]>B0_THRESHOLD and bvals[i]<= REPOL_BSHELL_GREATER]
+        
+        if '--repol' in eddy_openmp_params and len(ind):
+            
+            print('\nDoing eddy_openmp/cuda again without --repol option '
+                  'to obtain eddy correction w/o outlier replacement for b<=500 shells\n')
+
+            eddy_openmp_params= eddy_openmp_params.split()
+            eddy_openmp_params.remove('--repol')
+            print(eddy_openmp_params)
+            print('')
+            wo_repol_outDir= self.outDir.join('wo_repol')
+            wo_repol_outDir.mkdir()
+            wo_repol_outPrefix = pjoin(wo_repol_outDir, prefix + '_Ed')
+
+            eddy_openmp[f'--imain={self.dwi_file}',
+                        f'--mask={self.b0_brain_mask}',
+                        f'--acqp={self.acqparams_file}',
+                        f'--index={self.index_file}',
+                        f'--bvecs={self.bvecs_file}',
+                        f'--bvals={self.bvals_file}',
+                        f'--out={wo_repol_outPrefix}',
+                        '--verbose',
+                        eddy_openmp_params] & FG
 
 
-        # copy bval,bvec to have same prefix as that of eddy corrected volume
-        copyfile(outPrefix + '.eddy_rotated_bvecs', outPrefix + '.bvec')
-        copyfile(self.bvals_file, outPrefix + '.bval')
+            repol_bvecs= np.array(read_bvecs(outPrefix + '.eddy_rotated_bvecs'))
+            wo_repol_bvecs= np.array(read_bvecs(wo_repol_outPrefix + '.eddy_rotated_bvecs'))
+
+            merged_bvecs= repol_bvecs.copy()
+            merged_bvecs[ind,: ]= wo_repol_bvecs[ind,: ]
+
+            repol_data= load(outPrefix + '.nii.gz')
+            wo_repol_data= load(wo_repol_outPrefix + '.nii.gz')
+            merged_data= repol_data.get_fdata().copy()
+            merged_data[...,ind]= wo_repol_data.get_fdata()[...,ind]
+
+            save_nifti(outPrefix + '.nii.gz', merged_data, repol_data.affine, hdr=repol_data.header)
+            
+            # copy bval,bvec to have same prefix as that of eddy corrected volume
+            write_bvecs(outPrefix + '.bvec', merged_bvecs)
+            copyfile(self.bvals_file, outPrefix + '.bval')
+
+        else:
+            # copy bval,bvec to have same prefix as that of eddy corrected volume
+            copyfile(outPrefix + '.eddy_rotated_bvecs', outPrefix + '.bvec')
+            copyfile(self.bvals_file, outPrefix + '.bval')
+
 
 if __name__== '__main__':
     Eddy.run()
+    
