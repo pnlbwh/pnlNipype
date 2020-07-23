@@ -470,11 +470,6 @@ how each volume was acquired. The above information is provided through `--acqp`
 to learn more about Eddy correction.
 
 
-The script automatically decides whether to use `eddy_openmp` or `eddy_cuda`. If CUDA binary `nvcc` is present in the 
-environment variable PATH, then `eddy_cuda` is used. By default `eddy_cuda` runs on GPU #0. In addition, you need to 
-create a soft link `eddy_cuda` in `fsl/bin/` directory for `eddy_cuda8.0` or `eddy_cuda9.1` depending on the version of 
-CUDA you have. 
-
 
 > fsl_eddy -h
 
@@ -528,9 +523,30 @@ Then, you can run *fsl_eddy* as follows:
 **NOTE** Any additional arguments to *eddy_openmp*, *topup*, and *applytopup* can be provided by a copy of `scripts/eddy_config.txt` 
 file.
 
+
 **NOTE** We observed that `--repol` flag for outlier replacement does not work well for lower b-value shells. If this flag 
 is provided, we run eddy_openmp/cuda twice-- *with* and *without* `--repol` and then replace *with* b-value<=500 shells 
 by *without*.
+
+
+**NOTE** The script automatically decides whether to use `eddy_openmp` or `eddy_cuda`. If CUDA binary `nvcc` is present 
+in the environment variable PATH, then `eddy_cuda` is used. By default `eddy_cuda` runs on GPU #0 by default. 
+In addition, you need to create a soft link `eddy_cuda` in `fsl/bin/` directory for 
+`eddy_cuda8.0` or `eddy_cuda9.1` depending on the version of CUDA you have. If you want to override the default 
+GPU device, use `export CUDA_VISIBLE_DEVICES=1` or whatever. However, do not get confused by the console message:
+
+
+    ...................Allocated GPU # 0...................
+    Loading prediction maker
+    Evaluating prediction maker model
+    Checking for outliers
+    Calculating parameter updates
+
+
+
+It will always show `GPU # 0`, but `nvidia-smi` command will display the correct GPU being used.
+
+
 
 
 # Epi correction
