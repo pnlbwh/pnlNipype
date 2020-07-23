@@ -119,7 +119,7 @@ class TopupEddyEpi(cli.Application):
         ['--whichVol'],
         help='which volume(s) to correct through eddy: 1(only primary4D) or 1,2(primary4D+secondary4D/3D)',
         mandatory=False,
-        default=True)
+        default='1')
 
     # force= cli.Flag(
     #     '--force',
@@ -131,6 +131,7 @@ class TopupEddyEpi(cli.Application):
     def main(self):
         
         
+
         def _eddy_openmp(modData, modBvals, modBvecs, eddy_openmp_params):
             
             print('eddy_openmp/cuda parameters')
@@ -200,6 +201,8 @@ class TopupEddyEpi(cli.Application):
                 copyfile(outPrefix + '.eddy_rotated_bvecs', outPrefix + '.bvec')
                 copyfile(modBvals, outPrefix + '.bval')
         
+
+
 
 
 
@@ -394,21 +397,7 @@ class TopupEddyEpi(cli.Application):
             if len(temp)==1 and temp[0]=='1':
                 # correct only primary4D volume
 
-                # self._eddy_openmp(primaryMaskedVol, primaryBval, primaryBvec, topupMask, indexFile, outPrefix)
                 _eddy_openmp(primaryMaskedVol, primaryBval, primaryBvec, eddy_openmp_params)
-
-                # eddy_openmp[f'--imain={primaryMaskedVol}',
-                #             f'--mask={topupMask}',
-                #             f'--acqp={self.acqparams_file}',
-                #             f'--index={indexFile}',
-                #             f'--bvecs={primaryBvec}',
-                #             f'--bvals={primaryBval}',
-                #             f'--out={outPrefix}',
-                #             f'--topup={topup_results}',
-                #             '--verbose',
-                #             eddy_openmp_params.split()] & FG
-
-
 
 
             elif len(temp)==2 and temp[1]=='2':
@@ -449,20 +438,8 @@ class TopupEddyEpi(cli.Application):
                 fslmerge('-t', combinedData, primaryMaskedVol, secondaryMaskedVol)
 
 
-                # call self._eddy_openmp
                 _eddy_openmp(combinedData, combinedBvals, combinedBvecs, eddy_openmp_params)
                 
-                # eddy_openmp[f'--imain={combinedData}',
-                #             f'--mask={topupMask}',
-                #             f'--acqp={self.acqparams_file}',
-                #             f'--index={indexFile}',
-                #             f'--bvecs={combinedBvecs}',
-                #             f'--bvals={combinedBvals}',
-                #             f'--out={outPrefix}',
-                #             f'--topup={topup_results}',
-                #             '--verbose',
-                #             eddy_openmp_params.split()] & FG
-
 
             else:
                 raise ValueError('Invalid --whichVol')
