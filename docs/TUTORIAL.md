@@ -544,7 +544,7 @@ GPU device, use `export CUDA_VISIBLE_DEVICES=1` or whatever. However, do not get
 
 
 
-It will always show `GPU # 0`, but `nvidia-smi` command will display the correct GPU being used.
+It will always show `GPU # 0`, but `nvidia-smi` command will show the actual GPU being used.
 
 
 
