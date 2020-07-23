@@ -14,13 +14,17 @@ try:
 except:
     from plumbum.cmd import eddy_openmp
 
-from util import BET_THRESHOLD, TemporaryDirectory, logfmt, load_nifti, FILEDIR, REPOL_BSHELL_GREATER
+from util import BET_THRESHOLD, TemporaryDirectory, logfmt, load_nifti, FILEDIR, \
+    REPOL_BSHELL_GREATER, save_nifti, B0_THRESHOLD
 from os.path import join as pjoin, abspath, basename
 from subprocess import check_call
 from os import environ
 from shutil import copyfile
 from conversion import read_bvals, read_bvecs, write_bvals, write_bvecs
 from _eddy_config import obtain_fsl_eddy_params
+from nibabel import load
+import numpy as np
+
 
 FSLDIR=environ['FSLDIR']
 
@@ -123,35 +127,15 @@ class TopupEddyEpi(cli.Application):
     #     default= False)
 
 
-    def _eddy_openmp(self, modData, modBvals, modBvecs, topupMask):
 
-        eddy_openmp[f'--imain={modData}',
-                    f'--mask={topupMask}',
-                    f'--acqp={self.acqparams_file}',
-                    f'--index={indexFile}',
-                    f'--bvecs={modBvecs}',
-                    f'--bvals={modBvals}',
-                    f'--out={outPrefix}',
-                    f'--topup={topup_results}',
-                    '--verbose',
-                    eddy_openmp_params.split()] & FG
-
-        if '--repol' in eddy_openmp_params:
-            bvals = np.array(read_bvals(modBvals))
-            ind = np.where(bvals <= REPOL_BSHELL_GREATER)
-
-            if len(ind):
-                print('Doing eddy_openmp/cuda again without --repol option '
-                      'to obtain eddy correction w/o outlier replacement for b<=500 shells\n')
-
-            eddy_openmp_params = eddy_openmp_params.split()
-            eddy_openmp_params.remove('--repol')
+    def main(self):
+        
+        
+        def _eddy_openmp(modData, modBvals, modBvecs, eddy_openmp_params):
+            
+            print('eddy_openmp/cuda parameters')
             print(eddy_openmp_params)
             print('')
-            wo_repol_outDir = self.outDir.join('wo_repol')
-            wo_repol_outDir.mkdir()
-            wo_repol_outPrefix = pjoin(wo_repol_outDir, prefix + '_Ed')
-
 
             eddy_openmp[f'--imain={modData}',
                         f'--mask={topupMask}',
@@ -165,31 +149,60 @@ class TopupEddyEpi(cli.Application):
                         eddy_openmp_params.split()] & FG
 
 
-            repol_bvecs = np.array(read_bvecs(outPrefix + '.eddy_rotated_bvecs'))
-            wo_repol_bvecs = np.array(read_bvecs(wo_repol_outPrefix + '.eddy_rotated_bvecs'))
+            bvals = np.array(read_bvals(modBvals))
+            ind= [i for i in range(len(bvals)) if bvals[i]>B0_THRESHOLD and bvals[i]<= REPOL_BSHELL_GREATER]
 
-            merged_bvecs = repol_bvecs.copy()
-            merged_bvecs[ind, :] = wo_repol_bvecs[ind, :]
+            if '--repol' in eddy_openmp_params and len(ind):
 
-            repol_data = load(outPrefix + '.nii.gz')
-            wo_repol_data = load(wo_repol_outPrefix + '.nii.gz')
-            merged_data = repol_data.get_fdata().copy()
-            merged_data[..., ind] = wo_repol_data.get_fdata()[..., ind]
+                print('\nDoing eddy_openmp/cuda again without --repol option '
+                      'to obtain eddy correction w/o outlier replacement for b<=500 shells\n')
 
-            save_nifti(outPrefix + '.nii.gz', merged_data, repol_data.affine, hdr=repol_data.header)
-
-            # copy bval,bvec to have same prefix as that of eddy corrected volume
-            write_bvecs(outPrefix + '.bvec', merged_bvecs)
-            copyfile(modBvals, outPrefix + '.bval')
-
-        else:
-            # copy bval,bvec to have same prefix as that of eddy corrected volume
-            copyfile(outPrefix + '.eddy_rotated_bvecs', outPrefix + '.bvec')
-            copyfile(modBvals, outPrefix + '.bval')
+                eddy_openmp_params = eddy_openmp_params.split()
+                eddy_openmp_params.remove('--repol')
+                print(eddy_openmp_params)
+                print('')
+                wo_repol_outDir = local.path(outPrefix).dirname.join('wo_repol')
+                wo_repol_outDir.mkdir()
+                # prefix= basename(outPrefix)
+                wo_repol_outPrefix = pjoin(wo_repol_outDir, basename(outPrefix))
 
 
+                eddy_openmp[f'--imain={modData}',
+                            f'--mask={topupMask}',
+                            f'--acqp={self.acqparams_file}',
+                            f'--index={indexFile}',
+                            f'--bvecs={modBvecs}',
+                            f'--bvals={modBvals}',
+                            f'--out={wo_repol_outPrefix}',
+                            f'--topup={topup_results}',
+                            '--verbose',
+                            eddy_openmp_params] & FG
 
-    def main(self):
+
+                repol_bvecs = np.array(read_bvecs(outPrefix + '.eddy_rotated_bvecs'))
+                wo_repol_bvecs = np.array(read_bvecs(wo_repol_outPrefix + '.eddy_rotated_bvecs'))
+
+                merged_bvecs = repol_bvecs.copy()
+                merged_bvecs[ind, :] = wo_repol_bvecs[ind, :]
+
+                repol_data = load(outPrefix + '.nii.gz')
+                wo_repol_data = load(wo_repol_outPrefix + '.nii.gz')
+                merged_data = repol_data.get_fdata().copy()
+                merged_data[..., ind] = wo_repol_data.get_fdata()[..., ind]
+
+                save_nifti(outPrefix + '.nii.gz', merged_data, repol_data.affine, hdr=repol_data.header)
+
+                # copy bval,bvec to have same prefix as that of eddy corrected volume
+                write_bvecs(outPrefix + '.bvec', merged_bvecs)
+                copyfile(modBvals, outPrefix + '.bval')
+
+            else:
+                # copy bval,bvec to have same prefix as that of eddy corrected volume
+                copyfile(outPrefix + '.eddy_rotated_bvecs', outPrefix + '.bvec')
+                copyfile(modBvals, outPrefix + '.bval')
+        
+
+
 
         # if self.force:
         #     logging.info('Deleting previous output directory')
@@ -382,7 +395,9 @@ class TopupEddyEpi(cli.Application):
             if len(temp)==1 and temp[0]=='1':
                 # correct only primary4D volume
 
-                self._eddy_openmp(primaryMaskedVol, primaryBval, primaryBvec, topupMask)
+                # self._eddy_openmp(primaryMaskedVol, primaryBval, primaryBvec, topupMask, indexFile, outPrefix)
+                _eddy_openmp(primaryMaskedVol, primaryBval, primaryBvec, eddy_openmp_params)
+
                 # eddy_openmp[f'--imain={primaryMaskedVol}',
                 #             f'--mask={topupMask}',
                 #             f'--acqp={self.acqparams_file}',
@@ -436,7 +451,8 @@ class TopupEddyEpi(cli.Application):
 
 
                 # call self._eddy_openmp
-                self._eddy_openmp(combinedData, combinedBvals, combinedBvecs, topupMask)
+                _eddy_openmp(combinedData, combinedBvals, combinedBvecs, eddy_openmp_params)
+                
                 # eddy_openmp[f'--imain={combinedData}',
                 #             f'--mask={topupMask}',
                 #             f'--acqp={self.acqparams_file}',
