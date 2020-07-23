@@ -163,7 +163,6 @@ class TopupEddyEpi(cli.Application):
                 print('')
                 wo_repol_outDir = local.path(outPrefix).dirname.join('wo_repol')
                 wo_repol_outDir.mkdir()
-                # prefix= basename(outPrefix)
                 wo_repol_outPrefix = pjoin(wo_repol_outDir, basename(outPrefix))
 
 

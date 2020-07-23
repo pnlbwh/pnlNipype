@@ -13,7 +13,7 @@ except:
      from plumbum.cmd import eddy_openmp
 
 from bet_mask import bet_mask
-from util import BET_THRESHOLD, logfmt, pjoin
+from util import BET_THRESHOLD, logfmt, pjoin, B0_THRESHOLD, REPOL_BSHELL_GREATER
 from shutil import copyfile
 from _eddy_config import obtain_fsl_eddy_params
 from nibabel import load
@@ -25,7 +25,6 @@ import logging
 logger = logging.getLogger()
 logging.basicConfig(level=logging.DEBUG, format=logfmt(__file__))
 
-REPOL_BSHELL_GREATER= 500
 
 class Eddy(cli.Application):
     '''Eddy correction using eddy_openmp/cuda command in fsl
@@ -123,14 +122,14 @@ class Eddy(cli.Application):
                     '--verbose',
                     eddy_openmp_params.split()] & FG
         
-
-        if '--repol' in eddy_openmp_params:
-            bvals= np.array(read_bvals(self.bvals_file))
-            ind= np.where(bvals<=REPOL_BSHELL_GREATER)
+        
+        bvals= np.array(read_bvals(self.bvals_file))
+        ind= [i for i in range(len(bvals)) if bvals[i]>B0_THRESHOLD and bvals[i]<= REPOL_BSHELL_GREATER]
+        
+        if '--repol' in eddy_openmp_params and len(ind):
             
-            if len(ind):
-                print('Doing eddy_openmp/cuda again without --repol option '
-                      'to obtain eddy correction w/o outlier replacement for b<=500 shells\n')
+            print('\nDoing eddy_openmp/cuda again without --repol option '
+                  'to obtain eddy correction w/o outlier replacement for b<=500 shells\n')
 
             eddy_openmp_params= eddy_openmp_params.split()
             eddy_openmp_params.remove('--repol')
