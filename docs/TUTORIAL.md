@@ -528,6 +528,9 @@ Then, you can run *fsl_eddy* as follows:
 **NOTE** Any additional arguments to *eddy_openmp*, *topup*, and *applytopup* can be provided by a copy of `scripts/eddy_config.txt` 
 file.
 
+**NOTE** We observed that `--repol` flag for outlier replacement does not work well for lower b-value shells. If this flag 
+is provided, we run eddy_openmp/cuda twice-- *with* and *without* `--repol` and then replace *with* b-value<=500 shells 
+by *without*.
 
 
 # Epi correction
