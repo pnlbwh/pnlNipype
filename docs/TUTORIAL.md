@@ -470,12 +470,19 @@ how each volume was acquired. The above information is provided through `--acqp`
 to learn more about Eddy correction.
 
 
+The script automatically decides whether to use `eddy_openmp` or `eddy_cuda`. If CUDA binary `nvcc` is present in the 
+environment variable PATH, then `eddy_cuda` is used. By default `eddy_cuda` runs on GPU #0. In addition, you need to 
+create a soft link `eddy_cuda` in `fsl/bin/` directory for `eddy_cuda8.0` or `eddy_cuda9.1` depending on the version of 
+CUDA you have. 
+
+
 > fsl_eddy -h
 
-    Eddy correction using eddy_openmp command in fsl
+    
+    Eddy correction using eddy_openmp/cuda command in fsl
     For more info, see https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/eddy/UsersGuide
-    You can also view the help message:
-    eddy_openmp
+    You can also view the help message typing:
+    `eddy_openmp` or `eddy_cuda` 
     
     Usage:
         fsl_eddy [SWITCHES] 
@@ -568,13 +575,13 @@ Epi and Eddy distortions.
 
 > fsl_topup_epi_eddy -h
 
-    Epi and eddy correction using topup and eddy_openmp commands in fsl
+    Epi and eddy correction using topup and eddy_openmp/cuda commands in fsl
     For more info, see:
         https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/eddy/UsersGuide
         https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/topup/TopupUsersGuide
     You can also view the help message:
-        eddy_openmp
-        topup
+        `eddy_openmp` or `eddy_cuda`
+        `topup`
     
     Usage:
         fsl_topup_epi_eddy [SWITCHES] 
@@ -602,7 +609,7 @@ Epi and Eddy distortions.
                                          True
         --out VALUE:NonexistentPath      output directory; required
         --whichVol VALUE:str             which volume(s) to correct through eddy: 1(only primary4D) or
-                                         1,2(primary4D+secondary4D/3D); the default is True
+                                         1,2(primary4D+secondary4D/3D); the default is 1
 
 
 
