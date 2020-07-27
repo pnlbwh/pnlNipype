@@ -528,6 +528,7 @@ file.
 is provided, we run eddy_openmp/cuda twice-- *with* and *without* `--repol` and then replace *with* b-value<=500 shells 
 by *without*.
 
+![](./diff_repol.png)
 
 **NOTE** The script automatically decides whether to use `eddy_openmp` or `eddy_cuda`. If CUDA binary `nvcc` is present 
 in the environment variable PATH, then `eddy_cuda` is used. By default `eddy_cuda` runs on GPU #0 by default. 
