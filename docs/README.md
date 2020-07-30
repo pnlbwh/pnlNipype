@@ -30,7 +30,7 @@ Table of Contents
    * [Multiprocessing](#multiprocessing)
    * [Pipeline scripts overview](#pipeline-scripts-overview)
    * [Global bashrc](#global-bashrc)
-   * [Documentation](#documentation)
+   * [Tutorial](#tutorial)
    * [Support](#support)
    
    
@@ -346,7 +346,7 @@ you may put the following lines in your bashrc:
     export PY2BIN=/absolute/path/to/miniconda2/bin   # for whitematteranalysis package
 
 
-# Documentation
+# Tutorial
 
 See the [Tutorial](TUTORIAL.md) for workflow and function of each script.
 
