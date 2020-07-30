@@ -1,16 +1,6 @@
 #!/usr/bin/env python
 
 from plumbum import cli, FG
-try:
-    from plumbum.cmd import nvcc
-    nvcc['--version'] & FG
-    print('\nCUDA found, looking for eddy_cuda executable\n'
-          'make sure you have created a softlink according to '
-          'https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/eddy/UsersGuide')
-    from plumbum.cmd import eddy_cuda as eddy_openmp
-    print('eddy_cuda executable found\n')
-except:
-     from plumbum.cmd import eddy_openmp
 
 from bet_mask import bet_mask
 from util import BET_THRESHOLD, logfmt, pjoin, B0_THRESHOLD, REPOL_BSHELL_GREATER
@@ -88,9 +78,25 @@ class Eddy(cli.Application):
         help='output directory',
         mandatory=True)
 
-
+    useGpu= cli.Flag(
+        ['--eddy-cuda'],
+        help='use eddy_cuda instead of eddy_openmp, requires fsl/bin/eddy_cuda and nvcc in PATH')
 
     def main(self):
+
+        from plumbum.cmd import eddy_openmp
+        
+        if self.useGpu:
+            try:
+                from plumbum.cmd import nvcc
+                nvcc['--version'] & FG
+                print('\nCUDA found, looking for eddy_cuda executable\n'
+                      'make sure you have created a softlink according to '
+                      'https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/eddy/UsersGuide')
+                from plumbum.cmd import eddy_cuda as eddy_openmp
+                print('eddy_cuda executable found\n')
+            except:
+                print('nvcc and/or eddy_cuda was not found, using eddy_openmp')
 
 
         prefix= self.dwi_file.name.split('.')[0]

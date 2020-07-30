@@ -3,17 +3,6 @@
 from plumbum import cli, FG, local
 from plumbum.cmd import topup, applytopup, fslmaths, rm, fslmerge, cat, bet, gzip
 
-try:
-    from plumbum.cmd import nvcc
-    nvcc['--version'] & FG
-    print('\nCUDA found, looking for eddy_cuda executable\n'
-          'make sure you have created a softlink according to '
-          'https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/eddy/UsersGuide')
-    from plumbum.cmd import eddy_cuda as eddy_openmp
-    print('eddy_cuda executable found\n')
-except:
-    from plumbum.cmd import eddy_openmp
-
 from util import BET_THRESHOLD, TemporaryDirectory, logfmt, load_nifti, FILEDIR, \
     REPOL_BSHELL_GREATER, save_nifti, B0_THRESHOLD
 from os.path import join as pjoin, abspath, basename
@@ -126,11 +115,28 @@ class TopupEddyEpi(cli.Application):
     #     help= 'overwrite output directory',
     #     default= False)
 
+    useGpu= cli.Flag(
+        ['--eddy-cuda'],
+        help='use eddy_cuda instead of eddy_openmp, requires fsl/bin/eddy_cuda and nvcc in PATH')
 
 
     def main(self):
-        
-        
+
+        from plumbum.cmd import eddy_openmp
+
+        if self.useGpu:
+            try:
+                from plumbum.cmd import nvcc
+                nvcc['--version'] & FG
+                print('CUDA found, looking for eddy_cuda executable '
+                      'make sure you have created a softlink according to '
+                      'https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/eddy/UsersGuide')
+                from plumbum.cmd import eddy_cuda as eddy_openmp
+                print('eddy_cuda executable found')
+            except:
+                print('nvcc and/or eddy_cuda was not found, using eddy_openmp')
+
+
 
         def _eddy_openmp(modData, modBvals, modBvecs, eddy_openmp_params):
             
@@ -457,3 +463,4 @@ class TopupEddyEpi(cli.Application):
 
 if __name__== '__main__':
     TopupEddyEpi.run()
+
