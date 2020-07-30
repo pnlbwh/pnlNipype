@@ -490,6 +490,8 @@ to learn more about Eddy correction.
                                          copy this file to your directory, edit relevant sections, 
                                          and provide as --config /path/to/my/eddy_config.txt; required
         --dwi VALUE:ExistingFile         nifti DWI image); required
+        --eddy-cuda                      use eddy_cuda instead of eddy_openmp, requires
+                                         fsl/bin/eddy_cuda and nvcc in PATH
         -f VALUE:str                     threshold for fsl bet mask; the default is 0.25
         --index VALUE:ExistingFile       mapping file (.txt) for each gradient --> acquisition
                                          parameters; required
@@ -530,7 +532,7 @@ by *without*.
 
 ![](./diff_repol.png)
 
-**NOTE** The script automatically decides whether to use `eddy_openmp` or `eddy_cuda`. If CUDA binary `nvcc` is present 
+**NOTE** You can tell the script to use `eddy_cuda` by using the flag `--eddy-cuda`. If CUDA binary `nvcc` is present 
 in the environment variable PATH, then `eddy_cuda` is used. By default `eddy_cuda` runs on GPU #0 by default. 
 In addition, you need to create a soft link `eddy_cuda` in `fsl/bin/` directory for 
 `eddy_cuda8.0` or `eddy_cuda9.1` depending on the version of CUDA you have. If you want to override the default 
@@ -619,6 +621,8 @@ Epi and Eddy distortions.
         --config VALUE:ExistingFile      config file for FSL eddy tools; see scripts/eddy_config.txt; 
                                          copy this file to your directory, edit relevant sections, 
                                          and provide as --config /path/to/my/eddy_config.txt; required
+        --eddy-cuda                      use eddy_cuda instead of eddy_openmp, requires
+                                         fsl/bin/eddy_cuda and nvcc in PATH 
         -f VALUE:str                     threshold for fsl bet mask; the default is 0.25
         --imain VALUE:str                --dwi primary4D,secondary4D/3D primary: one 4D volume input,
                                          should be PA; secondary: another 3D/4D volume input, should
