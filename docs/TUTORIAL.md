@@ -470,12 +470,14 @@ how each volume was acquired. The above information is provided through `--acqp`
 to learn more about Eddy correction.
 
 
+
 > fsl_eddy -h
 
-    Eddy correction using eddy_openmp command in fsl
+    
+    Eddy correction using eddy_openmp/cuda command in fsl
     For more info, see https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/eddy/UsersGuide
-    You can also view the help message:
-    eddy_openmp
+    You can also view the help message typing:
+    `eddy_openmp` or `eddy_cuda` 
     
     Usage:
         fsl_eddy [SWITCHES] 
@@ -488,6 +490,8 @@ to learn more about Eddy correction.
                                          copy this file to your directory, edit relevant sections, 
                                          and provide as --config /path/to/my/eddy_config.txt; required
         --dwi VALUE:ExistingFile         nifti DWI image); required
+        --eddy-cuda                      use eddy_cuda instead of eddy_openmp, requires
+                                         fsl/bin/eddy_cuda and nvcc in PATH
         -f VALUE:str                     threshold for fsl bet mask; the default is 0.25
         --index VALUE:ExistingFile       mapping file (.txt) for each gradient --> acquisition
                                          parameters; required
@@ -520,6 +524,31 @@ Then, you can run *fsl_eddy* as follows:
 
 **NOTE** Any additional arguments to *eddy_openmp*, *topup*, and *applytopup* can be provided by a copy of `scripts/eddy_config.txt` 
 file.
+
+
+**NOTE** We observed that `--repol` flag for outlier replacement does not work well for lower b-value shells. If this flag 
+is provided, we run eddy_openmp/cuda twice-- *with* and *without* `--repol` and then replace *with* b-value<=500 shells 
+by *without*.
+
+![](./diff_repol.png)
+
+**NOTE** You can tell the script to use `eddy_cuda` by using the flag `--eddy-cuda`. If CUDA binary `nvcc` is present 
+in the environment variable PATH, then `eddy_cuda` is used. By default `eddy_cuda` runs on GPU #0 by default. 
+In addition, you need to create a soft link `eddy_cuda` in `fsl/bin/` directory for 
+`eddy_cuda8.0` or `eddy_cuda9.1` depending on the version of CUDA you have. If you want to override the default 
+GPU device, use `export CUDA_VISIBLE_DEVICES=1` or whatever. However, do not get confused by the console message:
+
+
+    ...................Allocated GPU # 0...................
+    Loading prediction maker
+    Evaluating prediction maker model
+    Checking for outliers
+    Calculating parameter updates
+
+
+
+It will always show `GPU # 0`, but `nvidia-smi` command will show the actual GPU being used.
+
 
 
 
@@ -568,13 +597,13 @@ Epi and Eddy distortions.
 
 > fsl_topup_epi_eddy -h
 
-    Epi and eddy correction using topup and eddy_openmp commands in fsl
+    Epi and eddy correction using topup and eddy_openmp/cuda commands in fsl
     For more info, see:
         https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/eddy/UsersGuide
         https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/topup/TopupUsersGuide
     You can also view the help message:
-        eddy_openmp
-        topup
+        `eddy_openmp` or `eddy_cuda`
+        `topup`
     
     Usage:
         fsl_topup_epi_eddy [SWITCHES] 
@@ -592,6 +621,8 @@ Epi and Eddy distortions.
         --config VALUE:ExistingFile      config file for FSL eddy tools; see scripts/eddy_config.txt; 
                                          copy this file to your directory, edit relevant sections, 
                                          and provide as --config /path/to/my/eddy_config.txt; required
+        --eddy-cuda                      use eddy_cuda instead of eddy_openmp, requires
+                                         fsl/bin/eddy_cuda and nvcc in PATH 
         -f VALUE:str                     threshold for fsl bet mask; the default is 0.25
         --imain VALUE:str                --dwi primary4D,secondary4D/3D primary: one 4D volume input,
                                          should be PA; secondary: another 3D/4D volume input, should
@@ -602,7 +633,7 @@ Epi and Eddy distortions.
                                          True
         --out VALUE:NonexistentPath      output directory; required
         --whichVol VALUE:str             which volume(s) to correct through eddy: 1(only primary4D) or
-                                         1,2(primary4D+secondary4D/3D); the default is True
+                                         1,2(primary4D+secondary4D/3D); the default is 1
 
 
 
