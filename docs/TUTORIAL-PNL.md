@@ -72,7 +72,7 @@ If you haven't worked with Linux before, it's important to know that spacing, ca
 
 If you have questions at any point, ask an RA! They will be more than happy to help you out and might teach you a neat trick/shortcut along the way.
 
-In order to practice each step in the pipeline, we will use a sample case located in `/rfanfs/pnl-zorro/Tutorial/Case01183_NiPype/raw`
+In order to practice each step in the pipeline, we will use a sample case located in `/rfanfs/pnl-zorro/Tutorial/sourcedata/`
 
 ## Copying the Sample Case to Your Home Directory
 
@@ -208,7 +208,7 @@ Next enter:
 nifti_align --axisAlign --center -i rawdata/sub-sample/ses-1/anat/sub-sample_ses-1_T2w.nii.gz -o derivatives/sub-sample/ses-1/anat/sub-sample_ses-1_desc-Xc_T2w
 ```
 
-The files `sub-sample_ses-1_desc-Xc_T1w.nii.gz` and `sub-sample_ses-1_desc-Xc_T1w.nii.gz` will now be in `derivatives/sub-sample/ses-1/anat/`, and will be axis aligned and centered.
+The files `sub-sample_ses-1_desc-Xc_T1w.nii.gz` and `sub-sample_ses-1_desc-Xc_T2w.nii.gz` will now be in `derivatives/sub-sample/ses-1/anat/`, and will be axis aligned and centered.
 
 Right now you are only practicing on a single case, but often you will want to axis align and center many cases at once.  You can save a lot of time by using a `for` loop in the shell, so when you eventually find yourself in this situation, ask someone to show you how these work.
 Example for loop:
@@ -223,17 +223,17 @@ done
 
 After you axis align and center the structural images, you need to check the quality of the images themselves (visual), and the parameters used to acquire the images (parameter). Quality checking every image is crucial to ensure that we are only analyzing good data. Parameters are checked from the image header in the terminal, and the images themselves are checked in **fsleyes**.
 
-* **Note:** Whether or not each case passes or fails QC should be recorded in an Excel spread sheet on **LabArchives**.
+* **Note:** Whether or not each case passes or fails QC should be recorded in an Excel spread sheet on **LabArchives** or on **Dropbox**.
 
 When checking the image parameters, it is helpful to know what the header should be (ask your PI). We are looking for consistency in the headers between all cases. 
 
 In order to check the image header, use `fslhd`. For your case, enter:
 ```
-fslhd sample-T1-xc.nii.gz
+fslhd sub-sample_ses-1_desc-Xc_T1w.nii.gz
 ```
 After you have finished checking the T1, you must also check the T2.  For this example, you can enter:
 ```
-fslhd sample-T2-xc.nii.gz
+fslhd sub-sample_ses-1_desc-Xc_T2w.nii.gz
 ```
 
 There are several fields that you will need to check in the image header. Bear in mind that, unless otherwise specified, the value for each field listed is the value that you should see in this example, but it may vary depending on your project. 
@@ -258,12 +258,12 @@ The ampersand (&) allows you to open fsleyes in a separate window, so that you c
 
 Note that it may take a while for fsleyes to load.
 
-* To open your sample file go to **File** > **Add from file**. Make sure that `/rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining/strct` is listed on the top and then select `sample-T1-xc.nii.gz`.
+* To open your sample file go to **File** > **Add from file**. Make sure that `/rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining/derivatives/sub-samples/ses-1/anat` is listed on the top and then select `sub-sample_ses-1_desc-Xc_T1w.nii.gz`.
 
 
 * You will want to examine your images for various potential artifacts and issues, e.g. **motion artifacts**, **ringing**, **ghosting of the skull or eyeballs**, **cut-offs and other artifacts**. If you see any of these problems in the scan, note it in your QC spreadsheet. Be sure to also check with your PI about what qualifies as a failed scan for your dataset.
 
-* Be sure to QC both your T1 and your T2 images (`sample-T2-xc.nii.gz`)
+* Be sure to QC both your T1 and your T2 images.
 
 ![](../Misc/motion_vs_normal.png)
 
@@ -287,14 +287,14 @@ The next step in the pipeline involves making a "mask" for your structural data 
 
 You will create brain masks for your data by using a training data set consisting of previously created and edited masks. We typically use T2 images (if you have acquired these) to make masks for both T2 and T1 images. There is a default training set that we use, however depending on your dataset you may need to create your own training data (e.g., if you are imaging children)
 
-First, make sure you are in the `strct` directory in your `PipelineTraining` directory, then enter:
+First, make sure you are in your `PipelineTraining` directory, then enter:
 ```
-nifti_atlas -t sample-T2-xc.nii.gz -o sample-T2 -n 8 --train t2
+nifti_atlas -t derivatives/sub-sample/ses-1/anat/sub-sample_ses-1_desc-Xc_T2w.nii.gz -o derivatives/sub-sample/ses-1/anat/sub-sample_ses-1_desc-Xc_T2w -n 8 --train t2
 ```
 This command will generate a mask for your T2 image, however it takes several hours to finish running.
 
-* Because `nifti_atlas` takes so long to run, we have saved you the trouble of having to wait for the script to finish on your data. Instead, you can find an already generated sample T2 mask for your data in the `Other` directory in `PipelineTraining`. The file is called `sample-T2-mask.nii.gz`.
-* Now you can enter control+c into the terminal to stop the `nifti_atlas` script, and you can copy the mask file into your `strct` directory for use in further processing. Follow the same template as you did when you copied the sample files at the beginning of this tutorial, though you will not need the `-r` this time, since it is just one file.
+* Because `nifti_atlas` takes so long to run, we have saved you the trouble of having to wait for the script to finish on your data. Instead, you can find an already generated sample T2 mask for your data in the `Other` directory in `PipelineTraining/sourcedata/sub-sample/ses-1`. The file is called `sub-sample_ses-1_desc-T2wXcMabs_mask.nii.gz`. (Note how **Mabs** was added to the `desc` signifier - this tells whoever is using this data after you that a Mabs script was used to generate this mask file. This is an example of how BIDS can be a convenient and descriptive convention for data sharing.)
+* Now you can enter control+c into the terminal to stop the `nifti_atlas` script, and you can copy the mask file into your `derivatives/sub-sample/ses-1/anat` directory for use in further processing. Follow the same template as you did when you copied the sample files at the beginning of this tutorial, though you will not need the `-r` this time, since it is just one file.
 
 * In addition to the brief overview of masking laid out below, there is also a manual dedicated just to masking that you can take a look at. It is a little outdated because it uses an older version of 3D Slicer, but the main part about how to edit structural masks effectively continues to be relevant. You should pay particular attention to the section "Initial Editing" through "Reviewing the Mask". You don't have to do it how the maker of the manual does it exactly, but she offers many helpful pieces of advice:
 
@@ -302,11 +302,11 @@ This command will generate a mask for your T2 image, however it takes several ho
 
 After you run `nifti_atlas`, you need to check the quality of your mask. Open **Slicer** by entering `/rfanfs/pnl-zorro/software/Slicer-4.8.1-linux-amd64/Slicer`.
 
-Open `sample-T2-mask.nii.gz` in **Slicer**, which should be in your `strct` directory.  Make sure that you select **Show Options** in the upper right corner and then scroll over and select the **Label Map** option. You will also need to open `sample-T2-xc.nii.gz`.
+Open `sub-sample_ses-1_desc-T2wXcMabs_mask.nii.gz` in **Slicer**, which should be in your derived `anat` directory.  Make sure that you select **Show Options** in the upper right corner and then scroll over and select the **Label Map** option. You will also need to open `sub-sample_ses-1_desc-Xc_T2w.nii.gz` (no need to select **Label Map** for this one).
 
-you'll need to convert the mask to a segmentation. Go to the "Segmentations" module, and go to "Export/import models and labelmaps". Make sure "Import" and "Labelmap" are highlighted, and that your mask is the "Input node". Click **Import**.
+you'll need to convert the mask to a segmentation. Go to the "Segmentations" module, and go to "Export/import models and labelmaps". Make sure "Import" and "Labelmap" are selected, and that your mask is the "Input node". Click **Import**.
 
-Switch to the **"Segment Editor"** module. Click on the "sample-t2-mask", and make sure the segmentation is "mask" and the master volume is "sample-T2-xc". 
+Switch to the **"Segment Editor"** module. Click on the "sub-sample_ses-1_desc-T2wXcMabs_mask", and make sure the segmentation is "mask" and the master volume is "sub-sample_ses-1_desc-Xc_T2w". 
 
 Because they use training data to make the masks, structural masks often do not need a lot or any editing. You should mainly edit large chunk of brain that are missing or large areas that are labeled that are not brain. Since it would be near impossible to be consistent, do not worry about editing single voxels around the edge of the brain. Sometimes this can be more harmful than beneficial, but on this example brain there are a few places that could use editing.
 
@@ -329,8 +329,9 @@ The tool that is mainly useful for editing the mask is the **Paint** tool, which
   * There are also a number of things that can be done using the keyboard, but in order for these to work you have to click on of the viewing windows after you've selected the paint tool. 
 
     * Pressing the `g` key will toggle whether or not the mask is shown
-    * Pressing the `3` key toggles whether you are applying or getting rid of mask.  Which setting you are on is shown on the left by the colored bar under **PaintEffect**
-    * Pressing Shift and scrolling with the mouse scroll wheel. will make the brush larger and smaller
+    * Pressing the `3` key toggles whether your Eraser is on or not.  Which setting you are on is shown on the left by the colored bar under **PaintEffect**
+    * Pressing the `1` key toggles whether you Paint Brush is on or not.
+    * Pressing Shift and scrolling with the mouse scroll wheel will make the brush larger and smaller
     * Pressing the `z` key will undo the last edit you made, and the `y` key will redo the last edit you made.
     * Pressing the `+` and `-` keys will make the brush larger and smaller
 
@@ -347,32 +348,34 @@ This will copy one of the T2 training masks and its corresponding raw file to yo
 
   * Scroll through the mask to get a sense of what is and isn't brain. It might take awhile to get comfortable, and that's okay! Remember, you can always ask questions and ask for help. These will always be in your PipelineTraining directory, so if you ever want to look back and refer to some sample masks while you're working on a project, feel free to do so.
 
-To turn the mask back into a labelmap, go back to the **Segmentations** module. Go back to "Export/import models and labelmaps". Make sure "Export" and "Labelmap" are highlighted, and that your mask is the "Output node" Click **Advanced** and select the reference volume (the image that you are masking). For this example, the file will be `sample-t2-xc`. Click **Export**. Make sure to save your mask with **Ctrl+s**, and make sure that you know the path of where you're saving it to.
+To turn the mask back into a labelmap, go back to the **Segmentations** module. Go back to "Export/import models and labelmaps". Make sure "Export" and "Labelmap" are selected, and that your mask is the "Output node" Click **Advanced** and select the reference volume (the image that you are masking). For this example, the file will be `sub-sample_ses-1_desc-Xc_T2w.nii.gz`. Click **Export**. Make sure to save your mask with **Ctrl+s**, and make sure that you know the path of where you're saving it to (this should be `derivatives/sub-sample/ses-1/anat`). You only have to save the mask, so you can de-select the other files that show up in the **Save** window in Slicer. 
 
 ## FreeSurfer Segmentation and QC
 
 Now that you have a good mask on your T2, you are going to apply that mask to your T1 image and generate an automated label map for white and gray matter parcellation. 
 
-You will now need to complete an additional step so that the T2 mask you just made is aligned in the same way that the T1 is because you are about to register the T2 mask onto the T1 image. When you are in your `strct` directory, enter:
+You will now need to complete an additional step so that the T2 mask you just made is aligned in the same way that the T1 is because you are about to register the T2 mask onto the T1 image. When you are in your derived `anat` directory, enter:
 ```
-nifti_makeRigidMask -l sample-T2-mask.nii.gz -i sample-T2-xc.nii.gz -t sample-T1-xc.nii.gz -o sample-T1-mask.nii.gz
+nifti_makeRigidMask -l sub-sample_ses-1_desc-T2wXcMabs_mask.nii.gz -i sub-sample_ses-1_desc-Xc_T2w.nii.gz -t sub-sample_ses-1_desc-Xc_T1w.nii.gz -o sub-sample_ses-1_desc-T2wXcMabsToT1wXc_mask.nii.gz
 ```
 
   * The `-l` flag is the labelmap that you're moving to another image.
   * The `-i` flag is the input T2 .nii.gz image
   * The `-t` flag is the target image for which you want the new mask.
   * The `-o` flag is the output mask that will be generated.
+  
+(Once again note the descriptive name of the T1 mask. Since this is registering a mask from a T2 onto the T1, the `desc` signifier reflects this)
 
 There are a lot of settings that FreeSurfer has available for you to adjust what you want to do, but often times in this lab we use a standard set of settings which have been automated in a script called `nifti_fs`. Enter:
 ```
-nifti_fs -i sample-T1-xc.nii.gz -m sample-T1-mask.nii.gz -o sample-freesurfer
+nifti_fs -i sub-sample_ses-1_desc-Xc_T1w.nii.gz -m sub-sample_ses-1_desc-T2wXcMabsToT1wXc_mask.nii.gz -o sample-freesurfer
 ```
 This process will take about 12 hours to run to completion for each case.
 
-  * `sample-freesurfer` can also be found in the `Other` directory as part of your `PipelineTraining` directory. Stop **FreeSurfer** from running by entering **Control+c** and you can copy this directory into strct. Just remember to use the `-r` option here since there are many directories and files within this
+  * `sample-freesurfer` can also be found in the `Other` directory as part of your `PipelineTraining/sourcedata` directory. Stop **FreeSurfer** from running by entering **Control+c** and you can copy this directory into your derived `anat`. Just remember to use the `-r` option here since there are many directories and files within this
 
 Once it has completed, you need to quality control your FreeSurfer labelmap. To start that you will need to start by opening it in Slicer. Enter:
-`/rfanfs/pnl-zorro/software/Slicer-4.8.1/Slicer`to open slicer and then open it going to **File** > **Add Data** > **Choose File** to Add then go to your `sample-freesurfer` directory in strct and then go into `mri` and open `wmparc.mgz`. Before selecting the final **OK** make sure you select **Show Options** and then select **LabelMap**. Also open `brain.mgz`, which can be found in the `sample-freesurfer/mri directory`.
+`/rfanfs/pnl-zorro/software/Slicer-4.8.1/Slicer`to open slicer and then open it going to **File** > **Add Data** > **Choose File** to Add then go to your `sample-freesurfer` directory in strct and then go into `mri` and open `wmparc.mgz`. Before selecting the final **OK** make sure you select **Show Options** and then select **LabelMap**. Also open `brain.mgz`, which can be found in the `sample-freesurfer/mri` directory.
 
 Now in order to actually see your label map transposed on the T1, you need to go to the **Modules** drop-down menu and select **Volumes**. First, make sure the Active Volume is `wmparc`. Then, under the **Volume Information** heading, make sure LabelMap is selected. Last, under the Display heading, for the **Lookup Table** dropdown box, go to **FreeSurfer** > **FreeSurferLabels**. You should end up with something that looks like this:
 
