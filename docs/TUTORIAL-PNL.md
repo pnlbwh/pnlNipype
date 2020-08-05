@@ -80,15 +80,18 @@ Before beginning this tutorial, you will need to copy the directory with the sam
 
 After logging into your account on a lab computer, go to the **Applications** drop-down menu > **System Tools** > **Terminal** to open the Linux terminal
  
-Before we begin, we'll need to make sure that your bashrc is sourced. Type: 
+Before we begin, we'll need to make sure that your bashrc is sourced. This sets up an environment that allows you to readily access the scripts we will be using in this tutorial. Type: 
  ```
  echo source /rfanfs/pnl-zorro/software/pnlpipe3/bashrc3 >> ~/.bashrc
  ```
- Then type:
+ Then open a new Terminal tab (Ctrl+Shift+T). If you're sourced properly, you should see `(pnlpipe3)` in front of your command prompt, as below :
  ```
- source ~/.bashrc
+ (pnlpipe3) [<yourusername>@pnl-t55-12 ~]$
  ```
- 
+ If you don't see this, just type: 
+ ``` 
+ source /rfanfs/pnl-zorro/software/pnlpipe3/bashrc3 
+ ```
   
 If you don't already have a directory in the lab's home directory you will need to make one. Enter:
 ```
@@ -108,12 +111,24 @@ mkdir PipelineTraining
 
 To copy the sample case into this PipelineTraining directory, enter:
 ```
-cp -r /rfanfs/pnl-zorro/Tutorial/Case01183_NiPype/raw/* /rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining
+cp -r /rfanfs/pnl-zorro/Tutorial/sourcedata /rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining
 ```
 
 This may take a while.
 
-In your `PipelineTraining` directory you should now find 3 files and 4 directories.  It is the 4 directories (Diffusion_b3000, T1, T2, and Other) that you care about, and you are now ready to begin the pipeline.
+**A few notes about naming. At the PNL, we use the BIDS naming convention. The basic principle of BIDS lies in holding all of the upstream name and processing information about a file within its name. BIDS also holds to a strict organization of directories, which you will see throughout this pipeline. This may seem confusing at first, but as you get to work with more data, you will become more comfortable with the format. 
+
+In your `PipelineTraining` directory you should now find the following directory structure (each indentation is another `cd`):
+```
+sourcedata/
+└── sub-sample/
+    └── ses-1/
+        ├── Diffusion_b3000/
+	├── Other/
+	├── T1/
+	├── T2/
+```    
+The `sourcedata` directory in BIDS format is where all the Dicoms (raw MRI files) are located. The sub-organization of `sourcedata` is examplary of a BIDS directory, most importantly the presence of the `sub-sample` and `ses-1` directories. In this case, we only have one session (i.e. one instance) of this data, so the session signifier may seem redundant, but it will come in handy for other datasets you may be working with. 
 
 In general, there are two types of neuroimaging data that you will be working with: **diffusion** imaging data and **structural** imaging data.  As you can see from the above figure, some steps of the pipeline are shared for both structural and diffusion data, and some are unique to one type of data. Furthermore, processing structural and diffusion data require different scripts and different use of the Slicer software. This tutorial will first go through structural data processing, and then diffusion data analysis.
 
@@ -122,35 +137,41 @@ In general, there are two types of neuroimaging data that you will be working wi
 
 ## Dicom to Nifti (.nii) Conversion
 
-Make a new directory in PipelineTraining for structural data processing by going back into `PipelineTraining` and typing:
+We convert structural images from their raw forms (i.e. Dicoms, Bruker) to .nii (i.e. Nifti) files, as these are most compatible with our processing pipeline. As you saw above, all of your Dicoms will remain in `sourcedata`. You will now need to make a new directory in PipelineTraining for all of your raw converted Nifti files.
+Do so by going into `PipelineTraining` and typing:
 ```
-mkdir strct
+mkdir rawdata
 ```
+Now, you will need to make a sub-directory for your sample case, the session number, and the structural (i.e. anatomical) files in `rawdata`: 
+```
+mkdir -p sub-sample/ses-1/anat
+```
+The `-p` stands for "parent", and it allows you to make a directory and its subdirectories at the same time. As you can see, this mimics the organization of the `sourcedata` directory. 
 
 Processing a structural image involves processing both T1 and T2 images, which are similar images of the brain, but with differing contrasts.  
-
-We convert structural images from their raw forms (i.e. Dicoms, Bruker) to .nii files, as these are most compatible with our processing pipeline. In order to convert structural dicoms to .nii file, use the command
+In order to convert structural dicoms to .nii file, use the command
 ```
 dcm2niix -b y -z y -f <file name> -o <output directory> <dicom directory>
 ```
 
 Make sure that you are in the `PipelineTraining` directory and then enter:
 ```
-dcm2niix -b y -z y -f sample-T1 -o strct/ T1/
+dcm2niix -b y -z y -f sub-sample_ses-1_T1w -o rawdata/sub-sample/ses-1/anat sourcedata/sub-sample/ses-1/T1/
 ```
 Once this is completed, enter:
 ```
-dcm2niix -b y -z y -f sample-T2 -o strct/ T2/
+dcm2niix -b y -z y -f sub-sample_ses-1_T2w -o rawdata/sub-sample/ses-1/anat sourcedata/sub-sample/ses-1/T2/
 ```
-The files `sample-T1.nii.gz` and `sample-T2.nii.gz` should now be in your `strct` directory, which you can see if you enter `ls` while in that directory (`cd strct`)
+The files `sub-sample_ses-1_T1w.nii.gz` and `sub-sample_ses-1_T2w.nii.gz` should now be in your `rawdata/sub-sample/ses-1/anat` directory, which you can see if you enter `ls` while in that directory (`cd rawdata/sub-sample/ses-1/anat`)
 
- * **Note:** `dcm2niix` can also be used to convert to `nrrd` files.
 
-  * If you want to convert to a `nrrd` (specifically, an `.nhdr` and a `.raw.gz` file), use the `-e` flag. For example, `dcm2niix -b y -z y -e y -f sample-T1 -o strct/ T1/`.
-
-Now we want to clean up a bit. You can go up from your current directory with the following command:
+Now we want to clean up a bit. You can go one directory up from current directory with the following command:
 ```
 cd ..
+```
+Or go up multiple directories: 
+```
+cd ../../../..
 ```
 Then type the following command:
 ```
@@ -159,32 +180,35 @@ pwd
 This command, which stands for "print working directory," will show you your current path. In our case, it should end with `PipelineTraining`. You may want to do this frequently to keep track of where you are and therefore where your commands are running.
 
 In order to save space on the system, the best practice is to zip the DICOM directory after you have converted it. To do this enter:
-`tar -cf <DICOM directory.tar>  <DICOM directory>`. If you ever want to use the files again you can simply unzip the files by entering `tar -xvf <.tar file>`.
+`tar -czvf <DICOM directory.tar.gz>  <DICOM directory>`. If you ever want to use the files again you can simply unzip the files by entering `tar -xzvf <.tar file>`.
 
 In our case, the command will be as follows:
 ```
-tar -cf T1.tar T1
+tar -czvf sourcedata/T1.tar.gz sourcedata/sub-sample/ses-1/T1
 ```
 
 ## Axis Aligning and Centering
 
 The next step in the pipeline centers the images and aligns them on the x-y-z axis, in order to standardize the position and orientation of each image in space.
 
-`cd` to the directory with your structural `.nii` files (`strct`). You will need the `cd ..` command to get there.
+In BIDS convention, all files that are at all modified from the raw image (in this case, what we created in `rawdata` above) have to reside in a separate directory called `derivatives`. You can make that directory and the necessary subdirectories by typing:
+``` 
+mkdir -p derivatives/sub-sample/ses-1/anat
+```
 
 The command for axis aligning images is `nifti_align --axisAlign --center -i <input file> -o <output file>`
 
-For your images, enter:
+Make sure you're in `PipelineTraining`. For your images, enter:
 ```
-nifti_align --axisAlign --center -i sample-T1.nii.gz -o sample-T1-xc
+nifti_align --axisAlign --center -i rawdata/sub-sample/ses-1/anat/sub-sample_ses-1_T1w.nii.gz -o derivatives/sub-sample/ses-1/anat/sub-sample_ses-1_desc-Xc_T1w
 ```
 
 Next enter:
 ```
- nifti_align --axisAlign --center -i sample-T2.nii.gz -o sample-T2-xc
+nifti_align --axisAlign --center -i rawdata/sub-sample/ses-1/anat/sub-sample_ses-1_T2w.nii.gz -o derivatives/sub-sample/ses-1/anat/sub-sample_ses-1_desc-Xc_T2w
 ```
 
-The files `sample-T1-xc.nii.gz` and `sample-T2-xc.nii.gz` will now be in that directory as well, and will be axis aligned and centered.
+The files `sub-sample_ses-1_desc-Xc_T1w.nii.gz` and `sub-sample_ses-1_desc-Xc_T1w.nii.gz` will now be in `derivatives/sub-sample/ses-1/anat/`, and will be axis aligned and centered.
 
 Right now you are only practicing on a single case, but often you will want to axis align and center many cases at once.  You can save a lot of time by using a `for` loop in the shell, so when you eventually find yourself in this situation, ask someone to show you how these work.
 Example for loop:
