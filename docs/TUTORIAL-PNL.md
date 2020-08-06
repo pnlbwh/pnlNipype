@@ -185,6 +185,7 @@ In order to save space on the system, the best practice is to zip the DICOM dire
 In our case, the command will be as follows:
 ```
 tar -czvf sourcedata/T1.tar.gz sourcedata/sub-sample/ses-1/T1
+tar -czvf sourcedata/T2.tar.gz sourcedata/sub-sample/ses-1/T2
 ```
 
 ## Axis Aligning and Centering
@@ -366,7 +367,7 @@ nifti_makeRigidMask -l sub-sample_ses-1_desc-T2wXcMabs_mask.nii.gz -i sub-sample
   
 (Once again note the descriptive name of the T1 mask. Since this is registering a mask from a T2 onto the T1, the `desc` signifier reflects this)
 
-There are a lot of settings that FreeSurfer has available for you to adjust what you want to do, but often times in this lab we use a standard set of settings which have been automated in a script called `nifti_fs`. Enter:
+There are a lot of settings that FreeSurfer has available for you to adjust what you want to do, but often times in this lab we use a standard set of settings which have been automated in a script called `nifti_fs`. While still in your derived `anat` directory, enter:
 ```
 nifti_fs -i sub-sample_ses-1_desc-Xc_T1w.nii.gz -m sub-sample_ses-1_desc-T2wXcMabsToT1wXc_mask.nii.gz -o sample-freesurfer
 ```
@@ -404,29 +405,46 @@ Some useful information can be gained just from looking at the FreeSurfer output
 
 ## Dicom to Nifti File Conversion
 
+We once again have to convert the raw Dicoms to a Nifti image, this time for the diffusion files. Because we will now be working with diffusion MRI data instead of structural MRI data, we need to make a separate directory in `rawdata` for the resulting images. 
+
 In your `PipelineTraining` directory, enter:
 ```
-dcm2niix -b y -z y -f sample-dwi -o ./Diffusion_b3000 ./Diffusion_b3000
+mkdir rawdata/sub-sample/ses-1/dwi
+```
+To convert the Dicoms, enter:
+```
+dcm2niix -b y -z y -f sub-sample_ses-1_dwi -o rawdata/sub-sample/ses-1/dwi sourcedata/sub-sample/ses-1/Diffusion_b3000
 ```
 
-After a bit of a wait and some output messages printed on your screen,  and you should now have a file called `sample-dwi.nii.gz` in your `Diffusion_b3000` directory (along with `sample-dwi.bval`, `sample-dwi.bvec`, and `sample-dwi.json`), which you can see by entering `ls`.
+After a bit of a wait and some output messages printed on your screen,  and you should now have a file called `sub-sample_ses-1_dwi.nii.gz` in your raw `dwi` directory (along with `sub-sample_ses-1_dwi.bval`, `sub-sample_ses-1_dwi.bvec`, and `sub-sample_ses-1_dwi.json`), which you can see by entering `ls`.
 
-A `.bval` file is a text file where the B-value for every gradient is listed in order separated by a space. A `.bvec` file is a text file with the x,y,z vectors of each gradient listed in order separated by a space between directions and a return between gradients. This is information you can get from the file's header, which you can learn more about below in the **Quality Control (Parameter, Visual, and Auto)** section. 
+A `.bval` file is a text file where the B-value for every gradient is listed in order separated by a space. A `.bvec` file is a text file with the x,y,z vectors of each gradient listed in order separated by a space between directions and a return between gradients. This is additional information that supplements your `.nii.gz` diffusion file, so make sure to keep all three files together. 
 
 ## Axis Aligning and Centering
 
-To make it so that you don't have to write the whole file path for everything, make sure you are in the directory with your `.nii.gz` file, which should be `Diffusion_b3000`
+Now that we're moving on to making derived files, we have to make a `dwi` directory in `derivatives`, which is where all the outputs will be saved from here forward. 
 
-Similarly to how you axis-aligned and centered your structural images, we'll do the same for our diffusion images. Type:
+Type:
 ```
-nifti_align --axisAlign --center -i sample-dwi.nii.gz --bvals sample-dwi.bval --bvecs sample-dwi.bvec -o sample-dwi-xc 
+mkdir derivatives/sub-sample/ses-1/dwi
 ```
 
-Like with the structural portion, you are now done with the versions of the image prior to the axis aligned and centered one so to save space it would now be best to clean these old files. Once you've checked  that sample-dwi-xc.nii.gz has been outputted with `ls`, use the `rm` command to remove the old, non-xced `sample-dwi.nii.gz`.
+Similarly to how you axis-aligned and centered your structural images, we'll do the same for our diffusion images. Make sure you're in your `PipelineTraining` directory and type:
+```
+nifti_align --axisAlign --center -i rawdata/sub-sample/ses-1/dwi/sub-sample_ses-1_dwi.nii.gz --bvals rawdata/sub-sample/ses-1/dwi/sub-sample_ses-1_dwi.bval --bvecs rawdata/sub-sample/ses-1/dwi/sub-sample_ses-1_dwi.bvec -o derivatives/sub-sample/ses-1/dwi/sub-sample_ses-1_desc-Xc_dwi 
+```
+To check that the command worked properly, you can `ls` in your derived `dwi` directory where you should see `sub-sample_ses-1_desc-Xc_dwi.nii.gz` as well as `sub-sample_ses-1_desc-Xc_dwi.bval` and `sub-sample_ses-1_desc-Xc_dwi.bvec`.
+As with the structural data, we can now compress the Dicom directory for the diffusion files to conserve space. In `PipelineTraining` enter:
+```
+tar -czvf sourcedata/Diffusion_b3000.tar.gz sourcedata/sub-sample/ses-1/Diffusion_b3000
+```
+Because taring as above creates a compressed file, but doesn't remove the source data, you're not actually saving space until you've removed the data you've just compressed. Once you're certain that the `.tar.gz` was properly created, you can type the following in order to remove the raw data:
+```
+rm -r sourcedata/sub-sample/ses-1/Diffusion_b3000
+```
 
-* **Note:** REMOVING FILES USING RM IS A PERMANENT ACTION AND IF YOU REMOVE FILES THAT YOU NEED, THEY ARE **GONE**. Because of this be very careful when you remove files and only remove and only remove files that you are 100% sure you and nobody else will ever need again. If you don't know what it is, do not remove it. Also, as a good rule of thumb it is best to never remove files that you did not make because you never know what they could be being used for. Basically, the only files we ever remove are ones that are redundant, such as in the example above.
+**Note:** REMOVING FILES USING RM IS A PERMANENT ACTION AND IF YOU REMOVE FILES THAT YOU NEED, THEY ARE **GONE**. Because of this be very careful when you remove files and only remove files that you are 100% sure you and nobody else will ever need again. If you don't know what it is, do not remove it. Also, as a good rule of thumb it is best to never remove files that you did not make because you never know what they could be being used for. Basically, the only files we ever remove are ones that are redundant, such as in the example above.
 
-Right now you are only doing a single case, but often you will want to do this for many cases.  You can save a lot of time by using a `for`  loop in the shell, so when you eventually find yourself in this situation, ask someone to show you how these work.
 
 ## Quality Control (Parameter, Visual, and Auto)
 
