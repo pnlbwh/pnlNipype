@@ -72,7 +72,7 @@ If you haven't worked with Linux before, it's important to know that spacing, ca
 
 If you have questions at any point, ask an RA! They will be more than happy to help you out and might teach you a neat trick/shortcut along the way.
 
-In order to practice each step in the pipeline, we will use a sample case located in `/rfanfs/pnl-zorro/Tutorial/Case01183_NiPype/raw`
+In order to practice each step in the pipeline, we will use a sample case located in `/rfanfs/pnl-zorro/Tutorial/sourcedata/`
 
 ## Copying the Sample Case to Your Home Directory
 
@@ -80,15 +80,18 @@ Before beginning this tutorial, you will need to copy the directory with the sam
 
 After logging into your account on a lab computer, go to the **Applications** drop-down menu > **System Tools** > **Terminal** to open the Linux terminal
  
-Before we begin, we'll need to make sure that your bashrc is sourced. Type: 
+Before we begin, we'll need to make sure that your bashrc is sourced. This sets up an environment that allows you to readily access the scripts we will be using in this tutorial. Type: 
  ```
  echo source /rfanfs/pnl-zorro/software/pnlpipe3/bashrc3 >> ~/.bashrc
  ```
- Then type:
+ Then open a new Terminal tab (Ctrl+Shift+T). If you're sourced properly, you should see `(pnlpipe3)` in front of your command prompt, as below :
  ```
- source ~/.bashrc
+ (pnlpipe3) [<yourusername>@pnl-t55-12 ~]$
  ```
- 
+ If you don't see this, just type: 
+ ``` 
+ source /rfanfs/pnl-zorro/software/pnlpipe3/bashrc3 
+ ```
   
 If you don't already have a directory in the lab's home directory you will need to make one. Enter:
 ```
@@ -108,12 +111,24 @@ mkdir PipelineTraining
 
 To copy the sample case into this PipelineTraining directory, enter:
 ```
-cp -r /rfanfs/pnl-zorro/Tutorial/Case01183_NiPype/raw/* /rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining
+cp -r /rfanfs/pnl-zorro/Tutorial/sourcedata /rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining
 ```
 
 This may take a while.
 
-In your `PipelineTraining` directory you should now find 3 files and 4 directories.  It is the 4 directories (Diffusion_b3000, T1, T2, and Other) that you care about, and you are now ready to begin the pipeline.
+**A few notes about naming. At the PNL, we use the BIDS naming convention. The basic principle of BIDS lies in holding all of the upstream name and processing information about a file within its name. BIDS also holds to a strict organization of directories, which you will see throughout this pipeline. This may seem confusing at first, but as you get to work with more data, you will become more comfortable with the format. 
+
+In your `PipelineTraining` directory you should now find the following directory structure (each indentation is another `cd`):
+```
+sourcedata/
+└── sub-sample/
+    └── ses-1/
+        ├── Diffusion_b3000/
+	├── Other/
+	├── T1/
+	├── T2/
+```    
+The `sourcedata` directory in BIDS format is where all the Dicoms (raw MRI files) are located. The sub-organization of `sourcedata` is examplary of a BIDS directory, most importantly the presence of the `sub-sample` and `ses-1` directories. In this case, we only have one session (i.e. one instance) of this data, so the session signifier may seem redundant, but it will come in handy for other datasets you may be working with. 
 
 In general, there are two types of neuroimaging data that you will be working with: **diffusion** imaging data and **structural** imaging data.  As you can see from the above figure, some steps of the pipeline are shared for both structural and diffusion data, and some are unique to one type of data. Furthermore, processing structural and diffusion data require different scripts and different use of the Slicer software. This tutorial will first go through structural data processing, and then diffusion data analysis.
 
@@ -122,35 +137,41 @@ In general, there are two types of neuroimaging data that you will be working wi
 
 ## Dicom to Nifti (.nii) Conversion
 
-Make a new directory in PipelineTraining for structural data processing by going back into `PipelineTraining` and typing:
+We convert structural images from their raw forms (i.e. Dicoms, Bruker) to .nii (i.e. Nifti) files, as these are most compatible with our processing pipeline. As you saw above, all of your Dicoms will remain in `sourcedata`. You will now need to make a new directory in PipelineTraining for all of your raw converted Nifti files.
+Do so by going into `PipelineTraining` and typing:
 ```
-mkdir strct
+mkdir rawdata
 ```
+Now, you will need to make a sub-directory for your sample case, the session number, and the structural (i.e. anatomical) files in `rawdata`: 
+```
+mkdir -p sub-sample/ses-1/anat
+```
+The `-p` stands for "parent", and it allows you to make a directory and its subdirectories at the same time. As you can see, this mimics the organization of the `sourcedata` directory. 
 
 Processing a structural image involves processing both T1 and T2 images, which are similar images of the brain, but with differing contrasts.  
-
-We convert structural images from their raw forms (i.e. Dicoms, Bruker) to .nii files, as these are most compatible with our processing pipeline. In order to convert structural dicoms to .nii file, use the command
+In order to convert structural dicoms to .nii file, use the command
 ```
 dcm2niix -b y -z y -f <file name> -o <output directory> <dicom directory>
 ```
 
 Make sure that you are in the `PipelineTraining` directory and then enter:
 ```
-dcm2niix -b y -z y -f sample-T1 -o strct/ T1/
+dcm2niix -b y -z y -f sub-sample_ses-1_T1w -o rawdata/sub-sample/ses-1/anat sourcedata/sub-sample/ses-1/T1/
 ```
 Once this is completed, enter:
 ```
-dcm2niix -b y -z y -f sample-T2 -o strct/ T2/
+dcm2niix -b y -z y -f sub-sample_ses-1_T2w -o rawdata/sub-sample/ses-1/anat sourcedata/sub-sample/ses-1/T2/
 ```
-The files `sample-T1.nii.gz` and `sample-T2.nii.gz` should now be in your `strct` directory, which you can see if you enter `ls` while in that directory (`cd strct`)
+The files `sub-sample_ses-1_T1w.nii.gz` and `sub-sample_ses-1_T2w.nii.gz` should now be in your `rawdata/sub-sample/ses-1/anat` directory, which you can see if you enter `ls` while in that directory (`cd rawdata/sub-sample/ses-1/anat`)
 
- * **Note:** `dcm2niix` can also be used to convert to `nrrd` files.
 
-  * If you want to convert to a `nrrd` (specifically, an `.nhdr` and a `.raw.gz` file), use the `-e` flag. For example, `dcm2niix -b y -z y -e y -f sample-T1 -o strct/ T1/`.
-
-Now we want to clean up a bit. You can go up from your current directory with the following command:
+Now we want to clean up a bit. You can go one directory up from current directory with the following command:
 ```
 cd ..
+```
+Or go up multiple directories: 
+```
+cd ../../../..
 ```
 Then type the following command:
 ```
@@ -159,32 +180,36 @@ pwd
 This command, which stands for "print working directory," will show you your current path. In our case, it should end with `PipelineTraining`. You may want to do this frequently to keep track of where you are and therefore where your commands are running.
 
 In order to save space on the system, the best practice is to zip the DICOM directory after you have converted it. To do this enter:
-`tar -cf <DICOM directory.tar>  <DICOM directory>`. If you ever want to use the files again you can simply unzip the files by entering `tar -xvf <.tar file>`.
+`tar -czvf <DICOM directory.tar.gz>  <DICOM directory>`. If you ever want to use the files again you can simply unzip the files by entering `tar -xzvf <.tar file>`.
 
 In our case, the command will be as follows:
 ```
-tar -cf T1.tar T1
+tar -czvf sourcedata/T1.tar.gz sourcedata/sub-sample/ses-1/T1
+tar -czvf sourcedata/T2.tar.gz sourcedata/sub-sample/ses-1/T2
 ```
 
 ## Axis Aligning and Centering
 
 The next step in the pipeline centers the images and aligns them on the x-y-z axis, in order to standardize the position and orientation of each image in space.
 
-`cd` to the directory with your structural `.nii` files (`strct`). You will need the `cd ..` command to get there.
+In BIDS convention, all files that are at all modified from the raw image (in this case, what we created in `rawdata` above) have to reside in a separate directory called `derivatives`. You can make that directory and the necessary subdirectories by typing:
+``` 
+mkdir -p derivatives/sub-sample/ses-1/anat
+```
 
 The command for axis aligning images is `nifti_align --axisAlign --center -i <input file> -o <output file>`
 
-For your images, enter:
+Make sure you're in `PipelineTraining`. For your images, enter:
 ```
-nifti_align --axisAlign --center -i sample-T1.nii.gz -o sample-T1-xc
+nifti_align --axisAlign --center -i rawdata/sub-sample/ses-1/anat/sub-sample_ses-1_T1w.nii.gz -o derivatives/sub-sample/ses-1/anat/sub-sample_ses-1_desc-Xc_T1w
 ```
 
 Next enter:
 ```
- nifti_align --axisAlign --center -i sample-T2.nii.gz -o sample-T2-xc
+nifti_align --axisAlign --center -i rawdata/sub-sample/ses-1/anat/sub-sample_ses-1_T2w.nii.gz -o derivatives/sub-sample/ses-1/anat/sub-sample_ses-1_desc-Xc_T2w
 ```
 
-The files `sample-T1-xc.nii.gz` and `sample-T2-xc.nii.gz` will now be in that directory as well, and will be axis aligned and centered.
+The files `sub-sample_ses-1_desc-Xc_T1w.nii.gz` and `sub-sample_ses-1_desc-Xc_T2w.nii.gz` will now be in `derivatives/sub-sample/ses-1/anat/`, and will be axis aligned and centered.
 
 Right now you are only practicing on a single case, but often you will want to axis align and center many cases at once.  You can save a lot of time by using a `for` loop in the shell, so when you eventually find yourself in this situation, ask someone to show you how these work.
 Example for loop:
@@ -199,17 +224,17 @@ done
 
 After you axis align and center the structural images, you need to check the quality of the images themselves (visual), and the parameters used to acquire the images (parameter). Quality checking every image is crucial to ensure that we are only analyzing good data. Parameters are checked from the image header in the terminal, and the images themselves are checked in **fsleyes**.
 
-* **Note:** Whether or not each case passes or fails QC should be recorded in an Excel spread sheet on **LabArchives**.
+* **Note:** Whether or not each case passes or fails QC should be recorded in an Excel spread sheet on **LabArchives** or on **Dropbox**.
 
 When checking the image parameters, it is helpful to know what the header should be (ask your PI). We are looking for consistency in the headers between all cases. 
 
 In order to check the image header, use `fslhd`. For your case, enter:
 ```
-fslhd sample-T1-xc.nii.gz
+fslhd sub-sample_ses-1_desc-Xc_T1w.nii.gz
 ```
 After you have finished checking the T1, you must also check the T2.  For this example, you can enter:
 ```
-fslhd sample-T2-xc.nii.gz
+fslhd sub-sample_ses-1_desc-Xc_T2w.nii.gz
 ```
 
 There are several fields that you will need to check in the image header. Bear in mind that, unless otherwise specified, the value for each field listed is the value that you should see in this example, but it may vary depending on your project. 
@@ -234,12 +259,12 @@ The ampersand (&) allows you to open fsleyes in a separate window, so that you c
 
 Note that it may take a while for fsleyes to load.
 
-* To open your sample file go to **File** > **Add from file**. Make sure that `/rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining/strct` is listed on the top and then select `sample-T1-xc.nii.gz`.
+* To open your sample file go to **File** > **Add from file**. Make sure that `/rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining/derivatives/sub-samples/ses-1/anat` is listed on the top and then select `sub-sample_ses-1_desc-Xc_T1w.nii.gz`.
 
 
 * You will want to examine your images for various potential artifacts and issues, e.g. **motion artifacts**, **ringing**, **ghosting of the skull or eyeballs**, **cut-offs and other artifacts**. If you see any of these problems in the scan, note it in your QC spreadsheet. Be sure to also check with your PI about what qualifies as a failed scan for your dataset.
 
-* Be sure to QC both your T1 and your T2 images (`sample-T2-xc.nii.gz`)
+* Be sure to QC both your T1 and your T2 images.
 
 ![](../Misc/motion_vs_normal.png)
 
@@ -263,14 +288,14 @@ The next step in the pipeline involves making a "mask" for your structural data 
 
 You will create brain masks for your data by using a training data set consisting of previously created and edited masks. We typically use T2 images (if you have acquired these) to make masks for both T2 and T1 images. There is a default training set that we use, however depending on your dataset you may need to create your own training data (e.g., if you are imaging children)
 
-First, make sure you are in the `strct` directory in your `PipelineTraining` directory, then enter:
+First, make sure you are in your `PipelineTraining` directory, then enter:
 ```
-nifti_atlas -t sample-T2-xc.nii.gz -o sample-T2 -n 8 --train t2
+nifti_atlas -t derivatives/sub-sample/ses-1/anat/sub-sample_ses-1_desc-Xc_T2w.nii.gz -o derivatives/sub-sample/ses-1/anat/sub-sample_ses-1_desc-Xc_T2w -n 8 --train t2
 ```
 This command will generate a mask for your T2 image, however it takes several hours to finish running.
 
-* Because `nifti_atlas` takes so long to run, we have saved you the trouble of having to wait for the script to finish on your data. Instead, you can find an already generated sample T2 mask for your data in the `Other` directory in `PipelineTraining`. The file is called `sample-T2-mask.nii.gz`.
-* Now you can enter control+c into the terminal to stop the `nifti_atlas` script, and you can copy the mask file into your `strct` directory for use in further processing. Follow the same template as you did when you copied the sample files at the beginning of this tutorial, though you will not need the `-r` this time, since it is just one file.
+* Because `nifti_atlas` takes so long to run, we have saved you the trouble of having to wait for the script to finish on your data. Instead, you can find an already generated sample T2 mask for your data in the `Other` directory in `PipelineTraining/sourcedata/sub-sample/ses-1`. The file is called `sub-sample_ses-1_desc-T2wXcMabs_mask.nii.gz`. (Note how **Mabs** was added to the `desc` signifier - this tells whoever is using this data after you that a Mabs script was used to generate this mask file. This is an example of how BIDS can be a convenient and descriptive convention for data sharing.)
+* Now you can enter control+c into the terminal to stop the `nifti_atlas` script, and you can copy the mask file into your `derivatives/sub-sample/ses-1/anat` directory for use in further processing. Follow the same template as you did when you copied the sample files at the beginning of this tutorial, though you will not need the `-r` this time, since it is just one file.
 
 * In addition to the brief overview of masking laid out below, there is also a manual dedicated just to masking that you can take a look at. It is a little outdated because it uses an older version of 3D Slicer, but the main part about how to edit structural masks effectively continues to be relevant. You should pay particular attention to the section "Initial Editing" through "Reviewing the Mask". You don't have to do it how the maker of the manual does it exactly, but she offers many helpful pieces of advice:
 
@@ -278,11 +303,11 @@ This command will generate a mask for your T2 image, however it takes several ho
 
 After you run `nifti_atlas`, you need to check the quality of your mask. Open **Slicer** by entering `/rfanfs/pnl-zorro/software/Slicer-4.8.1-linux-amd64/Slicer`.
 
-Open `sample-T2-mask.nii.gz` in **Slicer**, which should be in your `strct` directory.  Make sure that you select **Show Options** in the upper right corner and then scroll over and select the **Label Map** option. You will also need to open `sample-T2-xc.nii.gz`.
+Open `sub-sample_ses-1_desc-T2wXcMabs_mask.nii.gz` in **Slicer**, which should be in your derived `anat` directory.  Make sure that you select **Show Options** in the upper right corner and then scroll over and select the **Label Map** option. You will also need to open `sub-sample_ses-1_desc-Xc_T2w.nii.gz` (no need to select **Label Map** for this one).
 
-you'll need to convert the mask to a segmentation. Go to the "Segmentations" module, and go to "Export/import models and labelmaps". Make sure "Import" and "Labelmap" are highlighted, and that your mask is the "Input node". Click **Import**.
+you'll need to convert the mask to a segmentation. Go to the "Segmentations" module, and go to "Export/import models and labelmaps". Make sure "Import" and "Labelmap" are selected, and that your mask is the "Input node". Click **Import**.
 
-Switch to the **"Segment Editor"** module. Click on the "sample-t2-mask", and make sure the segmentation is "mask" and the master volume is "sample-T2-xc". 
+Switch to the **"Segment Editor"** module. Click on the "sub-sample_ses-1_desc-T2wXcMabs_mask", and make sure the segmentation is "mask" and the master volume is "sub-sample_ses-1_desc-Xc_T2w". 
 
 Because they use training data to make the masks, structural masks often do not need a lot or any editing. You should mainly edit large chunk of brain that are missing or large areas that are labeled that are not brain. Since it would be near impossible to be consistent, do not worry about editing single voxels around the edge of the brain. Sometimes this can be more harmful than beneficial, but on this example brain there are a few places that could use editing.
 
@@ -305,8 +330,9 @@ The tool that is mainly useful for editing the mask is the **Paint** tool, which
   * There are also a number of things that can be done using the keyboard, but in order for these to work you have to click on of the viewing windows after you've selected the paint tool. 
 
     * Pressing the `g` key will toggle whether or not the mask is shown
-    * Pressing the `3` key toggles whether you are applying or getting rid of mask.  Which setting you are on is shown on the left by the colored bar under **PaintEffect**
-    * Pressing Shift and scrolling with the mouse scroll wheel. will make the brush larger and smaller
+    * Pressing the `3` key toggles whether your Eraser is on or not.  Which setting you are on is shown on the left by the colored bar under **PaintEffect**
+    * Pressing the `1` key toggles whether you Paint Brush is on or not.
+    * Pressing Shift and scrolling with the mouse scroll wheel will make the brush larger and smaller
     * Pressing the `z` key will undo the last edit you made, and the `y` key will redo the last edit you made.
     * Pressing the `+` and `-` keys will make the brush larger and smaller
 
@@ -323,32 +349,34 @@ This will copy one of the T2 training masks and its corresponding raw file to yo
 
   * Scroll through the mask to get a sense of what is and isn't brain. It might take awhile to get comfortable, and that's okay! Remember, you can always ask questions and ask for help. These will always be in your PipelineTraining directory, so if you ever want to look back and refer to some sample masks while you're working on a project, feel free to do so.
 
-To turn the mask back into a labelmap, go back to the **Segmentations** module. Go back to "Export/import models and labelmaps". Make sure "Export" and "Labelmap" are highlighted, and that your mask is the "Output node" Click **Advanced** and select the reference volume (the image that you are masking). For this example, the file will be `sample-t2-xc`. Click **Export**. Make sure to save your mask with **Ctrl+s**, and make sure that you know the path of where you're saving it to.
+To turn the mask back into a labelmap, go back to the **Segmentations** module. Go back to "Export/import models and labelmaps". Make sure "Export" and "Labelmap" are selected, and that your mask is the "Output node" Click **Advanced** and select the reference volume (the image that you are masking). For this example, the file will be `sub-sample_ses-1_desc-Xc_T2w.nii.gz`. Click **Export**. Make sure to save your mask with **Ctrl+s**, and make sure that you know the path of where you're saving it to (this should be `derivatives/sub-sample/ses-1/anat`). You only have to save the mask, so you can de-select the other files that show up in the **Save** window in Slicer. 
 
 ## FreeSurfer Segmentation and QC
 
 Now that you have a good mask on your T2, you are going to apply that mask to your T1 image and generate an automated label map for white and gray matter parcellation. 
 
-You will now need to complete an additional step so that the T2 mask you just made is aligned in the same way that the T1 is because you are about to register the T2 mask onto the T1 image. When you are in your `strct` directory, enter:
+You will now need to complete an additional step so that the T2 mask you just made is aligned in the same way that the T1 is because you are about to register the T2 mask onto the T1 image. When you are in your derived `anat` directory, enter:
 ```
-nifti_makeRigidMask -l sample-T2-mask.nii.gz -i sample-T2-xc.nii.gz -t sample-T1-xc.nii.gz -o sample-T1-mask.nii.gz
+nifti_makeRigidMask -l sub-sample_ses-1_desc-T2wXcMabs_mask.nii.gz -i sub-sample_ses-1_desc-Xc_T2w.nii.gz -t sub-sample_ses-1_desc-Xc_T1w.nii.gz -o sub-sample_ses-1_desc-T2wXcMabsToT1wXc_mask.nii.gz
 ```
 
   * The `-l` flag is the labelmap that you're moving to another image.
   * The `-i` flag is the input T2 .nii.gz image
   * The `-t` flag is the target image for which you want the new mask.
   * The `-o` flag is the output mask that will be generated.
+  
+(Once again note the descriptive name of the T1 mask. Since this is registering a mask from a T2 onto the T1, the `desc` signifier reflects this)
 
-There are a lot of settings that FreeSurfer has available for you to adjust what you want to do, but often times in this lab we use a standard set of settings which have been automated in a script called `nifti_fs`. Enter:
+There are a lot of settings that FreeSurfer has available for you to adjust what you want to do, but often times in this lab we use a standard set of settings which have been automated in a script called `nifti_fs`. While still in your derived `anat` directory, enter:
 ```
-nifti_fs -i sample-T1-xc.nii.gz -m sample-T1-mask.nii.gz -o sample-freesurfer
+nifti_fs -i sub-sample_ses-1_desc-Xc_T1w.nii.gz -m sub-sample_ses-1_desc-T2wXcMabsToT1wXc_mask.nii.gz -o sample-freesurfer
 ```
 This process will take about 12 hours to run to completion for each case.
 
-  * `sample-freesurfer` can also be found in the `Other` directory as part of your `PipelineTraining` directory. Stop **FreeSurfer** from running by entering **Control+c** and you can copy this directory into strct. Just remember to use the `-r` option here since there are many directories and files within this
+  * `sample-freesurfer` can also be found in the `Other` directory as part of your `PipelineTraining/sourcedata` directory. Stop **FreeSurfer** from running by entering **Control+c** and you can copy this directory into your derived `anat`. Just remember to use the `-r` option here since there are many directories and files within this
 
 Once it has completed, you need to quality control your FreeSurfer labelmap. To start that you will need to start by opening it in Slicer. Enter:
-`/rfanfs/pnl-zorro/software/Slicer-4.8.1/Slicer`to open slicer and then open it going to **File** > **Add Data** > **Choose File** to Add then go to your `sample-freesurfer` directory in strct and then go into `mri` and open `wmparc.mgz`. Before selecting the final **OK** make sure you select **Show Options** and then select **LabelMap**. Also open `brain.mgz`, which can be found in the `sample-freesurfer/mri directory`.
+`/rfanfs/pnl-zorro/software/Slicer-4.8.1/Slicer`to open slicer and then open it going to **File** > **Add Data** > **Choose File** to Add then go to your `sample-freesurfer` directory in strct and then go into `mri` and open `wmparc.mgz`. Before selecting the final **OK** make sure you select **Show Options** and then select **LabelMap**. Also open `brain.mgz`, which can be found in the `sample-freesurfer/mri` directory.
 
 Now in order to actually see your label map transposed on the T1, you need to go to the **Modules** drop-down menu and select **Volumes**. First, make sure the Active Volume is `wmparc`. Then, under the **Volume Information** heading, make sure LabelMap is selected. Last, under the Display heading, for the **Lookup Table** dropdown box, go to **FreeSurfer** > **FreeSurferLabels**. You should end up with something that looks like this:
 
@@ -377,29 +405,46 @@ Some useful information can be gained just from looking at the FreeSurfer output
 
 ## Dicom to Nifti File Conversion
 
+We once again have to convert the raw Dicoms to a Nifti image, this time for the diffusion files. Because we will now be working with diffusion MRI data instead of structural MRI data, we need to make a separate directory in `rawdata` for the resulting images. 
+
 In your `PipelineTraining` directory, enter:
 ```
-dcm2niix -b y -z y -f sample-dwi -o ./Diffusion_b3000 ./Diffusion_b3000
+mkdir rawdata/sub-sample/ses-1/dwi
+```
+To convert the Dicoms, enter:
+```
+dcm2niix -b y -z y -f sub-sample_ses-1_dwi -o rawdata/sub-sample/ses-1/dwi sourcedata/sub-sample/ses-1/Diffusion_b3000
 ```
 
-After a bit of a wait and some output messages printed on your screen,  and you should now have a file called `sample-dwi.nii.gz` in your `Diffusion_b3000` directory (along with `sample-dwi.bval`, `sample-dwi.bvec`, and `sample-dwi.json`), which you can see by entering `ls`.
+After a bit of a wait and some output messages printed on your screen,  and you should now have a file called `sub-sample_ses-1_dwi.nii.gz` in your raw `dwi` directory (along with `sub-sample_ses-1_dwi.bval`, `sub-sample_ses-1_dwi.bvec`, and `sub-sample_ses-1_dwi.json`), which you can see by entering `ls`.
 
-A `.bval` file is a text file where the B-value for every gradient is listed in order separated by a space. A `.bvec` file is a text file with the x,y,z vectors of each gradient listed in order separated by a space between directions and a return between gradients. This is information you can get from the file's header, which you can learn more about below in the **Quality Control (Parameter, Visual, and Auto)** section. 
+A `.bval` file is a text file where the B-value for every gradient is listed in order separated by a space. A `.bvec` file is a text file with the x,y,z vectors of each gradient listed in order separated by a space between directions and a return between gradients. This is additional information that supplements your `.nii.gz` diffusion file, so make sure to keep all three files together. 
 
 ## Axis Aligning and Centering
 
-To make it so that you don't have to write the whole file path for everything, make sure you are in the directory with your `.nii.gz` file, which should be `Diffusion_b3000`
+Now that we're moving on to making derived files, we have to make a `dwi` directory in `derivatives`, which is where all the outputs will be saved from here forward. 
 
-Similarly to how you axis-aligned and centered your structural images, we'll do the same for our diffusion images. Type:
+Type:
 ```
-nifti_align --axisAlign --center -i sample-dwi.nii.gz --bvals sample-dwi.bval --bvecs sample-dwi.bvec -o sample-dwi-xc 
+mkdir derivatives/sub-sample/ses-1/dwi
 ```
 
-Like with the structural portion, you are now done with the versions of the image prior to the axis aligned and centered one so to save space it would now be best to clean these old files. Once you've checked  that sample-dwi-xc.nii.gz has been outputted with `ls`, use the `rm` command to remove the old, non-xced `sample-dwi.nii.gz`.
+Similarly to how you axis-aligned and centered your structural images, we'll do the same for our diffusion images. Make sure you're in your `PipelineTraining` directory and type:
+```
+nifti_align --axisAlign --center -i rawdata/sub-sample/ses-1/dwi/sub-sample_ses-1_dwi.nii.gz --bvals rawdata/sub-sample/ses-1/dwi/sub-sample_ses-1_dwi.bval --bvecs rawdata/sub-sample/ses-1/dwi/sub-sample_ses-1_dwi.bvec -o derivatives/sub-sample/ses-1/dwi/sub-sample_ses-1_desc-Xc_dwi 
+```
+To check that the command worked properly, you can `ls` in your derived `dwi` directory where you should see `sub-sample_ses-1_desc-Xc_dwi.nii.gz` as well as `sub-sample_ses-1_desc-Xc_dwi.bval` and `sub-sample_ses-1_desc-Xc_dwi.bvec`.
+As with the structural data, we can now compress the Dicom directory for the diffusion files to conserve space. In `PipelineTraining` enter:
+```
+tar -czvf sourcedata/Diffusion_b3000.tar.gz sourcedata/sub-sample/ses-1/Diffusion_b3000
+```
+Because taring as above creates a compressed file, but doesn't remove the source data, you're not actually saving space until you've removed the data you've just compressed. Once you're certain that the `.tar.gz` was properly created, you can type the following in order to remove the raw data:
+```
+rm -r sourcedata/sub-sample/ses-1/Diffusion_b3000
+```
 
-* **Note:** REMOVING FILES USING RM IS A PERMANENT ACTION AND IF YOU REMOVE FILES THAT YOU NEED, THEY ARE **GONE**. Because of this be very careful when you remove files and only remove and only remove files that you are 100% sure you and nobody else will ever need again. If you don't know what it is, do not remove it. Also, as a good rule of thumb it is best to never remove files that you did not make because you never know what they could be being used for. Basically, the only files we ever remove are ones that are redundant, such as in the example above.
+**Note:** REMOVING FILES USING RM IS A PERMANENT ACTION AND IF YOU REMOVE FILES THAT YOU NEED, THEY ARE **GONE**. Because of this be very careful when you remove files and only remove files that you are 100% sure you and nobody else will ever need again. If you don't know what it is, do not remove it. Also, as a good rule of thumb it is best to never remove files that you did not make because you never know what they could be being used for. Basically, the only files we ever remove are ones that are redundant, such as in the example above.
 
-Right now you are only doing a single case, but often you will want to do this for many cases.  You can save a lot of time by using a `for`  loop in the shell, so when you eventually find yourself in this situation, ask someone to show you how these work.
 
 ## Quality Control (Parameter, Visual, and Auto)
 
