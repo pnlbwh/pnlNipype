@@ -448,9 +448,9 @@ rm -r sourcedata/sub-sample/ses-1/Diffusion_b3000
 
 ## Quality Control (Parameter, Visual, and Auto)
 
-You will first need to do a parameter check where you are essentially making sure all of the headers look like they should and that all the cases match each other. Whether or not each case passes the different QC checks should be recorded in an **Excel** spreadsheet on **LabArchives**. There are several fields you will need to look at but first to see the header, make sure you are still in the directory with your new `.nii.gz` files and enter:
+You will first need to do a parameter check where you are essentially making sure all of the headers look like they should and that all the cases match each other. Whether or not each case passes the different QC checks should be recorded in an **Excel** spreadsheet on **LabArchives** or on **Dropbox**. There are several fields you will need to look at but first to see the header, make sure you are still in the directory with your new `.nii.gz` files and enter:
 ```
-fslhd sample-dwi-xc.nii.gz
+fslhd sub-sample_ses-1_desc-Xc_dwi.nii.gz
 ```
 Bear in mind that, unless otherwise specified, the value for each field listed is the value that you should see in this example, but it may vary depending on your project.
 
@@ -460,9 +460,9 @@ Bear in mind that, unless otherwise specified, the value for each field listed i
 
 * `sto_xy{1,2,3,4}` (space directions and space origins) should be the same between cases. Small deviations in space directions between cases are okay (e.g. .98877350 instead of 1), but a large difference (e.g. 2 instead of 1) is a problem, as is a difference in sign (e.g. -1 instead of 1). Depending on the situation, the space directions of an image may be corrected via upsampling or downsampling the image. Talk to an RA or your PI about this possibility if you encounter it. In this example it should read (-2, 0, 0, 127.5) (0, 2, 0, -127.5) (0, 0, 2, -69) (0, 0, 0, 1). If a case has a different space origin, it may mean that this case was not axis aligned and centered.
 
-* If you type `cat sample-dwi-xc.bval`, you can see the b-values from all the gradients. The highest should be consistent across all cases, and should be a reasonable value (usually, these tend to be between 2000-3000).
+* If you type `cat sub-sample_ses-1_desc-Xc_dwi.bval`, you can see the b-values from all the gradients. The highest should be consistent across all cases, and should be a reasonable value (usually, these tend to be between 2000-3000).
 
-* If you type `cat sample-dwi-xc.bvec`, you can see the vectors from each gradient. There should be 73 lines and the three numbers (x,y,z vectors) for each gradient should roughly match between cases.  If either there are not all of the gradients or the numbers don't match in a case, the case is failed.
+* If you type `cat sub-sample_ses-1_desc-Xc_dwi.bvec`, you can see the vectors from each gradient. There should be 73 lines and the three numbers (x,y,z vectors) for each gradient should roughly match between cases.  If either there are not all of the gradients or the numbers don't match in a case, the case is failed.
 
 * Many of these fields can also be compared between all cases at once using a for loop.
 
@@ -470,7 +470,7 @@ The other half of the QC is the visual and automatic check where you look at the
 
 To open FSLEyes, type `fsleyes &`.
 
-To open your sample file go to **File** > **Add from File** > and then open `sample-dwi-xc.nii.gz` in the `/rfanfs/pnl-zorro/home/yourdirectory/PipelineTraining/Diffusion_b3000` directory.
+To open your sample file go to **File** > **Add from File** > and then open `sub-sample_ses-1_desc-Xc_dwi.nii.gz` in the `/rfanfs/pnl-zorro/home/yourdirectory/PipelineTraining/derivatives/sub-sample/ses-1/dwi` directory.
 
 You can scroll through each view by clicking and dragging in the window with the left mouse button. The sliders at the top next to brightness and contrast will allow you to adjust how the picture looks. To scroll through the gradient directions, there will be a box labeled **Volume** near the bottom of the screen. You can use your scroll wheel while hovering over this box, click on the up and down arrows, or type in a desired number to go through each gradient. You will probably have to adjust the brightness/contrast for some of these. Have an RA go through a QC tutorial with you to learn more about QCing diffusion scan.
 
@@ -494,61 +494,55 @@ Before turning now to an automated QC tool, check with your PI about how severe 
 
 ## Motion and Eddy Current Correction
 
-Now that you ideally have only the cases and gradients that are usable for further processing (which we'll say is all of them in this example), you can correct for motion and eddy currents. Make sure you are still in the `Diffusion_b3000 directory` and enter:
+Now that you ideally have only the cases and gradients that are usable for further processing (which we'll say is all of them in this example), you can correct for motion and eddy currents. Make sure you are still in your derived `dwi` directory and enter:
 ```
-pnl_eddy --bvals sample-dwi-xc.bval --bvecs sample-dwi-xc.bvec -i sample-dwi-xc.nii.gz -o sample-dwi-Ed
+pnl_eddy --bvals sub-sample_ses-1_desc-Xc_dwi.bval --bvecs sub-sample_ses-1_desc-Xc_dwi.bvec -i sub-sample_ses-1_desc-Xc_dwi.nii.gz -o sub-sample_ses-1_desc-XcEd_dwi
 ```
-Running this to completion could take some time (about 30 minutes) and you will see it progress through each gradient. After it is done you will have a file called `sample-dwi-Ed.nii.gz` in the directory as well.
+Running this to completion could take some time (about 30 minutes) and you will see it progress through each gradient. After it is done you will have a file called `sub-sample_ses-1_desc-XcEd_dwi.nii.gz` in the directory as well.
 
-Since this takes a long time, it is also available to be copied from the `Other` directory into your `Diffusion_b3000` directory. You will also need to copy `sample-dwi-Ed.bval` and `sample-dwi-Ed.bvec` along with `sample-dwi-Ed.nii.gz`.
+Since this takes a long time, it is also available to be copied from the `Other` directory in `sourcedata/sub-sample/ses-1/` into your derived `dwi` directory. You will also need to copy `sub-sample_ses-1_desc-XcEd_dwi.bval` and `sub-sample_ses-1_desc-XcEd_dwi.bvec` along with `sub-sample_ses-1_desc-XcEd_dwi.nii.gz`.
 
 ## Tensor Mask
 
-To mask a diffusion image, follow the instructions [here](https://confluence.partners.org/pages/viewpage.action?spaceKey=PNL&title=Segment+Editor+Diffusion+Masking) to mask `sample-dwi-Ed.nii.gz` (in the `Diffusion_b3000` directory). Be sure to save the output mask into your `Diffusion_b3000` directory as `sample-dwi-tensor-mask.nii.gz`.
+To mask a diffusion image, follow the instructions [here](https://confluence.partners.org/pages/viewpage.action?spaceKey=PNL&title=Segment+Editor+Diffusion+Masking) to mask `sub-sample_ses-1_desc-XcEd_dwi.nii.gz` (in the derived `dwi` directory). Be sure to save the output mask into your derived `dwi` directory as `sub-sample_ses-1_desc-dwiXc_mask.nii.gz`. **Note: The structural mask we copied over earlier had a more specific descriptor, specifying it as a mask that was created using Mabs. Since you created this mask manually, there would be no such signifier. 
 
 ## EPI Distortion Correction
 
 To further correct for distortions caused by magnet interactions and magnetic inhomogeneity (which leads to intensity loss and voxel shifts), you will now have to run an EPI correction. This is done by co-registering it with the T2 image, which means that you need to have T2 images for the case to do this step and also that you will need to have masked the T2 file (step 5 of the structural pipeline) so that you can use it for this. If T2 images were not taken for the particular case (they were for this example) then you will have to skip this step. 
 
-You first need to skull strip the T2 image using the mask for it and to do this you need to make sure you are in the `strct` directory and then enter:
-```
-fslmaths sample-T2-mask.nii.gz -mul sample-T2-xc.nii.gz sample-T2-masked.nii.gz
-```
-After this `sample-T2-masked.nii.gz` will now be in your `strct` directory as well.
+In order to run EPI correction, you will need to make sure that you have bval and bvec files whose names match your dwi file. In this case, the prefix will be `sub-sample_ses-1_desc-XcEd_dwi`. You should already have copied these when you copied your files after eddy correction.
 
-In order to run EPI correction, you will need to make sure that you have bval and bvec files whose names match your dwi file. In this case, the prefix will be `sample-dwi-Ed`. You should already have copied these when you copied your files after eddy correction.
-
-Now out in `PipelineTraining`, enter:
+Now you can be in `PipelineTraining/derivatives/sub-sample/ses-1`. Enter:
 ```
-pnl_epi --dwi Diffusion_b3000/sample-dwi-Ed.nii.gz --dwimask Diffusion_b3000/sample-dwi-tensor-mask.nii.gz --t2 strct/sample-T2-masked.nii.gz --t2mask strct/sample-T2-mask.nii.gz -o Diffusion_b3000/sample-dwi-epi
+pnl_epi --dwi dwi/sub-sample_ses-1_desc-XcEd_dwi.nii.gz --dwimask dwi/sub-sample_ses-1_desc-dwiXc_mask.nii.gz--t2 anat/sub-sample_ses-1_desc-Xc_T2w.nii.gz --t2mask anat/sub-sample_ses-1_desc-T2wXcMabs_mask.nii.gz -o dwi/sub-sample_ses-1_desc-XcEdEp_dwi
 ```
 
-* Since this takes a long time, `sample-dwi-epi.nii.gz` is also available to be copied from the `Other` directory into your `Diffusion_b3000` directory.
+* Since this takes a long time, `sub-sample_ses-1_desc-XcEdEp_dwi.nii.gz`, and corresponding `bvec` and `bval` files, is also available to be copied from the `Other` directory into your `Diffusion_b3000` directory.
 
 * If this is the first case that you are doing in a data set, and for this tutorial we can pretend that it is, you should check the glyphs of the case's DTI because sometimes they are incorrect, which will lead to the tractography being incorrect as well.
 
 * Even if you know little about how the glyphs should look there is an easy trick that is generally good enough when making this determination. This involves looking at the corpus callosum, which is the most major white matter bundle connecting the two hemispheres.
 
-* Since we will be using Slicer for this QC, we will need to convert our data to NHDR format. First, `cd` into `Diffusion_b3000`. Then enter the following to convert the epi-corrected image to NHDR format:
+* Since we will be using Slicer for this QC, we will need to convert our data to NHDR format. First, `cd` into your derived `dwi`. Then enter the following to convert the epi-corrected image to NHDR format:
 
 ```
-nhdr_write.py --nifti sample-dwi-epi.nii.gz --bval sample-dwi-Ed.bval --bvec sample-dwi-Ed.bvec --nhdr sample-dwi-epi.nhdr
+nhdr_write.py --nifti sub-sample_ses-1_desc-XcEdEp_dwi.nii.gz --bval sub-sample_ses-1_desc-XcEdEp_dwi.bval --bvec sub-sample_ses-1_desc-XcEdEp_dwi.bvec --nhdr sub-sample_ses-1_desc-XcEdEp_dwi.nhdr
 ```
 We will also need to convert the mask to NHDR format with the following:
 
 ```
-nhdr_write.py --nifti sample-dwi-tensor-mask.nii.gz --nhdr sample-dwi-tensor-mask.nhdr
+nhdr_write.py --nifti sub-sample_ses-1_desc-dwiXc_mask.nii.gz --nhdr sub-sample_ses-1_desc-dwiXc_mask.nhdr
 ```
 
 
-* Open Slicer using `/rfanfs/pnl-zorro/software/pnlpipe3/Slicer-4.10.2-linux-amd64/Slicer` and open `sample-dwi-epi.nhdr`. The first thing you need to do is generate a DTI (Diffusion Tensor Image). This will show the orientation of the fibers in each voxel using color coding (red is left to right, blue is up and down, and green is forward to backward). Under Modules, go to **Diffusion** > **Process** > **Diffusion Tensor Estimation**.
+* Open Slicer using `/rfanfs/pnl-zorro/software/pnlpipe3/Slicer-4.10.2-linux-amd64/Slicer` and open `sub-sample_ses-1_desc-XcEdEp_dwi.nhdr`. The first thing you need to do is generate a DTI (Diffusion Tensor Image). This will show the orientation of the fibers in each voxel using color coding (red is left to right, blue is up and down, and green is forward to backward). Under Modules, go to **Diffusion** > **Process** > **Diffusion Tensor Estimation**.
 
-  * For **Input DWI Volume**, select sample-dwi-epi.
-  * For **Output DTI Volume**, you can create a new volume as **sample-dti**.
-  * For **Output Baseline Volume** you can create a new volume as **baseline**.
+  * For **Input DWI Volume**, select **sub-sample_ses-1_desc-XcEdEp_dwi**.
+  * For **Output DTI Volume**, you can create a new volume as **sub-sample_ses-1_desc-XcEdEp_dti.nhdr**.
+  * For **Output Baseline Volume** you can create a new volume as **sub-sample_ses-1_desc-dwiXcEdEp_bse**.
   * Select **Apply**.
 
-* Going to the drop-down pin in the top left corner of a viewing window and the the double chevrons under that, you will have to change the bottom right box from the baseline to **sample-dti**. Select the rings next to the chevrons to do this for all views.  You will get an image that looks like this:
+* Going to the drop-down pin in the top left corner of a viewing window and the the double chevrons under that, you will have to change the bottom right box from the baseline to **sub-sample_ses-1_desc-XcEdEp_dti**. Select the rings next to the chevrons to do this for all views.  You will get an image that looks like this:
 
 ![](../Misc/dti.png)
 
@@ -557,7 +551,7 @@ nhdr_write.py --nifti sample-dwi-tensor-mask.nii.gz --nhdr sample-dwi-tensor-mas
 ![](../Misc/dti_corpus.png)
 
 
-* Then go to the **Volumes** module and make sure that the **Active Volume** is **sample-dti**.
+* Then go to the **Volumes** module and make sure that the **Active Volume** is **sub-sample_ses-1_desc-XcEdEp_dti**.
 
 * Scroll down on the sidebar to the **Glyphs on Slices Display** and choose **Green** for **Slice Visibility**. Then for **Glyph Type** choose **Lines** as this will allow Slicer to run faster.
 
@@ -578,7 +572,7 @@ nhdr_write.py --nifti sample-dwi-tensor-mask.nii.gz --nhdr sample-dwi-tensor-mas
 ![](../Misc/glyph_corpus_sagit.png)
 * This is how the corpus callosum should look in the sagittal view (yellow) if you are looking at around the middle slice. The glyphs should look like they are more or less arranged straight in and out parallel with your view:
 
-* They should all look correct in this sample case, but if it doesn't look correct, you can fix it by changing the header of the epi-corrected file. To do that, back in the terminal, enter `gedit sample-dwi-epi.nii.gz`. The header will come up in a text editor. You are interested in the **measurement frame**. The first thing you can try is changing any non-zero numbers in the first set of coordinates to negative. Then save and load the epi-corrected image in Slicer again and do the whole process over again.
+* They should all look correct in this sample case, but if it doesn't look correct, you can fix it by changing the header of the epi-corrected file. To do that, back in the terminal, enter `gedit sub-sample_ses-1_desc-XcEdEp_dwi.nii.gz`. The header will come up in a text editor. You are interested in the **measurement frame**. The first thing you can try is changing any non-zero numbers in the first set of coordinates to negative. Then save and load the epi-corrected image in Slicer again and do the whole process over again.
 
 If this time the glyphs look correct in the corpus callosum, you have fixed it for that case. If they still don't look correct, change the first set of coordinates back to positive and make the second set negative. There are 7 possible permutations of negatives that you can try if necessary. It is usually the case that the proper measurement frame is the same for every case in a dataset, but this is not always the case, especially if the data was acquired on more than one scanner or over a long period of time. Because of that, before you then make this change to the header of every epi-corrected dwi for every case in the dataset, you should check this on a handful of other cases as well. 
 
