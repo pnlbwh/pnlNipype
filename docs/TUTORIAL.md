@@ -630,7 +630,7 @@ Epi and Eddy distortions.
         --mask VALUE:str                 --mask primaryB0mask,secondaryB0mask
         --numb0 VALUE:str                number of b0 images to use from primary and secondary (if
                                          4D): 1 for first b0 only, -1 for all the b0s; the default is
-                                         True
+                                         1
         --out VALUE:NonexistentPath      output directory; required
         --whichVol VALUE:str             which volume(s) to correct through eddy: 1(only primary4D) or
                                          1,2(primary4D+secondary4D/3D); the default is 1
