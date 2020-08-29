@@ -26,7 +26,7 @@
 
 
 #########################
-$ topup:
+$ topup: --verbose --config=b02b0.cnf
 #########################
 
 
@@ -42,8 +42,10 @@ $ topup:
 	-d,--datatype	Force output data type [char short int float double].
 '''
 
+# we use applytopup to correct each input volume, so --method=jac is mandatory
+
 #########################
-$ applytopup:
+$ applytopup: --verbose --method=jac
 #########################
 
 
@@ -88,6 +90,6 @@ $ applytopup:
 '''
 
 #########################
-$ eddy_openmp: --data_is_shelled
+$ eddy_openmp: --verbose --data_is_shelled
 #########################
 
