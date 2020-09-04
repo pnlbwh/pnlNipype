@@ -3,7 +3,7 @@
 from scipy.ndimage import binary_erosion, binary_dilation, generate_binary_structure
 from skimage.measure import label, regionprops
 import numpy as np
-import nibabel as nib
+from util import load_nifti, save_nifti
 import sys
 from os.path import abspath
 
@@ -47,11 +47,11 @@ def maskfilter(maskPath, scale, filtered_maskPath):
     It performs a few erosion and dilation to remove islands of non-brain region in a brain mask.
     '''
 
-    mask= nib.load(maskPath)
+    mask= load_nifti(maskPath)
 
     filtered_mask= single_scale(mask.get_fdata(), scale)
 
-    nib.Nifti1Image(filtered_mask, affine= mask.affine, header= mask.header).to_filename(filtered_maskPath)
+    save_nifti(filtered_maskPath, filtered_mask, mask.affine, mask.header)
 
 
 
