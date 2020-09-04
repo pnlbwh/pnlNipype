@@ -13,7 +13,7 @@ from conversion import read_bvals, read_bvecs, write_bvals, write_bvecs
 from _eddy_config import obtain_fsl_eddy_params
 from nibabel import load
 import numpy as np
-
+from maskfilter import single_scale
 
 FSLDIR=environ['FSLDIR']
 
@@ -103,6 +103,12 @@ class TopupEddyEpi(cli.Application):
         help='number of b0 images to use from primary and secondary (if 4D): 1 for first b0 only, -1 for all the b0s',
         mandatory=False,
         default='1')
+
+    scale= cli.SwitchAttr(
+        ['--scale'],
+        help='number of times erosion and dilation is performed to obtain modified mask',
+        default='2')
+
 
     whichVol= cli.SwitchAttr(
         ['--whichVol'],
@@ -389,7 +395,10 @@ class TopupEddyEpi(cli.Application):
 
             # calculate topup mask
             if primaryMask and secondaryMask:
-                
+
+                fslmaths[primaryMask, '-mul', '1', primaryMask, '-odt', 'float']
+                fslmaths[secondaryMask, '-mul', '1', secondaryMask, '-odt', 'float']
+
                 applytopup_params+=' --interp=trilinear'
                 
                 # this straightforward way could be used
@@ -424,8 +433,17 @@ class TopupEddyEpi(cli.Application):
                            applytopup_params.split()] & FG
 
                 fslmerge('-t', topupMask, primaryMaskCorrect, secondaryMaskCorrect)
-                fslmaths[topupMask, '-Tmean', topupMask] & FG
-                fslmaths[topupMask, '-bin', topupMask, '-odt', 'char'] & FG
+                temp= load(topupMask)
+                data= temp.get_fdata()
+                data= abs(data[...,0])+ abs(data[...,1])
+                data[data!=0]= 1
+
+                # filter the mask to smooth edges
+                # scale num of erosion followed by scale num of dilation
+                # the greater the scale, the smoother the edges
+                # scale=2 seems sufficient
+                data= single_scale(data, int(self.scale))
+                save_nifti(topupMask, data.astype('uint8'), temp.affine, temp.header)
                 
 
             else:
