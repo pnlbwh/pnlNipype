@@ -1,19 +1,18 @@
 #!/usr/bin/env python
 
+from maskfilter import single_scale
 from plumbum import cli, FG, local
 from plumbum.cmd import topup, applytopup, fslmaths, rm, fslmerge, cat, bet, gzip
-
-from util import BET_THRESHOLD, TemporaryDirectory, logfmt, load_nifti, FILEDIR, \
+from util import BET_THRESHOLD, logfmt, load_nifti, FILEDIR, \
     REPOL_BSHELL_GREATER, save_nifti, B0_THRESHOLD
+from tempfile import TemporaryDirectory
 from os.path import join as pjoin, abspath, basename
 from subprocess import check_call
 from os import environ
 from shutil import copyfile
 from conversion import read_bvals, read_bvecs, write_bvals, write_bvecs
 from _eddy_config import obtain_fsl_eddy_params
-from nibabel import load
 import numpy as np
-from maskfilter import single_scale
 
 FSLDIR=environ['FSLDIR']
 
@@ -433,7 +432,7 @@ class TopupEddyEpi(cli.Application):
                            applytopup_params.split()] & FG
 
                 fslmerge('-t', topupMask, primaryMaskCorrect, secondaryMaskCorrect)
-                temp= load(topupMask)
+                temp= load_nifti(topupMask)
                 data= temp.get_fdata()
                 data= abs(data[...,0])+ abs(data[...,1])
                 data[data!=0]= 1
