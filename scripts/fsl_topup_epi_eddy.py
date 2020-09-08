@@ -363,6 +363,7 @@ class TopupEddyEpi(cli.Application):
             fslmaths[topupOut, '-Tmean', topupOutMean] & FG
             
             
+            logging.info('Running applytopup')
 
             # B0_PA_correct, B0_AP_correct are for quality checking only
             # primaryMaskCorrect, secondaryMaskCorrect will be associated masks
