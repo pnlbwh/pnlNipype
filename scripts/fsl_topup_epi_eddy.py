@@ -388,8 +388,6 @@ class TopupEddyEpi(cli.Application):
             fslmaths[B0_PA_AP_corrected_merged, '-Tmean', tmpdir / 'B0_PA_AP_corrected_mean'] & FG
 
 
-
-            logging.info('Running applytopup')
             
             topupMask= tmpdir / 'topup_mask.nii.gz'
 
