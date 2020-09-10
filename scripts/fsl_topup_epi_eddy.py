@@ -520,9 +520,6 @@ class TopupEddyEpi(cli.Application):
                 raise ValueError('Invalid --whichVol')
 
 
-            # copy bval,bvec to have same prefix as that of eddy corrected volume
-            # copyfile(outPrefix+'.eddy_rotated_bvecs', outPrefix+'.bvec')
-            # copyfile(primaryBval, outPrefix+'.bval')
             
             # rename topupMask to have same prefix as that of eddy corrected volume
             topupMask.move(outPrefix+'_mask.nii.gz')
