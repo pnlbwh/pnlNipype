@@ -369,14 +369,14 @@ nifti_makeRigidMask -l sub-sample_ses-1_desc-T2wXcMabs_mask.nii.gz -i sub-sample
 
 There are a lot of settings that FreeSurfer has available for you to adjust what you want to do, but often times in this lab we use a standard set of settings which have been automated in a script called `nifti_fs`. While still in your derived `anat` directory, enter:
 ```
-nifti_fs -i sub-sample_ses-1_desc-Xc_T1w.nii.gz -m sub-sample_ses-1_desc-T2wXcMabsToT1wXc_mask.nii.gz -o sample-freesurfer
+nifti_fs -i sub-sample_ses-1_desc-Xc_T1w.nii.gz -m sub-sample_ses-1_desc-T2wXcMabsToT1wXc_mask.nii.gz -o sample_freesurfer
 ```
 This process will take about 12 hours to run to completion for each case.
 
-  * `sample-freesurfer` can also be found in the `Other` directory as part of your `PipelineTraining/sourcedata` directory. Stop **FreeSurfer** from running by entering **Control+c** and you can copy this directory into your derived `anat`. Just remember to use the `-r` option here since there are many directories and files within this
+  * `sample_freesurfer` can also be found in the `Other` directory as part of your `PipelineTraining/sourcedata` directory. Stop **FreeSurfer** from running by entering **Control+c** and you can copy this directory into your derived `anat`. Just remember to use the `-r` option here since there are many directories and files within this.
 
 Once it has completed, you need to quality control your FreeSurfer labelmap. To start that you will need to start by opening it in Slicer. Enter:
-`/rfanfs/pnl-zorro/software/Slicer-4.8.1/Slicer`to open slicer and then open it going to **File** > **Add Data** > **Choose File** to Add then go to your `sample-freesurfer` directory in strct and then go into `mri` and open `wmparc.mgz`. Before selecting the final **OK** make sure you select **Show Options** and then select **LabelMap**. Also open `brain.mgz`, which can be found in the `sample-freesurfer/mri` directory.
+`/rfanfs/pnl-zorro/software/Slicer-4.8.1/Slicer`to open slicer and then open it going to **File** > **Add Data** > **Choose File** to Add then go to your `sample_freesurfer` directory in strct and then go into `mri` and open `wmparc.mgz`. Before selecting the final **OK** make sure you select **Show Options** and then select **LabelMap**. Also open `brain.mgz`, which can be found in the `sample_freesurfer/mri` directory.
 
 Now in order to actually see your label map transposed on the T1, you need to go to the **Modules** drop-down menu and select **Volumes**. First, make sure the Active Volume is `wmparc`. Then, under the **Volume Information** heading, make sure LabelMap is selected. Last, under the Display heading, for the **Lookup Table** dropdown box, go to **FreeSurfer** > **FreeSurferLabels**. You should end up with something that looks like this:
 
@@ -397,7 +397,7 @@ Two particularly common issues are missing temporal poles (below top) and inaccu
 ![](../Misc/inacc_temp_pole_fs.png)
 
 
-Some useful information can be gained just from looking at the FreeSurfer output. To look at it go into the `stats` directory in `sample-freesurfer` and look at the files `aseg.stats` and `wmparc.stats` using the command `cat`.
+Some useful information can be gained just from looking at the FreeSurfer output. To look at it go into the `stats` directory in `sample_freesurfer` and look at the files `aseg.stats` and `wmparc.stats` using the command `cat`.
 
 
 
@@ -591,7 +591,7 @@ ukf -i sub-sample_ses-1_desc-XcEdEp_dwi.nii.gz --bvals sub-sample_ses-1_desc-XcE
 ```
 Be warned that depending on the computing power you are using this process could take anywhere from a few hours to several days.
 
-Since this takes quite a long time this is also available to be copied from the `sourcedata/sub-sample/ses-1/Other` directory. 
+Since this takes quite a long time, `sub-sample_ses-1_desc-XcEdEp_tracts.vtk` is also available to be copied from the `sourcedata/sub-sample/ses-1/Other` directory. 
 
 The value for  `--numThreads` most often is `8` and this is the computing power you are using for the process in terms of number of cores being used. For other projects, you will want to ask someone how many cores you should be using.
 
@@ -615,9 +615,9 @@ To continue on from this point you will need to have both the diffusion and the 
 
 ## FreeSurfer Labelmap to DWI-Space Registration
 
-The first step of post-processing involves registering the FreeSurfer labelmap that you made to the diffusion image since they don't have the same resolution and aren't in the same space. First, make sure you are in the `PipelineTraining` directory and enter:
+The first step of post-processing involves registering the FreeSurfer labelmap that you made to the diffusion image since they don't have the same resolution and aren't in the same space. First, make sure you are in the `PipelineTraining/derivatives/sub-sample/ses-1` directory and enter:
 ```
-nifti_fs2dwi --dwi Diffusion_b3000/sample-dwi-epi.nii.gz --dwimask Diffusion_b3000/sample-dwi-tensor-mask.nii.gz -f strct/sample-freesurfer -o sample-fs2dwi witht2 --t2 strct/sample-T2-masked.nii.gz --t2mask strct/sample-T2-mask.nii.gz
+nifti_fs2dwi --dwi dwi/sub-sample_ses-1_desc-XcEdEp_dwi.nii.gz --dwimask dwi/sub-sample_ses-1_desc-dwiXc_mask.nii.gz -f anat/sample_freesurfer -o anat/sample_fs2dwi witht2 --t2 anat/sub-sample_ses-1_desc-Xc_T2w.nii.gzz --t2mask anat/sub-sample_ses-1_desc-T2wXcMabs_mask.nii.gz
 ```
 It will take about 6 hours to run to completion, so type **Ctrl+c**.
 
@@ -628,9 +628,9 @@ Note: If you do not have T2s as part of the case you are working with you will h
 nifti_fs2dwi --dwi <dwi_Ed> --dwimask <tensor_mask> -f <freesurfer_directory> -o <output_directory> direct
 ```
 
-Once the script has finished running, you will find that there is a file called `wmparcInBrain.nii.gz` in the `sample-fs2dwi` directory. Open this file along with `sample-dwi-epi.nii.gz` in Slicer to see if they are registered well. Make sure that `wmparcInBrain.nii.gz` is checked for Label Map.
+Once the script has finished running, you will find that there is a file called `wmparcInDwi.nii.gz` in the `sample_fs2dwi` directory. Open this file along with `sub-sample_ses-1_desc-XcEdEp_dwi.nii.gz` in Slicer to see if they are registered well. Make sure that `wmparcInDwi.nii.gz` is checked for Label Map.
 
-When it opens, it will probably not appear as it should, and to fix this go to the **Volumes** module and for the **Active Volume** select `wmparcInBrain`. Then, under the **Display** heading, change Lookup Table to **FreeSurfer** > **FreeSurferLabels**. You should open up `b0maskedbrain.nii.gz` as well (as a normal Volume). It will look something like this:
+When it opens, it will probably not appear as it should, and to fix this go to the **Volumes** module and for the **Active Volume** select `wmparcInDwi`. Then, under the **Display** heading, change Lookup Table to **FreeSurfer** > **FreeSurferLabels**. You should open up `b0masked.nii.gz` as well (as a normal Volume). It will look something like this:
 
 ![](../Misc/fs_in_dwi.png)
 
@@ -640,7 +640,7 @@ To check if the registration is good you scroll through the different views simi
 
 This step is not a part of the figure on the first page of this tutorial, but it is often a good idea to complete this extra form of quality control.
 
-Go into the `Diffusion_b3000` directory and enter:
+Go into the derived `dwi` directory and enter:
 ```
 wm_quality_control_tractography Tractography/ tractQC/
 ```
@@ -651,7 +651,7 @@ Next, go into your new `tractQC` directory. To do a visual QC, enter `gio open v
 
 Then to do a data QC, make sure you are still in the `tractQC` directory and enter:
 ```
-cat quality_control_fibers.txt
+oocalc quality_control_fibers.txt
 ```
 A window will pop up and you can just select **OK**.
 
@@ -668,21 +668,21 @@ Something that would be good to do before you actually run the script is to have
 ```
 gedit FreeSurfer.qry
 ```
-and a window should pop up. don't change anything in this window but you'll notice that it contains the names of all of the different brain regions followed by the number code given to them in the FreeSurfer output. When looking at a FreeSurfer labelmap, when you put your mouse over a color-coded brain region this is the number that pops up in the bottom left hand corner of the screen along with the brain region abbreviation.  If you exit out of this you can also enter:
+and a window should pop up. Don't change anything in this window but you'll notice that it contains the names of all of the different brain regions followed by the number code given to them in the FreeSurfer output. When looking at a FreeSurfer labelmap, when you put your mouse over a color-coded brain region this is the number that pops up in the bottom left hand corner of the screen along with the brain region abbreviation.  If you exit out of this you can also enter:
 ```
 gedit freesurfer_queries_new.qry
 ```
 and this defines individual tracts.
  
-Now go back to your PipelineTraining directory and enter:
+Now go back to your `PipelineTraining/derivatives/sub-sample/ses-1/` directory and enter:
 
 ```
-nifti_wmql -f sample_fs2dwi/wmparc-in-bse.nii.gz -i Diffusion_b3000/Tractography/sample-dwi-tracts.vtk  -q /rfanfs/pnl-zorro/software/pnlutil/pipeline/wmql-2.0.qry -o ./wmql
+nifti_wmql -f anat/sample_fs2dwi/wmparcInDwi.nii.gz -i dwi/Tractography/sub-sample_ses-1_desc-XcEdEp_tracts.vtk  -q /rfanfs/pnl-zorro/software/pnlutil/pipeline/wmql-2.0.qry -o dwi/wmql
 ```
 
 After it has finished running, you can go into the `wmql/` directory and see that it has generated files for all kinds of tracts.
 
-You would now use these files to QC whichever areas you are interested in the study, so for this example we can choose a random one, say `sample-af.left.vtk`, to have a look at.  Open the file in Slicer making sure to choose **FiberBundle** option for **Description** and also open `wmparc.mgz`  in the `sample-freesurfer/mri` directory with **Volume** selected.
+You would now use these files to QC whichever areas you are interested in the study, so for this example we can choose a random one, say `af.left.vtk`, to have a look at.  Open the file in Slicer making sure to choose **FiberBundle** option for **Description** and also open `wmparc.mgz`  in the `anat/sample_freesurfer/mri` directory with **Volume** selected.
 
 When it is open go to **Volumes** in **Modules** and under the **Display** header, change the **Lookup Table** value to **FreeSurferLabels**. At this point you should have something like this:
 
@@ -700,28 +700,25 @@ Once you have done this, use the following format:
 ```
 wmqlqc -i <input WMQL directory> -o <output WMQL directory> -s <case ID>
 ```
-In our case, make sure you are in the `PipelineTraining` directory and enter the following:
+In our case, we will be QCing all the tracts of an individual subject. Make sure you are in the `PipelineTraining/derivatives/sub-sample/ses-1` directory and enter the following:
 ```
-wmqlqc -i wmql -o wmqlqc -s sample
+wmqlqc -i dwi/wmql -o dwi/wmqlqc -s sample
 ```
 
 ## Extract Measures
 
 For the final step of the pipeline you need to now extract all of the measures you want from the images. There are two ways to do this:
 
-* Way 1: Go into your `wmql/` directory. Let's say we are still interested in the left AF. Enter:
+* Way 1: Go into your `wmql/` directory. Enter:
 ```
 /rfanfs/pnl-zorro/software/pnlpipe3/pnlpipe/pnlscripts/measuretracts/measureTracts.py -i *.vtk -o sample-summarizetracts.csv
 ```
-  * This will create a file called `sample-af.left.csv` in that directory as well.
 
   * You can open this file by entering:
 	```
-	oocalc sample-af.left.csv
+	oocalc sample-summarizetracts.csv
 	```
-You can then use the left and right arrow keys to navigate through the csv file. To exit, press `q`.
-
-If you want to run the script on many `.vtk` files at once and have them all in the same spreadsheet, you can do this by putting all of the `.vtk` files in the same directory (or making softlinks to them in the same directory as discussed above in wmql) and replace the input with `*.vtk`.
+You will see that the organization of this spreadsheet mirrors the organization of your directories, i.e. a summary spreadsheet per subject, with all of the tracts for that subject in the spreadsheet. If you would like to flip this, and have a summary spreadsheet per tract, then you would need to have make a directory per tract, as referenced above. 
 
 * Way 2: In **Slicer**, you can go to the **Modules** drop-down and go to **Diffusion** > **Quantify** > **Tractography** > **Tractography Measurements**
 
