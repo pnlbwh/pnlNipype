@@ -130,7 +130,7 @@ class TopupEddyEpi(cli.Application):
 
         from plumbum.cmd import eddy_openmp
 
-        # self.outDir.mkdir() is already making sure it does not exist
+        # cli.NonexistentPath is already making sure it does not exist
         self.outDir.mkdir()
 
         if self.useGpu:
