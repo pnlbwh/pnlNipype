@@ -630,7 +630,7 @@ Epi and Eddy distortions.
         --mask VALUE:str                 --mask primaryB0mask,secondaryB0mask
         --numb0 VALUE:str                number of b0 images to use from primary and secondary (if
                                          4D): 1 for first b0 only, -1 for all the b0s; the default is
-                                         True
+                                         1
         --out VALUE:NonexistentPath      output directory; required
         --whichVol VALUE:str             which volume(s) to correct through eddy: 1(only primary4D) or
                                          1,2(primary4D+secondary4D/3D); the default is 1
@@ -649,9 +649,8 @@ b) `--bvals primaryBval,secondaryBval` or `--bvals primaryBval`: You should prov
 c) `--bvecs`: Same rule as of (b) applies for `--bvecs`.
    
     
-d) `--mask primaryMask,secondaryMask` or `--mask primaryMask`: You should provide human edited mask for both the volumes. If only one mask is 
-    provided, the other mask is assumed same. If none of the masks are provided, the workflow creates mask down the way.
-
+d) `--mask primaryMask,secondaryMask` or `--mask primaryMask`: You should provide human edited mask for both the volumes. 
+    If none of the masks are provided, the workflow creates mask down the way.
 
 
 e) `--numb0`: FSL `topup` requires b0 images to calculate deformation fields. For all 4D volumes provided, a baseline 
@@ -665,23 +664,22 @@ f) `--acqp`: Provide a *.txt* file comprising two lines of acquisition parameter
     reversed as well.
 
 
-g) *applytopup*: The basic purpose of this command is to create a mask for *eddy*. If you provided the masks, 
+g) *applytopup*: The basic purpose of this command is to create a mask for *eddy*. If you provide the masks, 
     they are used as input to *applytopup*
     
-    applytopup --imain=primaryMask,secondaryMask --inindex=1,2 --datatin=my_acq_param.txt --topup=my_topup_results --out=topupMask
     
+    applytopup --imain=primaryMask --inindex=1 --datatin=my_acq_param.txt --topup=my_topup_results \
+    --method=jac --interp=trilinear --out=primaryMaskCorrect
     
-On the other hand, if you don't provide a mask, applytopup uses provided volumes if both primary and secondary are 4D:
-
-    applytopup --imain=primary4D,secondary4D --inindex=1,2 --datatin=my_acq_param.txt --topup=my_topup_results --out=topupOut
+    applytopup --imain=secondaryMask --inindex=2 --datatin=my_acq_param.txt --topup=my_topup_results \
+    --method=jac --interp=trilinear --out=secondaryMaskCorrect
     
+    fslmerge -t topupMask primaryMaskCorrect secondaryMaskCorrect
+    fslmaths topupMask -Tmean topupMask
+    fslmaths topupMask -bin topupMask
+
     
-In the only other case, it uses baseline images if primary is 4D but secondary is 3D (a B0 image):
-
-    applytopup --imain=primaryB0,secondary3D --inindex=1,2 --datatin=my_acq_param.txt --topup=my_topup_results --out=topupOut
-
-
-Notably, when mask is not provided, it is created at this stage from average of the volumes in `topupOut`:
+If you do not provide the masks, a crude `topupMask` is created from the average of volumes in `topupOut`:
 
     fslmaths topupOut -Tmean topupOutMean
     bet topupOutMean topupMask -m -n
@@ -719,7 +717,7 @@ Putting them all together, example usage:
     fsl_topup_epi_eddy --imain primary4D,secondary3D 
     --bvals primaryBval ---bvecs primaryBvec --numb0 -1 --whichVol 1,2 --acqp acqparams.txt --out /tmp/fsl_epi/ --config /path/to/my/eddy_config.txt
     
-    fsl_topup_epi_eddy --imain primary4D,secondary3D --mask primaryMask 
+    fsl_topup_epi_eddy --imain primary4D,secondary3D 
     --bvals primaryBval --bvecs primaryBvec --numb0 1 --whichVol 1 --acqp acqparams.txt --out /tmp/fsl_epi/ --config /path/to/my/eddy_config.txt
 
 
