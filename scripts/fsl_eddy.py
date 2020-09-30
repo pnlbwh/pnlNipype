@@ -104,7 +104,7 @@ class Eddy(cli.Application):
         outPrefix = pjoin(self.outDir._path, prefix+'_Ed')
 
 
-        if self.b0_brain_mask=='None':
+        if not self.b0_brain_mask:
             logging.info('Mask not provided, creating mask ...')
 
             self.b0_brain_mask = outPrefix + '_mask.nii.gz'
