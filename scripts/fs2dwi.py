@@ -74,6 +74,11 @@ class FsToDwi(cli.Application):
         help='bvals file of the DWI',
         mandatory=True)
 
+    bse = cli.SwitchAttr(
+        ['--bse'],
+        cli.ExistingFile,
+        help='masked bse of DWI')
+
     dwimask = cli.SwitchAttr(
         ['--dwimask'],
         cli.ExistingFile,
@@ -149,10 +154,13 @@ class Direct(cli.Application):
                 label2vol('--seg', wmparcmgz, '--temp', brainmgz,
                           '--regheader', wmparcmgz, '--o', wmparc)
 
-            print('Extracting B0 from DWI and masking it')
-            check_call((' ').join([pjoin(FILEDIR, 'bse.py'), '-i', self.parent.dwi, '--bvals', self.parent.bvals_file,
-                                   '-m', self.parent.dwimask, '-o', b0masked]), shell= True)
-            print('Made masked B0')
+            if not self.parent.bse:
+                print('Extracting B0 from DWI and masking it')
+                check_call((' ').join([pjoin(FILEDIR, 'bse.py'), '-i', self.parent.dwi, '--bvals', self.parent.bvals_file,
+                                       '-m', self.parent.dwimask, '-o', b0masked]), shell= True)
+                print('Made masked B0')
+            else:
+                self.parent.bse.copy(b0masked)
 
 
             dwi_res= load_nifti(str(b0masked)).header['pixdim'][1:4].round(decimals=2)
@@ -241,10 +249,13 @@ class WithT2(cli.Application):
                 label2vol('--seg', wmparcmgz, '--temp', brainmgz,
                           '--regheader', wmparcmgz, '--o', wmparc)
 
-            print('Extracting B0 from DWI and masking it')
-            check_call((' ').join([pjoin(FILEDIR, 'bse.py'), '-i', self.parent.dwi, '--bvals', self.parent.bvals_file,
-                                   '-m', self.parent.dwimask, '-o', b0masked]), shell= True)
-            print('Made masked B0')
+            if not self.parent.bse:
+                print('Extracting B0 from DWI and masking it')
+                check_call((' ').join([pjoin(FILEDIR, 'bse.py'), '-i', self.parent.dwi, '--bvals', self.parent.bvals_file,
+                                       '-m', self.parent.dwimask, '-o', b0masked]), shell= True)
+                print('Made masked B0')
+            else:
+                self.parent.bse.copy(b0masked)
 
 
             # rigid registration from t2 to brain.nii.gz
