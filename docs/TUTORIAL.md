@@ -125,7 +125,7 @@ They are the same thing.
 
 ![](FreesurferN4Bias.png)
 
-Only the left branch when no T2w is available
+Use only the left branch when no T2w is available
 
 ## Diffusion
 
