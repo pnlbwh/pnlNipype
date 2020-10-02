@@ -12,6 +12,12 @@ Table of Contents
    * [Citation](#citation)
    * [Pipeline scripts overview](#pipeline-scripts-overview)
    * [pnlNipype graph](#pnlnipype-graph)
+      * [Structural](#structural)
+      * [Diffusion](#diffusion)
+         * [PnlEddy PnlEpi or FslEddy PnlEpi](#pnleddypnlepi-or-fsleddypnlepi)
+         * [PnlEddy or FslEddy](#pnleddy-or-fsleddy)
+         * [TopupEddy](#topupeddy)
+      * [Tractography](#tractography)
    * [DICOM to NIFTI](#dicom-to-nifti)
    * [Temporary directory](#temporary-directory)
    * [Axis alignment](#axis-alignment)
@@ -123,14 +129,14 @@ Only the left branch when no T2w is available
 
 ## Diffusion
 
-### PnlEddy+PnlEpi or FslEddy+PnlEpi
+### FslEddy+PnlEpi or PnlEddy+PnlEpi
 
 ![](FslEddyEpi.png)
 
 
 ### PnlEddy or FslEddy
 
-Only the left branch of the above
+Upto *FslEddy/PnlEddy* of the left branch in the above
 
 ### TopupEddy
 
