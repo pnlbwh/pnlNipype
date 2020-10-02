@@ -115,7 +115,34 @@ They are the same thing.
 
 # pnlNipype graph
 
-![](./dag.png)
+## Structural
+
+![](FreesurferN4Bias.png)
+
+Only the left branch when no T2w is available
+
+## Diffusion
+
+### PnlEddy+PnlEpi or FslEddy+PnlEpi
+
+![](FslEddyEpi.png)
+
+
+### PnlEddy or FslEddy
+
+Only the left branch of the above
+
+### TopupEddy
+
+Can be done when two opposing acquisitions--AP and PA are available
+
+![](TopupEddy.png)
+
+
+## Tractography
+
+![](Fs2Dwi.png)
+
 
 
 
