@@ -279,6 +279,7 @@ This table summarizes the scripts in `pnlNipype/scripts/`:
 | General            |  **bet_mask.py**                   |  masks a 3D/4D MRI using FSL bet                                      |
 | General            |  **masking.py**                    |  skullstrips by applying a labelmap mask                              |
 | -                  |  -                                 |  -                                                                    |
+| DWI                |  **unring.py**                     |  Gibbs unringing                                                      |
 | DWI                |  **antsApplyTransformsDWI.py**     |  applies a transform to a DWI                                         |
 | DWI                |  **bse.py**                        |  extracts a baseline b0 image                                         |
 | -                  |  -                                 |  -                                                                    |
@@ -290,7 +291,7 @@ This table summarizes the scripts in `pnlNipype/scripts/`:
 | DWI                |  **ukf.py**                        |  convenient script for running UKFTractography                        |
 | -                  |  -                                 |  -                                                                    |
 | Structural         |  **atlas.py**                      |  computes a brain mask from training data                             |
-| Structural         |  **makeRigidMask.py**              |  rigidly transforms a labelmap to align with another structural image |
+| Structural         |  **makeAlignedMask.py**            |  transforms a labelmap to align with another structural image         |
 | Structural         |  **fs.py**                         |  convenient script for running freesurfer                             |
 | -                  |  -                                 |  -                                                                    |
 | Freesurfer to DWI  |  **fs2dwi.py**                     |  registers a freesurfer segmentation to a DWI                         |
@@ -307,13 +308,14 @@ The above executables are available as soft links in `pnlNipype/exec` directory 
 | fsl_toup_epi_eddy | ../scripts/fsl_topup_epi_eddy.py |
 | masking | ../scripts/masking.py |
 | nifti_align | ../scripts/align.py |
+| unring | ../script/unring.py |
 | nifti_antsApplyTransformsDWI | ../scripts/antsApplyTransformsDWI.py |
 | nifti_atlas | ../scripts/atlas.py |
 | nifti_bet_mask | ../scripts/bet_mask.py |
 | nifti_bse | ../scripts/bse.py |
 | nifti_fs | ../scripts/fs.py |
 | nifti_fs2dwi | ../scripts/fs2dwi.py |
-| nifti_makeRigidMask | ../scripts/makeRigidMask.py |
+| nifti_makeAlignedMask | ../scripts/makeAlignedMask.py |
 | nifti_wmql | ../scripts/wmql.py |
 | pnl_eddy | ../scripts/pnl_eddy.py |
 | pnl_epi | ../scripts/pnl_epi.py |
