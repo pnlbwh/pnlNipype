@@ -11,7 +11,7 @@ Table of Contents
    * [Table of Contents](#table-of-contents)
    * [Citation](#citation)
    * [Pipeline scripts overview](#pipeline-scripts-overview)
-   * [pnlNipype graph](#pnlnipype-graph)
+   * [Pipeline graphs](#pipeline-graphs)
       * [Structural](#structural)
       * [Diffusion](#diffusion)
          * [PnlEddy PnlEpi or FslEddy PnlEpi](#pnleddypnlepi-or-fsleddypnlepi)
@@ -64,62 +64,10 @@ https://github.com/pnlbwh/pnlNipype, 2019, DOI: 10.5281/zenodo.3258854
 
 # Pipeline scripts overview
 
-| Category           |  Script                            |  Function                                                             |
-|--------------------|------------------------------------|-----------------------------------------------------------------------|
-| General            |  **align.py**                      |  axis aligns and centers an image                                     |
-| General            |  **bet_mask.py**                   |  masks a 3D/4D MRI using FSL bet                                      |
-| General            |  **masking.py**                    |  skullstrips by applying a labelmap mask                              |
-| -                  |  -                                 |  -                                                                    |
-| DWI                |  **unring.py**                     |  Gibbs unringing                                                      |
-| DWI                |  **antsApplyTransformsDWI.py**     |  applies a transform to a DWI                                         |
-| DWI                |  **bse.py**                        |  extracts a baseline b0 image                                         |
-| -                  |  -                                 |  -                                                                    |
-| DWI                |  **pnl_epi.py**                    |  corrects EPI distortion via registration                             |
-| DWI                |  **fsl_topup_epi_eddy.py**         |  corrects EPI distortion using FSL topup and eddy_openmp              |
-| -                  |  -                                 |  -                                                                    |
-| DWI                |  **pnl_eddy.py**                   |  corrects eddy distortion via registration                            |
-| DWI                |  **fsl_eddy.py**                   |  corrects eddy distortion using FSL eddy_openmp                       |
-| DWI                |  **ukf.py**                        |  convenient script for running UKFTractography                        |
-| -                  |  -                                 |  -                                                                    |
-| Structural         |  **atlas.py**                      |  computes a brain mask from training data                             |
-| Structural         |  **makeAlignedMask.py**            |  transforms a labelmap to align with another structural image         |
-| Structural         |  **fs.py**                         |  convenient script for running freesurfer                             |
-| -                  |  -                                 |  -                                                                    |
-| Freesurfer to DWI  |  **fs2dwi.py**                     |  registers a freesurfer segmentation to a DWI                         |
-| Tractography       |  **wmql.py**                       |  simple wrapper for tract_querier                                     |
+Please see [Pipeline scripts overview](README.md#pipeline-scripts-overview).
 
 
-The above executables are available as soft links in `pnlNipype/exec` directory as well:
-    
-| Soft link | Target script |
-|---|---|
-| fsl_eddy | ../scripts/fsl_eddy.py |
-| fsl_topup_epi_eddy | ../scripts/fsl_topup_epi_eddy.py |
-| masking | ../scripts/masking.py |
-| nifti_align | ../scripts/align.py |
-| unring | ../script/unring.py |
-| nifti_antsApplyTransformsDWI | ../scripts/antsApplyTransformsDWI.py |
-| nifti_atlas | ../scripts/atlas.py |
-| nifti_bet_mask | ../scripts/bet_mask.py |
-| nifti_bse | ../scripts/bse.py |
-| nifti_fs | ../scripts/fs.py |
-| nifti_fs2dwi | ../scripts/fs2dwi.py |
-| nifti_makeAlignedMask | ../scripts/makeAlignedMask.py |
-| nifti_wmql | ../scripts/wmql.py |
-| pnl_eddy | ../scripts/pnl_eddy.py |
-| pnl_epi | ../scripts/pnl_epi.py |
-| ukf | ../scripts/ukf.py |
-
-
-For example, to execute axis alignment script, you can do either of the following:
-    
-    pnlNipype/exec/nifti_align -h
-    pnlNipype/scripts/align.py -h
-    
-They are the same thing.
-    
-
-# pnlNipype graph
+# Pipeline graphs
 
 ## Structural
 
@@ -253,6 +201,43 @@ After application of the above script, the affine transform should look like the
 
 
 
+# Resampling
+
+`ResampleImage` executable from ANTs is used for resampling an image to a desired size/resolution. 
+Resampling is done at 3D level. If an image is 4D, it is split into 3D volumes, resampled, and then merged back.
+
+
+> resample -h
+
+    usage: resample.py [-h] [-i INPUT] [-o OUTPREFIX] [--ncpu NCPU] [--size SIZE]
+                       [--order ORDER]
+    
+    Resample an MRI using ANTs ResampleImage executable. If the image is 4D, it is
+    split to 3D along the last axis, resampled at 3D level, and merged back.
+    
+    optional arguments:
+      -h, --help            show this help message and exit
+      -i INPUT, --input INPUT
+                            input3D/4D MRI
+      -o OUTPREFIX, --outPrefix OUTPREFIX
+                            resampled image and corresponding bval/bvec are saved
+                            with outPrefix
+      --ncpu NCPU           default 4, you can increase it at the expense of RAM
+      --size SIZE           resample to MxNxO size or resolution, if all of
+                            M,N,O<5, it is interpreted as resolution
+      --order ORDER         For details about order of interpolation, see
+                            ResampleImage --help, the default for masks is 0
+                            (nearest neighbor) while for all other images it is 4
+                            (Bspline [order=5])
+
+
+Example usage:
+    
+    resample dwiNifti dwiReNifti 8
+    resample t1Nifti t1ReNifti --order 1
+
+
+
 # Gibbs unringing
 
 This pipeline uses [DIPY implementation](https://dipy.org/documentation/1.1.1./examples_built/denoise_gibbs/#example-denoise-gibbs) of Gibbs unringing algorithm.
@@ -268,7 +253,8 @@ This pipeline uses [DIPY implementation](https://dipy.org/documentation/1.1.1./e
 Example usage:
     
     unring dwiNifti dwiUnNifti 8
-
+    
+    
 
 # Masking
 
@@ -476,8 +462,26 @@ You can also use the following command from *FSL* to mask an image:
     fslmaths volNifti -mas maskNifti maskedVolNifti
     
 The advantage of the latter command is, you wouldn't have to provide dimension of the image you want to mask.
-    
 
+
+
+# Mask filtering
+
+Often it is necessary to perform morphological operation--erosion/dilation on a mask to get rid of holes and islands. 
+We provide a script for doing that. The operation also smooths out the boundary of the mask. We have used a 
+six-connected 3D structural element for that.
+
+> maskfilter -h
+
+    This python executable replicates the functionality of
+    https://github.com/MRtrix3/mrtrix3/blob/master/core/filter/mask_clean.h
+    It performs a few erosion and dilation to remove islands of non-brain region in a brain mask.
+    
+    Usage: maskfilter input scale output
+    
+    See https://github.com/MRtrix3/mrtrix3/blob/master/core/filter/mask_clean.h for details
+
+    
 
 # Eddy correction
 
