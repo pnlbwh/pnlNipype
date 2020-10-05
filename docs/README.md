@@ -353,7 +353,7 @@ you may put the following lines in your bashrc:
 
 # Tutorial
 
-See the [Tutorial](TUTORIAL.md) for workflow and function of each script.
+See the [TUTORIAL](TUTORIAL.md) for workflow and function of each script.
 
 
 # Support
