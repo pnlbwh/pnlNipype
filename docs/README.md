@@ -278,6 +278,8 @@ This table summarizes the scripts in `pnlNipype/scripts/`:
 | General            |  **align.py**                      |  axis aligns and centers an image                                     |
 | General            |  **bet_mask.py**                   |  masks a 3D/4D MRI using FSL bet                                      |
 | General            |  **masking.py**                    |  skullstrips by applying a labelmap mask                              |
+| General            |  **maskfilter.py**                 |  performs morphological operation on a brain mask                     |
+| General            |  **resample.py**                   |  resamples a 3D/4D image                                              |
 | -                  |  -                                 |  -                                                                    |
 | DWI                |  **unring.py**                     |  Gibbs unringing                                                      |
 | DWI                |  **antsApplyTransformsDWI.py**     |  applies a transform to a DWI                                         |
@@ -308,8 +310,9 @@ The above executables are available as soft links in `pnlNipype/exec` directory 
 | fsl_toup_epi_eddy | ../scripts/fsl_topup_epi_eddy.py |
 | masking | ../scripts/masking.py |
 | nifti_align | ../scripts/align.py |
-| unring | ../script/unring.py |
-| nifti_antsApplyTransformsDWI | ../scripts/antsApplyTransformsDWI.py |
+| unring | ../scripts/unring.py |
+| maskfilter | ../scripts/maskfilter.py |
+| resample | ../scripts/resample.py |
 | nifti_atlas | ../scripts/atlas.py |
 | nifti_bet_mask | ../scripts/bet_mask.py |
 | nifti_bse | ../scripts/bse.py |
