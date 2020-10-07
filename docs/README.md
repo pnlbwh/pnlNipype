@@ -53,8 +53,10 @@ A pipeline is a directed acyclic graph (DAG) of dependencies.
 The following diagram depicts functionality of the NIFTI pipeline, where
 each node represents an output, and the arrows represent dependencies:
 
-![](Misc/dag.png)
+![](dag.png)
 
+
+Detailed DAGs are available [here](TUTORIAL.md#pipeline-graphs).
 
 
 # Dependencies
