@@ -34,7 +34,7 @@ class App(cli.Application):
     givenParams = cli.SwitchAttr('--params',
                 help='provide comma separated UKF parameters: --arg1,val1,--arg2,val2,--arg3,val3 (no spaces)')
 
-    print(f'\nukf.py uses the following default values: {ukfdefaults}\n')
+    print(f'\nukf.py uses the following default values (if not provided): {ukfdefaults}\n')
 
     def main(self):
 

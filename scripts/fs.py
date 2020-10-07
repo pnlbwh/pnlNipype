@@ -69,6 +69,9 @@ class App(cli.Application):
         ['--noskullstrip'],
         help= 'if you do not provide --mask but --input is already masked, omit further skull stripping by freesurfer')
     
+    subfields = cli.Flag(
+        ['--subfields'],
+        help= 'FreeSurfer 7 supported -subfields')
 
     def main(self):
         fshome = local.path(os.getenv('FREESURFER_HOME'))
@@ -116,6 +119,8 @@ class App(cli.Application):
                 
                 autorecon3_params= ['-T2', t2, '-T2pial']
             
+            if self.subfields:
+                autorecon3_params+=['-subfields']
 
             logging.info("Running freesurfer on " + t1)
 
@@ -124,7 +129,6 @@ class App(cli.Application):
 
             if int(self.ncpu)>1:
                 common_params+=['-parallel', '-openmp', self.ncpu]
-
 
             autorecon1_params=[]
             if not self.no_hires:

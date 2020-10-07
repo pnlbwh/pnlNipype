@@ -1,6 +1,6 @@
 __version__ = '0.1.3'
 
-from os.path import abspath, dirname, join as pjoin
+from os.path import abspath, dirname, join as pjoin, isfile
 import os
 from plumbum import local
 from tempfile import mkdtemp
@@ -18,6 +18,7 @@ B0_THRESHOLD = 50
 ANTSREG_THREADS = '4'
 N_PROC = '4'
 REPOL_BSHELL_GREATER= 500
+QC_POLL= 30 # seconds
 
 TMPDIR= local.path(os.getenv('PNLPIPE_TMPDIR','/tmp/'))
 # TMPDIR= local.path(os.getenv('PNLPIPE_TMPDIR',pjoin(os.environ['HOME'],'tmp'))
@@ -114,4 +115,11 @@ class TemporaryDirectory(object):
     def cleanup(self):
         if self._finalizer.detach():
             self._rmtree(self.name)
+
+def _mask_name(mask_prefix, slicer_exec=None, mask_qc=None):
+
+    if slicer_exec or mask_qc:
+        return local.path(mask_prefix._path + 'Qc_mask.nii.gz')
+    else:
+        return local.path(mask_prefix._path + '_mask.nii.gz')
 

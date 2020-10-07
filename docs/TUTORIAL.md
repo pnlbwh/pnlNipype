@@ -11,10 +11,17 @@ Table of Contents
    * [Table of Contents](#table-of-contents)
    * [Citation](#citation)
    * [Pipeline scripts overview](#pipeline-scripts-overview)
-   * [pnlNipype graph](#pnlnipype-graph)
+   * [Pipeline graphs](#pipeline-graphs)
+      * [Structural](#structural)
+      * [Diffusion](#diffusion)
+         * [PnlEddy PnlEpi or FslEddy PnlEpi](#pnleddypnlepi-or-fsleddypnlepi)
+         * [PnlEddy or FslEddy](#pnleddy-or-fsleddy)
+         * [TopupEddy](#topupeddy)
+      * [Tractography](#tractography)
    * [DICOM to NIFTI](#dicom-to-nifti)
    * [Temporary directory](#temporary-directory)
    * [Axis alignment](#axis-alignment)
+   * [Gibbs unringing](#gibbs-unringing)
    * [Masking](#masking)
       * [1. Structural mask](#1-structural-mask)
          * [i. Mask from training data](#i-mask-from-training-data)
@@ -57,62 +64,39 @@ https://github.com/pnlbwh/pnlNipype, 2019, DOI: 10.5281/zenodo.3258854
 
 # Pipeline scripts overview
 
-| Category           |  Script                            |  Function                                                             |
-|--------------------|------------------------------------|-----------------------------------------------------------------------|
-| General            |  **align.py**                      |  axis aligns and centers an image                                     |
-| General            |  **bet_mask.py**                   |  masks a 3D/4D MRI using FSL bet                                      |
-| General            |  **masking.py**                    |  skullstrips by applying a labelmap mask                              |
-| -                  |  -                                 |  -                                                                    |
-| DWI                |  **antsApplyTransformsDWI.py**     |  applies a transform to a DWI                                         |
-| DWI                |  **bse.py**                        |  extracts a baseline b0 image                                         |
-| -                  |  -                                 |  -                                                                    |
-| DWI                |  **pnl_epi.py**                    |  corrects EPI distortion via registration                             |
-| DWI                |  **fsl_topup_epi_eddy.py**         |  corrects EPI distortion using FSL topup and eddy_openmp              |
-| -                  |  -                                 |  -                                                                    |
-| DWI                |  **pnl_eddy.py**                   |  corrects eddy distortion via registration                            |
-| DWI                |  **fsl_eddy.py**                   |  corrects eddy distortion using FSL eddy_openmp                       |
-| DWI                |  **ukf.py**                        |  convenient script for running UKFTractography                        |
-| -                  |  -                                 |  -                                                                    |
-| Structural         |  **atlas.py**                      |  computes a brain mask from training data                             |
-| Structural         |  **makeRigidMask.py**              |  rigidly transforms a labelmap to align with another structural image |
-| Structural         |  **fs.py**                         |  convenient script for running freesurfer                             |
-| -                  |  -                                 |  -                                                                    |
-| Freesurfer to DWI  |  **fs2dwi.py**                     |  registers a freesurfer segmentation to a DWI                         |
-| Tractography       |  **wmql.py**                       |  simple wrapper for tract_querier                                     |
+Please see [Pipeline scripts overview](README.md#pipeline-scripts-overview).
 
 
-The above executables are available as soft links in `pnlNipype/exec` directory as well:
-    
-| Soft link | Target script |
-|---|---|
-| fsl_eddy | ../scripts/fsl_eddy.py |
-| fsl_topup_epi_eddy | ../scripts/fsl_topup_epi_eddy.py |
-| masking | ../scripts/masking.py |
-| nifti_align | ../scripts/align.py |
-| nifti_antsApplyTransformsDWI | ../scripts/antsApplyTransformsDWI.py |
-| nifti_atlas | ../scripts/atlas.py |
-| nifti_bet_mask | ../scripts/bet_mask.py |
-| nifti_bse | ../scripts/bse.py |
-| nifti_fs | ../scripts/fs.py |
-| nifti_fs2dwi | ../scripts/fs2dwi.py |
-| nifti_makeRigidMask | ../scripts/makeRigidMask.py |
-| nifti_wmql | ../scripts/wmql.py |
-| pnl_eddy | ../scripts/pnl_eddy.py |
-| pnl_epi | ../scripts/pnl_epi.py |
-| ukf | ../scripts/ukf.py |
+# Pipeline graphs
+
+## Structural
+
+![](FreesurferN4Bias.png)
+
+Use only the left branch when no T2w is available
+
+## Diffusion
+
+### FslEddy+PnlEpi or PnlEddy+PnlEpi
+
+![](FslEddyEpi.png)
 
 
-For example, to execute axis alignment script, you can do either of the following:
-    
-    pnlNipype/exec/nifti_align -h
-    pnlNipype/scripts/align.py -h
-    
-They are the same thing.
-    
+### PnlEddy or FslEddy
 
-# pnlNipype graph
+Upto *FslEddy/PnlEddy* of the left branch in the above
 
-![](./dag.png)
+### TopupEddy
+
+Can be done when two opposing acquisitions--AP and PA are available
+
+![](TopupEddy.png)
+
+
+## Tractography
+
+![](Fs2Dwi.png)
+
 
 
 
@@ -217,6 +201,61 @@ After application of the above script, the affine transform should look like the
 
 
 
+# Resampling
+
+`ResampleImage` executable from ANTs is used for resampling an image to a desired size/resolution. 
+Resampling is done at 3D level. If an image is 4D, it is split into 3D volumes, resampled, and then merged back.
+
+
+> resample -h
+
+    usage: resample.py [-h] [-i INPUT] [-o OUTPREFIX] [--ncpu NCPU] [--size SIZE]
+                       [--order ORDER]
+    
+    Resample an MRI using ANTs ResampleImage executable. If the image is 4D, it is
+    split to 3D along the last axis, resampled at 3D level, and merged back.
+    
+    optional arguments:
+      -h, --help            show this help message and exit
+      -i INPUT, --input INPUT
+                            input3D/4D MRI
+      -o OUTPREFIX, --outPrefix OUTPREFIX
+                            resampled image and corresponding bval/bvec are saved
+                            with outPrefix
+      --ncpu NCPU           default 4, you can increase it at the expense of RAM
+      --size SIZE           resample to MxNxO size or resolution, if all of
+                            M,N,O<5, it is interpreted as resolution
+      --order ORDER         For details about order of interpolation, see
+                            ResampleImage --help, the default for masks is 0
+                            (nearest neighbor) while for all other images it is 4
+                            (Bspline [order=5])
+
+
+Example usage:
+    
+    resample dwiNifti dwiReNifti 8
+    resample t1Nifti t1ReNifti --order 1
+
+
+
+# Gibbs unringing
+
+This pipeline uses [DIPY implementation](https://dipy.org/documentation/1.1.1./examples_built/denoise_gibbs/#example-denoise-gibbs) of Gibbs unringing algorithm.
+
+> unring -h
+
+    Usage:
+    unring <dwi> <outPrefix> <ncpu>
+    Gibbs unringing of all DWI gradients using DIPY
+    Default ncpu=4, you can increase it at the expense of RAM
+
+
+Example usage:
+    
+    unring dwiNifti dwiUnNifti 8
+    
+    
+
 # Masking
 
 Masking refers to skull stripping. Neuroimage analysis algorithms have been found to perform better when skull is stripped. 
@@ -238,31 +277,30 @@ space of the target T1/T2 image. The set of candidate masks (or labelmaps) are f
 
 
 > nifti_atlas --help-all
-    
+
     Makes atlas image/labelmap pairs for a target image.
     Option to merge labelmaps via averaging or AntsJointFusion.
     Specify training images and labelmaps via a csv file.
-    Put the images with any header in the first column, 
-    and labelmaps with proper headers in the consecutive columns. 
+    Put the images with any header in the first column,
+    and labelmaps with proper headers in the consecutive columns.
     The headers in the labelmap columns will be used to name the generated atlas labelmaps.
-
+    
     Usage:
         nifti_atlas [SWITCHES]
-
+        
     Switches:
-        -d                                                     Debug mode, saves intermediate labelmaps to atlas-debug-<pid> in output
-                                                               directory
-        --fusion VALUE:{'avg', 'wavg', 'antsJointFusion'}      Also create predicted labelmap(s) by combining the atlas labelmaps: avg
-                                                               is naive mathematical average, wavg is weighted average where weights are
-                                                               computed from MI between the warped atlases and target image,
-                                                               antsJointFusion is local weighted averaging; the default is wavg
-        -n, --nproc VALUE:str                                  number of processes/threads to use (-1 for all available); the default is
-                                                               4
-        -o, --outPrefix VALUE:str                              output prefix, output labelmaps are saved as outPrefix-mask.nii.gz,
-                                                               outPrefix-cingr.nii.gz, ...; required
-        -t, --target VALUE:ExistingFile                        target image; required
-        --train VALUE:str                                      --train t1; --train t2; --train trainingImages.csv; see pnlNipype/docs/TUTORIAL.md
-                                                               to know what each value means
+        -d                                               Debug mode, saves intermediate labelmaps to atlas-debug-<pid> in output directory
+        --fusion VALUE:{avg, wavg, antsJointFusion}      Also create predicted labelmap(s) by combining the atlas labelmaps: avg is naive mathematical
+                                                         average, wavg is weighted average where weights are computed from MI between the warped
+                                                         atlases and target image, antsJointFusion is local weighted averaging; the default is wavg
+        -n, --nproc VALUE:str                            number of processes/threads to use (-1 for all available); the default is 4
+        -o, --outPrefix VALUE:str                        output prefix, output labelmaps are saved as outPrefix_mask.nii.gz, outPrefix_cingr.nii.gz,
+                                                         ...; required
+        -t, --target VALUE:ExistingFile                  target image; required
+        --train VALUE:str                                --train t1; --train t2; --train trainingImages.csv; see pnlNipype/docs/TUTORIAL.md to know
+                                                         what each value means
+
+
 
 
 Example usage:
@@ -327,20 +365,22 @@ and rigidly register that mask to the space of other subjects. The following scr
 
 > nifti_makeRigidMask -h
 
-    Rigidly align a given labelmap (usually a mask) to make another labelmap
+    Align a given labelmap (usually a mask) to make another labelmap
     
     Usage:
-        nifti_makeRigidMask [SWITCHES] 
+        nifti_makeAlignedMask [SWITCHES]
 
     Switches:
         -i, --input VALUE:ExistingFile         structural (nrrd/nii); required
         -l, --labelmap VALUE:ExistingFile      structural labelmap, usually a mask (nrrd/nii); required
         -o, --output VALUE:str                 output labelmap (nrrd/nii); required
+        --reg VALUE:{rigid, SyN}               ANTs registration method: rigid or SyN; the default is rigid
         -t, --target VALUE:ExistingFile        target image (nrrd/nii); required
+
 
 Example usage:
     
-    nifti_makeRigidMask -i oneT1 -l atlasMaskForOneT1 -t otherT1 -o atlasMaskForOtherT1
+    nifti_makeAlignedMask -i oneT1 -l atlasMaskForOneT1 -t otherT1 -o atlasMaskForOtherT1
     
 In the above script, the `oneT1` is rigidly registered to the space of `otherT1`. Transform obtained through this 
 registration is applied upon `atlasMaskForOneT1` to create `atlasMaskForOtherT1`.
@@ -422,8 +462,26 @@ You can also use the following command from *FSL* to mask an image:
     fslmaths volNifti -mas maskNifti maskedVolNifti
     
 The advantage of the latter command is, you wouldn't have to provide dimension of the image you want to mask.
-    
 
+
+
+# Mask filtering
+
+Often it is necessary to perform morphological operation--erosion/dilation on a mask to get rid of holes and islands. 
+We provide a script for doing that. The operation also smooths out the boundary of the mask. We have used a 
+six-connected 3D structural element for that.
+
+> maskfilter -h
+
+    This python executable replicates the functionality of
+    https://github.com/MRtrix3/mrtrix3/blob/master/core/filter/mask_clean.h
+    It performs a few erosion and dilation to remove islands of non-brain region in a brain mask.
+    
+    Usage: maskfilter input scale output
+    
+    See https://github.com/MRtrix3/mrtrix3/blob/master/core/filter/mask_clean.h for details
+
+    
 
 # Eddy correction
 
@@ -570,6 +628,7 @@ diffusion weighted volumes.
         pnl_epi [SWITCHES] 
 
     Switches:
+        --bse VALUE:ExistingFile          b0 of the DWI
         --bvals VALUE:ExistingFile        bvals file of the DWI; required
         --bvecs VALUE:ExistingFile        bvecs file of the DWI; required
         -d, --debug                       Debug, save intermediate files in 'epidebug-<pid>'
@@ -586,7 +645,8 @@ diffusion weighted volumes.
 
 Example usage:
 
-    pnl_epi --dwi dwiNifti --dwimask maskNifti --t2 t2Nifti --t2mask t2MaskNifti -o dwiEpiPrefix 
+    pnl_epi --dwi dwiNifti --dwimask maskNifti --t2 t2Nifti --t2mask t2MaskNifti -o dwiEpiPrefix
+    pnl_epi --dwi dwiNifti --dwimask maskNifti --bse bseNifti --t2 t2Nifti --t2mask t2MaskNifti -o dwiEpiPrefix  
         
 
 
@@ -726,7 +786,7 @@ Putting them all together, example usage:
 
 > ukf -h
     
-    ukf.py uses the following default values: ['--numTensor', 2, '--stoppingFA', 0.15, '--seedingThreshold', 0.18, 
+    ukf.py uses the following default values (if not provided): ['--numTensor', 2, '--stoppingFA', 0.15, '--seedingThreshold', 0.18, 
     '--Qm', 0.001, '--Ql', 70, '--Rs', 0.015, '--stepLength', 0.3, '--recordLength', 1.7, '--stoppingThreshold', 0.1, 
     '--seedsPerVoxel', 10, '--recordTensors']
 
@@ -791,7 +851,6 @@ Notice the changes in bold.
         nifti_fs [SWITCHES] 
 
     Switches:
-
         --expert VALUE:ExistingFile         expert options to use with recon-all for high-resolution data,
                                             see https://surfer.nmr.mgh.harvard.edu/fswiki/SubmillimeterRecon;
                                             the default is /tmp/pnlNipype/scripts/expert_file.txt
@@ -805,6 +864,7 @@ Notice the changes in bold.
         --noskullstrip                      if you do not provide --mask but --input is already masked, 
                                             omit further skull stripping by freesurfer
         -o, --outDir VALUE:str              output directory; required
+        --subfields                         FreeSurfer 7 supported -subfields
         --t2 VALUE:ExistingFile             t2 image in nifti format (nii, nii.gz)
         --t2mask VALUE:ExistingFile         mask the t2 before running Freesurfer, if t2 is provided but not its mask,
                                             -skullstrip is enabled with Freesurfer segmentation
@@ -812,7 +872,7 @@ Notice the changes in bold.
 
 Example usage:
     
-    nifti_fs -i t1Nifti -m t1Mask -o /tmp/fs/
+    nifti_fs -i t1Nifti -m t1Mask -o /tmp/fs/ --subfields
     nifti_fs -i t1Nifti -m t1Mask -o /tmp/fs/ --t2 t2Nifti --t2Mask
     nifti_fs -i t1NiftiAlreadyMasked -o /tmp/fs/ --noskullstrip
     nifti_fs -i t1NiftiAlreadyMasked -o /tmp/fs/ --noskullstrip --expert /my/expert_file.txt
@@ -870,6 +930,7 @@ The script that does the above is:
         nifti_fs2dwi [SWITCHES] [SUBCOMMAND [SWITCHES]] 
     
     Switches:
+        --bse VALUE:ExistingFile                      masked bse of DWI
         --bvals VALUE:ExistingFile                    bvals file of the DWI; required
         -d, --debug                                   Debug mode, saves intermediate transforms to out/fs2dwi-debug-<pid>
         --dwi VALUE:ExistingFile                      target DWI; required
