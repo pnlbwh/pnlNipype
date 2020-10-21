@@ -5,6 +5,7 @@
 
 Developed by Tashrif Billah, Sylvain Bouix, and Yogesh Rathi, Brigham and Women's Hospital (Harvard Medical School).
 
+This pipeline is also available as Docker and Singularity containers. See [pnlpipe-containers](https://github.com/pnlbwh/pnlpipe-containers) for details.
 
 Table of Contents
 =================
