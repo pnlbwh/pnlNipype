@@ -20,7 +20,7 @@ def _resample_dwi(vol):
 
     print('Resampling', vol)
 
-    ResampleImage('4', vol, vol.replace('.nii.gz', '_re.nii.gz'),
+    ResampleImage('3', vol, vol.replace('.nii.gz', '_re.nii.gz'),
                   args.size, args.size_spacing,
                   args.order, '5' if args.order == 4 else '')
 
@@ -62,21 +62,6 @@ def main():
             else:
                 pool.close()
             pool.join()
-
-
-            # for vol in volumes:
-            #     print('Resampling', vol)
-            #     try:
-            #         pool.apply_async(_resample_dwi, args=(vol, size_spacing), error_callback=RAISE)
-            #         # pool.apply_async(ResampleImage,
-            #         #                  args=('4', vol, vol.replace('.nii.gz', '_re.nii.gz'),
-            #         #                        args.size, size_spacing,
-            #         #                        args.order, '5' if args.order==4 else '') & FG)
-            #     except KeyboardInterrupt:
-            #         pool.terminate()
-            #
-            # pool.close()
-            # pool.join()
 
 
             volumes= glob('dwi*_re.nii.gz')
