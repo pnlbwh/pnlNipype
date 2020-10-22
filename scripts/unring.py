@@ -13,7 +13,6 @@ from plumbum.cmd import fslsplit, fslmerge
 import signal
 from tempfile import TemporaryDirectory
 
-N_CPU= 4
 
 def _unring(vol):
     
@@ -53,7 +52,7 @@ def main():
         try:
             N_CPU= int(sys.argv[3])
         except:
-            pass
+            N_CPU= 4
 
         pool= Pool(N_CPU)
         signal.signal(signal.SIGINT, sigint_handler)
