@@ -193,6 +193,7 @@ If you have already configured your environment following *pnlpipe*, you may pas
     source ${PNLPIPE_SOFT}/UKFTractography-*/env.sh
     source ${PNLPIPE_SOFT}/dcm2niix-*/env.sh
     source ${PNLPIPE_SOFT}/tract_querier-*/env.sh
+    export PATH=/absolute/path/to/pnlNipype/exec:$PATH
 
     export PY2BIN=/absolute/path/to/miniconda2/bin   # for whitematteranalysis package
 
@@ -347,7 +348,7 @@ you may put the following lines in your bashrc:
     source $FSLDIR/etc/fslconf/fsl.sh
     export FREESURFER_HOME=~/freesurfer              # you may specify another directory where FreeSurfer is installed
     source $FREESURFER_HOME/SetUpFreeSurfer.sh
-    export $PATH=$PATH:/absolute/path/to/pnlNipype/scripts
+    export PATH=/absolute/path/to/pnlNipype/exec:$PATH
     export ANTSPATH=/path/to/ANTs/bin/
     export PATH=$ANTSPATH:ANTs/Scripts:$PATH         # define ANTSPATH and export ANTs scripts in your path
     export PATH=~/dcm2niix/build/bin:$PATH
