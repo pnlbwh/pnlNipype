@@ -350,7 +350,7 @@ you may put the following lines in your bashrc:
     export $PATH=$PATH:/absolute/path/to/pnlNipype/scripts
     export ANTSPATH=/path/to/ANTs/bin/
     export PATH=$ANTSPATH:ANTs/Scripts:$PATH         # define ANTSPATH and export ANTs scripts in your path
-    export PATH=~/dcm2niix/build/bin
+    export PATH=~/dcm2niix/build/bin:$PATH
     export PY2BIN=/absolute/path/to/miniconda2/bin   # for whitematteranalysis package
 
 
