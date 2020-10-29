@@ -72,15 +72,31 @@ If you haven't worked with Linux before, it's important to know that spacing, ca
 
 If you have questions at any point, ask an RA! They will be more than happy to help you out and might teach you a neat trick/shortcut along the way.
 
+First and foremost, you should be connected to the network in order to continue with this pipeline. If you are on a workstation at the lab, you are likely already on the network so no further action is required. If you are working on NoMachine, you can follow [these instructions](https://confluence.partners.org/display/PNL/Getting+Started+Remotely#GettingStartedRemotely-NoMachine) to set NoMachine up on your PC. You will automatically be logged onto the cluster instead of the network when you first open a terminal on NoMachine. In order to get onto the network, type:
+
+```
+ssh -X <yourusername>@<host name or IP address>
+```
+Please ask an RA for a workstation host name or IP address (the two are interchangeable) to be assigned to you. The lign above will prompt for your Partners password. After you've entered your password, if you're able to do the following:
+
+```
+cd /rfanfs/pnl-zorro/
+```
+Then you've succesfully conntected to the network. 
+
 In order to practice each step in the pipeline, we will use a sample case located in `/rfanfs/pnl-zorro/Tutorial/sourcedata/`
 
 ## Copying the Sample Case to Your Home Directory
 
 Before beginning this tutorial, you will need to copy the directory with the sample case in it into a directory in your own "home" directory.
 
-After logging into your account on a lab computer, go to the **Applications** drop-down menu > **System Tools** > **Terminal** to open the Linux terminal
+After logging into your account on a lab computer, go to the **Applications** drop-down menu > **System Tools** > **Terminal** to open the Linux terminal. You don't need to do this if you've connected through shh.
  
-Before we begin, we'll need to make sure that your bashrc is sourced. This sets up an environment that allows you to readily access the scripts we will be using in this tutorial. Type: 
+Before we begin, we'll need to make sure that your bashrc is sourced. This sets up an environment that allows you to readily access the scripts we will be using in this tutorial. You can check if you've set up your bashrc already by typing:
+``` 
+cat ~/.bashrc
+``` 
+If you see `source /rfanfs/pnl-zorro/software/pnlpipe3/bashrc3` as the output, then you're all set. If not Type: 
  ```
  echo source /rfanfs/pnl-zorro/software/pnlpipe3/bashrc3 >> ~/.bashrc
  ```
