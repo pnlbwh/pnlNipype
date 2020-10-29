@@ -82,7 +82,7 @@ Please ask an RA for a workstation host name or IP address (the two are intercha
 ```
 cd /rfanfs/pnl-zorro/
 ```
-Then you've succesfully conntected to the network. 
+then you've succesfully connected to the network. 
 
 In order to practice each step in the pipeline, we will use a sample case located in `/rfanfs/pnl-zorro/Tutorial/sourcedata/`
 
