@@ -373,13 +373,14 @@ Now that you have a good mask on your T2, you are going to apply that mask to yo
 
 You will now need to complete an additional step so that the T2 mask you just made is aligned in the same way that the T1 is because you are about to register the T2 mask onto the T1 image. When you are in your derived `anat` directory, enter:
 ```
-nifti_makeRigidMask -l sub-sample_ses-1_desc-T2wXcMabs_mask.nii.gz -i sub-sample_ses-1_desc-Xc_T2w.nii.gz -t sub-sample_ses-1_desc-Xc_T1w.nii.gz -o sub-sample_ses-1_desc-T2wXcMabsToT1wXc_mask.nii.gz
+nifti_makeAlignedMask -l sub-sample_ses-1_desc-T2wXcMabs_mask.nii.gz -i sub-sample_ses-1_desc-Xc_T2w.nii.gz -t sub-sample_ses-1_desc-Xc_T1w.nii.gz --reg rigid -o sub-sample_ses-1_desc-T2wXcMabsToT1wXc_mask.nii.gz
 ```
 
   * The `-l` flag is the labelmap that you're moving to another image.
   * The `-i` flag is the input T2 .nii.gz image
   * The `-t` flag is the target image for which you want the new mask.
   * The `-o` flag is the output mask that will be generated.
+  * The `--reg` flag is the registration method. The default is `rigid`. The other option is `SyN`, but we'll use `rigid` for this example. 
   
 (Once again note the descriptive name of the T1 mask. Since this is registering a mask from a T2 onto the T1, the `desc` signifier reflects this)
 
