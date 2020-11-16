@@ -100,7 +100,7 @@ If you see `source /rfanfs/pnl-zorro/software/pnlpipe3/bashrc3` as the output, t
  ```
  echo source /rfanfs/pnl-zorro/software/pnlpipe3/bashrc3 >> ~/.bashrc
  ```
- Then open a new Terminal tab (Ctrl+Shift+T). If you're sourced properly, you should see `(pnlpipe3)` in front of your command prompt, as below :
+ Then open a new network Terminal tab (if you're on NoMachine, you'll have to open a new tab and then `ssh` to the network again, using your host name or IP address). If you're sourced properly, you should see `(pnlpipe3)` in front of your command prompt, as below :
  ```
  (pnlpipe3) [<yourusername>@pnl-t55-12 ~]$
  ```
