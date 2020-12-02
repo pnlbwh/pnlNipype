@@ -34,7 +34,9 @@ def axis_align_dwi(hdr_in, bvec_file, bval_file, out_prefix):
 
     spcdir_new, R= get_spcdir_new(hdr_in)
 
-    bvec_rotate(bvec_file, out_prefix+'.bvec', rot_matrix=R)
+    # bvecs are in IJK space, so no change due to axis alignment
+    # rename the bvec file
+    bvec_file.copy(out_prefix+'.bvec')
 
     # rename the bval file
     bval_file.copy(out_prefix+'.bval')
