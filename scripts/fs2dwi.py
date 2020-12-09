@@ -65,14 +65,12 @@ class FsToDwi(cli.Application):
     dwi = cli.SwitchAttr(
         ['--dwi'],
         cli.ExistingFile,
-        help='target DWI',
-        mandatory=True)
+        help='target DWI')
     
     bvals_file= cli.SwitchAttr(
         ['--bvals'],
         cli.ExistingFile,
-        help='bvals file of the DWI',
-        mandatory=True)
+        help='bvals file of the DWI')
 
     bse = cli.SwitchAttr(
         ['--bse'],
@@ -93,8 +91,7 @@ class FsToDwi(cli.Application):
     force= cli.Flag(
         ['--force'],
         help='turn on this flag to overwrite existing output',
-        default= False,
-        mandatory= False)
+        default= False)
 
     debug = cli.Flag(
         ['-d','--debug'],
