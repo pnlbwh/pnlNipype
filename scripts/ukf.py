@@ -62,7 +62,7 @@ class App(cli.Application):
 
                 bhigh_prefix= tmpdir / self.dwi.stem+ f'_bhigh_{self.bhigh}'
                 bhigh_dwi= bhigh_prefix+'.nii.gz'
-                grad_remove(shortdwi, bhigh_dwi, interval=[int(self.bhigh)+50,1e6], bvalFile=self.bvalFile, bvecFile=self.bvecFile)
+                grad_remove(shortdwi._path, bhigh_dwi, interval=[int(self.bhigh)+50,1e6], bvalFile=self.bvalFile, bvecFile=self.bvecFile)
 
                 shortdwi= local.path(bhigh_dwi)
                 self.bvalFile = local.path(bhigh_prefix + '.bval')
