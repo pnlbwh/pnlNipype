@@ -29,6 +29,8 @@ class App(cli.Application):
     dwimask = cli.SwitchAttr('-m', cli.ExistingFile, help='mask of the DWI in nifti', mandatory=True)
     bvalFile = cli.SwitchAttr('--bvals', cli.ExistingFile, help='bval file for DWI', mandatory= True)
     bvecFile = cli.SwitchAttr('--bvecs', cli.ExistingFile, help='bvec file for DWI', mandatory= True)
+    bhigh = cli.SwitchAttr('--bhigh',
+                            help='filter volumes corresponding to bval<=bhigh and run tractography on them only')
     out = cli.SwitchAttr('-o', help='output tract file (.vtk)', mandatory= True)
 
     givenParams = cli.SwitchAttr('--params',
@@ -53,6 +55,24 @@ class App(cli.Application):
 
             short= load_nifti(self.dwimask._path)
             save_nifti(shortmask._path, short.get_data().astype('int16'), short.affine, short.header)
+
+
+            if self.bhigh:
+                from conversion import grad_remove
+
+                bhigh_prefix= tmpdir / self.dwi.stem+ f'_bhigh_{self.bhigh}'
+                bhigh_dwi= bhigh_prefix+'.nii.gz'
+                grad_remove(shortdwi._path, bhigh_dwi, interval=[int(self.bhigh)+50,1e6], bvalFile=self.bvalFile, bvecFile=self.bvecFile)
+
+                shortdwi= local.path(bhigh_dwi)
+                self.bvalFile = local.path(bhigh_prefix + '.bval')
+                self.bvecFile = local.path(bhigh_prefix + '.bvec')
+
+                # preserve the filtered attributes in case the user wants to run UKFTractography separately in future
+                shortdwi.copy(self.dwi.dirname)
+                self.bvalFile.copy(self.dwi.dirname)
+                self.bvecFile.copy(self.dwi.dirname)
+
 
             # convert the dwi to NRRD
             nhdr_write(shortdwi._path, self.bvalFile._path, self.bvecFile._path, tmpdwi._path)

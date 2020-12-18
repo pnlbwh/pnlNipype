@@ -116,9 +116,9 @@ class TemporaryDirectory(object):
         if self._finalizer.detach():
             self._rmtree(self.name)
 
-def _mask_name(mask_prefix, slicer_exec=None, mask_qc=None):
+def _mask_name(mask_prefix, mask_qc=None):
 
-    if slicer_exec or mask_qc:
+    if mask_qc:
         return local.path(mask_prefix._path + 'Qc_mask.nii.gz')
     else:
         return local.path(mask_prefix._path + '_mask.nii.gz')
