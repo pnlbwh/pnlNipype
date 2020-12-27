@@ -105,7 +105,7 @@ Download [Miniconda Python 3.6 bash installer](https://conda.io/miniconda.html) 
 
 Activate the conda environment:
 
-    source ~/miniconda3/bin/activate # should introduce '(base)' in front of each line
+    source /path/to/miniconda3/bin/activate # should introduce '(base)' in front of each line
 
 #### FSL
 
@@ -126,7 +126,7 @@ The rest of the software can be installed with *pnlpipe* infrastructure:
     pip install -r requirements.txt    
     
     # define PYTHONPATH so following software installation scripts are found
-    export PYTHONPATH=/abs/directory/of/pnlpipe_software/
+    export PYTHONPATH=/path/to/pnlpipe_software/
     
     # this is where software modules are installed
     export PNLPIPE_SOFT=/directory/for/software/
@@ -163,7 +163,6 @@ You can get that by:
     conda install -c pnbwh ants
 
 
-    
 * dcm2niix
 
 dcm2niix executable will create NIFTI file from DICOM. The pipeline uses a reliable converter dcm2niix. 
@@ -180,11 +179,11 @@ Follow this [instruction](https://github.com/pnlbwh/ukftractography/blob/master/
 If you have already configured your environment following *pnlpipe*, you may pass the instruction below:
 
 
-    source ~/miniconda3/bin/activate                 # should introduce '(base)' in front of each line
-    export FSLDIR=~/fsl/                             # setup fsl environment
+    source /path/to/miniconda3/bin/activate                 # should introduce '(base)' in front of each line
+    export FSLDIR=/path/to/fsl/                             # setup fsl environment
     source $FSLDIR/etc/fslconf/fsl.sh
     export PATH=$PATH:$FSLDIR/bin
-    export FREESURFER_HOME=~/freesurfer              # you may specify another directory where FreeSurfer is installed
+    export FREESURFER_HOME=/path/to/freesurfer              # you may specify another directory where FreeSurfer is installed
     source $FREESURFER_HOME/SetUpFreeSurfer.sh
     
     # source PNLPIPE_SOFT environments
@@ -192,7 +191,7 @@ If you have already configured your environment following *pnlpipe*, you may pas
     source ${PNLPIPE_SOFT}/UKFTractography-*/env.sh
     source ${PNLPIPE_SOFT}/dcm2niix-*/env.sh
     source ${PNLPIPE_SOFT}/tract_querier-*/env.sh
-    export PATH=/absolute/path/to/pnlNipype/exec:$PATH
+    export PATH=/path/to/pnlNipype/exec:$PATH
 
 
     
@@ -205,8 +204,8 @@ Both *pnlpipe* and *pnlNipype* have centralized control over various temporary d
 The temporary directories can be large, and may possibly clog the default `/tmp/` directory. You may define custom 
 temporary directory with environment variable `PNLPIPE_TMPDIR`:
 
-    mkdir ~/tmp/
-    export PNLPIPE_TMPDIR=~/tmp/
+    mkdir /path/to/tmp/
+    export PNLPIPE_TMPDIR=/path/to/tmp/
 
 ## 4. Tests
 
@@ -339,16 +338,16 @@ If you want your terminal to have the scripts automatically discoverable and env
 you may put the following lines in your bashrc:
 
 
-    source ~/miniconda3/bin/activate                 # should intoduce '(base)' in front of each line
-    export FSLDIR=~/fsl                              # you may specify another directory where FreeSurfer is installed
+    source /path/to/miniconda3/bin/activate                 # should intoduce '(base)' in front of each line
+    export FSLDIR=/path/to/fsl                              # you may specify another directory where FreeSurfer is installed
     export PATH=$PATH:$FSLDIR/bin
     source $FSLDIR/etc/fslconf/fsl.sh
-    export FREESURFER_HOME=~/freesurfer              # you may specify another directory where FreeSurfer is installed
+    export FREESURFER_HOME=/path/to/freesurfer              # you may specify another directory where FreeSurfer is installed
     source $FREESURFER_HOME/SetUpFreeSurfer.sh
     export PATH=/absolute/path/to/pnlNipype/exec:$PATH
     export ANTSPATH=/path/to/ANTs/bin/
-    export PATH=$ANTSPATH:ANTs/Scripts:$PATH         # define ANTSPATH and export ANTs scripts in your path
-    export PATH=~/dcm2niix/build/bin:$PATH
+    export PATH=$ANTSPATH:ANTs/Scripts:$PATH                # define ANTSPATH and export ANTs scripts in your path
+    export PATH=/path/to/dcm2niix/build/bin:$PATH
 
 
 
