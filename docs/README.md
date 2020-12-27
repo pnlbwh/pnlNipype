@@ -105,7 +105,7 @@ Download [Miniconda Python 3.6 bash installer](https://conda.io/miniconda.html) 
 
 Activate the conda environment:
 
-    source /path/to/miniconda3/bin/activate # should introduce '(base)' in front of each line
+    source ~/miniconda3/bin/activate        # should introduce '(base)' in front of each line
 
 #### FSL
 
@@ -123,7 +123,7 @@ The rest of the software can be installed with *pnlpipe* infrastructure:
     git clone --recurse-submodules https://github.com/pnlbwh/pnlNipype.git && cd pnlNipype
     
     # install the python packages required to run pnlNipype
-    pip install -r requirements.txt    
+    pip install -r requirements.txt
     
     # define PYTHONPATH so following software installation scripts are found
     export PYTHONPATH=/path/to/pnlpipe_software/
@@ -179,11 +179,11 @@ Follow this [instruction](https://github.com/pnlbwh/ukftractography/blob/master/
 If you have already configured your environment following *pnlpipe*, you may pass the instruction below:
 
 
-    source /path/to/miniconda3/bin/activate                 # should introduce '(base)' in front of each line
-    export FSLDIR=/path/to/fsl/                             # setup fsl environment
+    source ~/miniconda3/bin/activate                 # should introduce '(base)' in front of each line
+    export FSLDIR=/path/to/fsl/                      # setup fsl environment
     source $FSLDIR/etc/fslconf/fsl.sh
     export PATH=$PATH:$FSLDIR/bin
-    export FREESURFER_HOME=/path/to/freesurfer              # you may specify another directory where FreeSurfer is installed
+    export FREESURFER_HOME=/path/to/freesurfer       # you may specify another directory where FreeSurfer is installed
     source $FREESURFER_HOME/SetUpFreeSurfer.sh
     
     # source PNLPIPE_SOFT environments
@@ -338,15 +338,15 @@ If you want your terminal to have the scripts automatically discoverable and env
 you may put the following lines in your bashrc:
 
 
-    source /path/to/miniconda3/bin/activate                 # should intoduce '(base)' in front of each line
-    export FSLDIR=/path/to/fsl                              # you may specify another directory where FreeSurfer is installed
+    source ~/miniconda3/bin/activate                 # should intoduce '(base)' in front of each line
+    export FSLDIR=/path/to/fsl                       # you may specify another directory where FreeSurfer is installed
     export PATH=$PATH:$FSLDIR/bin
     source $FSLDIR/etc/fslconf/fsl.sh
-    export FREESURFER_HOME=/path/to/freesurfer              # you may specify another directory where FreeSurfer is installed
+    export FREESURFER_HOME=/path/to/freesurfer       # you may specify another directory where FreeSurfer is installed
     source $FREESURFER_HOME/SetUpFreeSurfer.sh
-    export PATH=/absolute/path/to/pnlNipype/exec:$PATH
+    export PATH=/path/to/pnlNipype/exec:$PATH
     export ANTSPATH=/path/to/ANTs/bin/
-    export PATH=$ANTSPATH:ANTs/Scripts:$PATH                # define ANTSPATH and export ANTs scripts in your path
+    export PATH=$ANTSPATH:ANTs/Scripts:$PATH         # define ANTSPATH and export ANTs scripts in your path
     export PATH=/path/to/dcm2niix/build/bin:$PATH
 
 
