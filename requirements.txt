@@ -5,8 +5,10 @@ numpy
 pandas
 vtk
 nibabel
+nilearn
 dipy
 psutil
 python_log_indenter
 pynrrd
+git+https://github.com/SlicerDMRI/whitematteranalysis.git
 git+https://github.com/pnlbwh/conversion.git
