@@ -147,7 +147,6 @@ The rest of the software can be installed with *pnlpipe* infrastructure:
     cmd/install.py trainingDataT1AHCC
     cmd/install.py trainingDataT2Masks
         
-    # finally, install whitematteanalysis according to https://github.com/pnlbwh/pnlpipe#4-whitematteranalysis-package
 
 
 Detailed instruction can be found [here](https://github.com/pnlbwh/pnlpipe_software).
@@ -195,9 +194,7 @@ If you have already configured your environment following *pnlpipe*, you may pas
     source ${PNLPIPE_SOFT}/tract_querier-*/env.sh
     export PATH=/absolute/path/to/pnlNipype/exec:$PATH
 
-    export PY2BIN=/absolute/path/to/miniconda2/bin   # for whitematteranalysis package
 
-    
     
 *(If you would like, you may edit your [bashrc](#global-bashrc) to have environment automatically setup
 every time you open a new terminal)*
@@ -352,7 +349,7 @@ you may put the following lines in your bashrc:
     export ANTSPATH=/path/to/ANTs/bin/
     export PATH=$ANTSPATH:ANTs/Scripts:$PATH         # define ANTSPATH and export ANTs scripts in your path
     export PATH=~/dcm2niix/build/bin:$PATH
-    export PY2BIN=/absolute/path/to/miniconda2/bin   # for whitematteranalysis package
+
 
 
 # Tutorial
