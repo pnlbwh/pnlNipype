@@ -105,7 +105,7 @@ Download [Miniconda Python 3.6 bash installer](https://conda.io/miniconda.html) 
 
 Activate the conda environment:
 
-    source ~/miniconda3/bin/activate # should introduce '(base)' in front of each line
+    source ~/miniconda3/bin/activate        # should introduce '(base)' in front of each line
 
 #### FSL
 
@@ -123,10 +123,10 @@ The rest of the software can be installed with *pnlpipe* infrastructure:
     git clone --recurse-submodules https://github.com/pnlbwh/pnlNipype.git && cd pnlNipype
     
     # install the python packages required to run pnlNipype
-    pip install -r requirements.txt    
+    pip install -r requirements.txt
     
     # define PYTHONPATH so following software installation scripts are found
-    export PYTHONPATH=/abs/directory/of/pnlpipe_software/
+    export PYTHONPATH=/path/to/pnlpipe_software/
     
     # this is where software modules are installed
     export PNLPIPE_SOFT=/directory/for/software/
@@ -147,7 +147,6 @@ The rest of the software can be installed with *pnlpipe* infrastructure:
     cmd/install.py trainingDataT1AHCC
     cmd/install.py trainingDataT2Masks
         
-    # finally, install whitematteanalysis according to https://github.com/pnlbwh/pnlpipe#4-whitematteranalysis-package
 
 
 Detailed instruction can be found [here](https://github.com/pnlbwh/pnlpipe_software).
@@ -164,7 +163,6 @@ You can get that by:
     conda install -c pnbwh ants
 
 
-    
 * dcm2niix
 
 dcm2niix executable will create NIFTI file from DICOM. The pipeline uses a reliable converter dcm2niix. 
@@ -182,10 +180,10 @@ If you have already configured your environment following *pnlpipe*, you may pas
 
 
     source ~/miniconda3/bin/activate                 # should introduce '(base)' in front of each line
-    export FSLDIR=~/fsl/                             # setup fsl environment
+    export FSLDIR=/path/to/fsl/                      # setup fsl environment
     source $FSLDIR/etc/fslconf/fsl.sh
     export PATH=$PATH:$FSLDIR/bin
-    export FREESURFER_HOME=~/freesurfer              # you may specify another directory where FreeSurfer is installed
+    export FREESURFER_HOME=/path/to/freesurfer       # you may specify another directory where FreeSurfer is installed
     source $FREESURFER_HOME/SetUpFreeSurfer.sh
     
     # source PNLPIPE_SOFT environments
@@ -193,11 +191,9 @@ If you have already configured your environment following *pnlpipe*, you may pas
     source ${PNLPIPE_SOFT}/UKFTractography-*/env.sh
     source ${PNLPIPE_SOFT}/dcm2niix-*/env.sh
     source ${PNLPIPE_SOFT}/tract_querier-*/env.sh
-    export PATH=/absolute/path/to/pnlNipype/exec:$PATH
+    export PATH=/path/to/pnlNipype/exec:$PATH
 
-    export PY2BIN=/absolute/path/to/miniconda2/bin   # for whitematteranalysis package
 
-    
     
 *(If you would like, you may edit your [bashrc](#global-bashrc) to have environment automatically setup
 every time you open a new terminal)*
@@ -208,8 +204,8 @@ Both *pnlpipe* and *pnlNipype* have centralized control over various temporary d
 The temporary directories can be large, and may possibly clog the default `/tmp/` directory. You may define custom 
 temporary directory with environment variable `PNLPIPE_TMPDIR`:
 
-    mkdir ~/tmp/
-    export PNLPIPE_TMPDIR=~/tmp/
+    mkdir /path/to/tmp/
+    export PNLPIPE_TMPDIR=/path/to/tmp/
 
 ## 4. Tests
 
@@ -343,16 +339,16 @@ you may put the following lines in your bashrc:
 
 
     source ~/miniconda3/bin/activate                 # should intoduce '(base)' in front of each line
-    export FSLDIR=~/fsl                              # you may specify another directory where FreeSurfer is installed
+    export FSLDIR=/path/to/fsl                       # you may specify another directory where FreeSurfer is installed
     export PATH=$PATH:$FSLDIR/bin
     source $FSLDIR/etc/fslconf/fsl.sh
-    export FREESURFER_HOME=~/freesurfer              # you may specify another directory where FreeSurfer is installed
+    export FREESURFER_HOME=/path/to/freesurfer       # you may specify another directory where FreeSurfer is installed
     source $FREESURFER_HOME/SetUpFreeSurfer.sh
-    export PATH=/absolute/path/to/pnlNipype/exec:$PATH
+    export PATH=/path/to/pnlNipype/exec:$PATH
     export ANTSPATH=/path/to/ANTs/bin/
     export PATH=$ANTSPATH:ANTs/Scripts:$PATH         # define ANTSPATH and export ANTs scripts in your path
-    export PATH=~/dcm2niix/build/bin:$PATH
-    export PY2BIN=/absolute/path/to/miniconda2/bin   # for whitematteranalysis package
+    export PATH=/path/to/dcm2niix/build/bin:$PATH
+
 
 
 # Tutorial

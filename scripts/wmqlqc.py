@@ -29,16 +29,7 @@ class App(cli.Application):
 
     def main(self):
 
-        PY2BIN= getenv('PY2BIN', None)
-        if not PY2BIN:
-            raise EnvironmentError('whitematteranalysis requires Python 2 interpreter, define export PY2BIN=/absolute/path/to/miniconda2/bin')
-
-        else:
-            wmqlqc_tract_path = pjoin(PY2BIN, 'wm_quality_control_tractography.py')
-            if isfile(wmqlqc_tract_path):
-                wm_quality_control_tractography = local[wmqlqc_tract_path]
-            else:
-                raise FileNotFoundError(f'whitematteranalysis not found in {PY2BIN}, see README.md for instruction')
+        wm_quality_control_tractography = local['wm_quality_control_tractography.py']
 
         tuples = zip(self.caseids.split(), map(local.path, self.wmqldirs.split()))
         vtks = [(caseid, vtk) for (caseid, d) in tuples for vtk in d // '*.vtk']
