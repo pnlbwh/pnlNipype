@@ -123,7 +123,9 @@ The rest of the software can be installed with *pnlpipe* infrastructure:
     git clone --recurse-submodules https://github.com/pnlbwh/pnlNipype.git && cd pnlNipype
     
     # install the python packages required to run pnlNipype
-    pip install -r requirements.txt
+    wget https://raw.githubusercontent.com/pnlbwh/pnlpipe/master/python_env/environment36.yml
+    conda env create -f environment36.yml
+    conda activate pnlpipe3
     
     # define PYTHONPATH so following software installation scripts are found
     export PYTHONPATH=/path/to/pnlpipe_software/
