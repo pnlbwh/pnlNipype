@@ -1019,7 +1019,7 @@ Example usage:
 
 # Render white matter tracts    
 
-Make html page of rendered wmql tracts.
+Makes an html page of rendered wmql tracts. Note that execution of this script requires GUI support e.g. NoMachine.
 
 > wmqlqc -h
     
