@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from __future__ import print_function
-from util import logfmt, TemporaryDirectory, ANTSREG_THREADS, FILEDIR, pjoin
+from util import logfmt, TemporaryDirectory, FILEDIR, pjoin
 from plumbum import local, cli, FG
 from plumbum.cmd import antsApplyTransforms
 from subprocess import check_call
@@ -39,8 +39,7 @@ class App(cli.Application):
                         '-f', self.target,
                         '-m', self.infile,
                         '-t r' if self.reg_method=='rigid' else '',
-                        '-o', pre,
-                        '-n', ANTSREG_THREADS
+                        '-o', pre
                         ]), shell= True)
 
             xfrms= f'-t {warp} -t {affine}' if self.reg_method=='SyN' else f'-t {affine}'
