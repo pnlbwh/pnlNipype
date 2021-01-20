@@ -5,13 +5,13 @@ import sys, os, tempfile, psutil, warnings
 from plumbum.cmd import ResampleImageBySpacing, antsApplyTransforms, ImageMath
 from subprocess import check_call
 
-from util import load_nifti, ANTSREG_THREADS, FILEDIR, pjoin
+from util import load_nifti, FILEDIR, pjoin
 
 
 def rigid_registration(dim, moving, fixed, outPrefix):
 
     check_call((' ').join([pjoin(FILEDIR,'antsRegistrationSyNMI.sh'), '-d', str(dim), '-t', 'r', '-m', moving, 
-                           '-f', fixed, '-o', outPrefix, '-n', ANTSREG_THREADS]), shell=True)
+                           '-f', fixed, '-o', outPrefix]), shell=True)
 
 
 def registerFs2Dwi(tmpdir, namePrefix, b0masked, brain, wmparc, wmparc_out):
@@ -21,8 +21,8 @@ def registerFs2Dwi(tmpdir, namePrefix, b0masked, brain, wmparc, wmparc_out):
     warp = pre + '1Warp.nii.gz'
 
     print('Computing warp from brain.nii.gz to (resampled) baseline')
-    check_call((' ').join([pjoin(FILEDIR,'antsRegistrationSyNMI.sh'), '-d', '3', '-m', brain, '-f', b0masked, '-o', pre,
-                           '-n', ANTSREG_THREADS]), shell=True)
+    check_call((' ').join([pjoin(FILEDIR,'antsRegistrationSyNMI.sh'), '-d', '3', '-m', brain, '-f', b0masked, '-o', pre
+                           ]), shell=True)
 
     print('Applying warp to wmparc.nii.gz to create (resampled) wmparcindwi.nii.gz')
     antsApplyTransforms('-d', '3', '-i', wmparc, '-t', warp, affine,
@@ -42,8 +42,8 @@ def registerFs2Dwi_T2(tmpdir, namePrefix, b0masked, t2masked, T2toBrainAffine, w
     warp = pre + '1Warp.nii.gz'
 
     print('Computing warp from t2 to (resampled) baseline')
-    check_call((' ').join([pjoin(FILEDIR,'antsRegistrationSyNMI.sh'), '-d', '3', '-m', t2masked, '-f', b0masked, '-o', pre,
-                           '-n', ANTSREG_THREADS]), shell=True)
+    check_call((' ').join([pjoin(FILEDIR,'antsRegistrationSyNMI.sh'), '-d', '3', '-m', t2masked, '-f', b0masked, '-o', pre
+                           ]), shell=True)
 
     print('Applying warp to wmparc.nii.gz to create (resampled) wmparcindwi.nii.gz')
     antsApplyTransforms('-d', '3', '-i', wmparc, '-t', warp, affine, T2toBrainAffine,

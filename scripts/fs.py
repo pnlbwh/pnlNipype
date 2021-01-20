@@ -73,6 +73,11 @@ class App(cli.Application):
         ['--subfields'],
         help= 'FreeSurfer 7 supported -subfields')
 
+    no_rand = cli.Flag(
+        ['--norandomness'],
+        help= 'use the same random seed for certain binaries run under recon-all')
+
+
     def main(self):
         fshome = local.path(os.getenv('FREESURFER_HOME'))
 
@@ -134,6 +139,9 @@ class App(cli.Application):
             if not self.no_hires:
                 common_params.append('-hires')
                 autorecon1_params=['-expert', self.expert_file]
+
+            if self.no_rand:
+                common_params.append('-norandomness')
 
 
             # run recon_all in three steps so we can overwrite/provide MABS masked T1
