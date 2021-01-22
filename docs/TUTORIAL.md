@@ -14,13 +14,14 @@ Table of Contents
    * [Pipeline graphs](#pipeline-graphs)
       * [Structural](#structural)
       * [Diffusion](#diffusion)
-         * [PnlEddy PnlEpi or FslEddy PnlEpi](#pnleddypnlepi-or-fsleddypnlepi)
+         * [FslEddy PnlEpi or PnlEddy PnlEpi](#fsleddypnlepi-or-pnleddypnlepi)
          * [PnlEddy or FslEddy](#pnleddy-or-fsleddy)
          * [TopupEddy](#topupeddy)
       * [Tractography](#tractography)
    * [DICOM to NIFTI](#dicom-to-nifti)
    * [Temporary directory](#temporary-directory)
    * [Axis alignment](#axis-alignment)
+   * [Resampling](#resampling)
    * [Gibbs unringing](#gibbs-unringing)
    * [Masking](#masking)
       * [1. Structural mask](#1-structural-mask)
@@ -31,6 +32,7 @@ Table of Contents
          * [i. Baseline image](#i-baseline-image)
          * [ii. FSL Bet](#ii-fsl-bet)
       * [3. Multiply by mask](#3-multiply-by-mask)
+   * [Mask filtering](#mask-filtering)
    * [Eddy correction](#eddy-correction)
       * [i. Through registration](#i-through-registration)
       * [ii. Using FSL eddy](#ii-using-fsl-eddy)
@@ -43,8 +45,11 @@ Table of Contents
       * [i. Direct registration](#i-direct-registration)
       * [ii. Through T2 registration](#ii-through-t2-registration)
    * [White matter query](#white-matter-query)
-   * [Render white matter tracts](#render-white-matter-tracts) 
-   * [Additional scripts](#additional-scripts) 
+   * [Render white matter tracts](#render-white-matter-tracts)
+   * [Extract measures from tracts](#extract-measures-from-tracts)
+   * [800 cluster white matter percellation](#800-cluster-white-matter-percellation)
+   * [Additional scripts](#additional-scripts)
+
 
 Table of Contents created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
@@ -1043,7 +1048,7 @@ Example usage:
 
 
 
-# Diffusion measures from fiber tracts
+# Extract measures from tracts
 
 Extracts diffusion measures from white matter query tracts.
 
@@ -1084,7 +1089,7 @@ tricky. You may need something akin to:
     /path/to/Slicer --launcher-additional-settings /path/to/Slicer-12345.ini --launch FiberTractMeasurements
 
 
-# White matter percellation into 800 clusters
+# 800 cluster white matter percellation
 
 The task is performed by `wm_apply_ORG_atlas_to_subject.sh` script from whitematteranalysis package. 
 Details about it can be found [here](https://github.com/pnlbwh/luigi-pnlpipe/blob/769f97184899cc03908ed403ac59051f2cded248/docs/TUTORIAL.md#wma800). 
