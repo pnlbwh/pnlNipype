@@ -803,6 +803,7 @@ Putting them all together, example usage:
         -v, --version                   Prints the program's version and quits
     
     Switches:
+        --bhigh VALUE:str               filter volumes corresponding to bval<=bhigh and run tractography on them only
         --bvals VALUE:ExistingFile      bval file for DWI; required
         --bvecs VALUE:ExistingFile      bvec file for DWI; required
         -i VALUE:ExistingFile           DWI in nifti; required
@@ -861,6 +862,7 @@ Notice the changes in bold.
         -n, --nproc VALUE:str               number of processes/threads to use (-1 for all available) for Freesurfer
                                             segmentation; the default is 1
         --nohires                           omit high resolution freesurfer segmentation i.e. do not use -hires flag
+        --norandomness                      use the same random seed for certain binaries run under recon-all
         --noskullstrip                      if you do not provide --mask but --input is already masked, 
                                             omit further skull stripping by freesurfer
         -o, --outDir VALUE:str              output directory; required
@@ -1014,7 +1016,7 @@ Queries a whole brain tract file and extracts specific tract files.
 
 Example usage:
 
-    nifti_wmql -f `wmparcInDwi.nii.gz` -i tracts.vtk -o /tmp/wmquery/
+    nifti_wmql -f `wmparcInDwi.nii.gz` -i tracts.vtk -o /tmp/wmql_output_dir/
     
 
 # Render white matter tracts    
@@ -1038,6 +1040,61 @@ Example usage:
     
     wmqlqc -i /tmp/wmql_output_dir/ -o /tmp/htmls/ -s caseid
     wmqlqc -i "/tmp/wmql_output_dir1/ /tmp/wmql_output_dir2/" -o /tmp/htmls -s "caseid1 caseid2"
+
+
+
+# Diffusion measures from fiber tracts
+
+Extracts diffusion measures from white matter query tracts.
+
+> /path/to/Slicer --launch FiberTractMeasurements --help
+
+    /SlicerDMRI/lib/Slicer-4.11/cli-modules/./FiberTractMeasurements
+     [--returnparameterfile <std::string>]
+     [--processinformationaddress <std::string>]
+     [--xml]
+     [--echo]
+     [--moreStatistics]
+     [--printAllStatistics]
+     [-s <Comma|Space|Tab>]
+     [-f <Row_Hierarchy|Column_Hierarchy>]
+     [--outputfile <std::string>]
+     [--inputdirectory <std::string>]
+     [--fiberHierarchy <std::string>] ...
+     [-i <Fibers_Hierarchy|Fibers_File_Folder>]
+     [--]
+     [--version]
+     [-h]
+
+
+Example usage:
+
+    /path/to/Slicer --launch FiberTractMeasurements \
+    --inputtype Fibers_File_Folder \
+    --format Column_Hierarchy \
+    --separator Comma \
+    --inputdirectory /tmp/wmql_output_dir/ \
+    --outputfile  /tmp/tractMeasures.csv
+
+
+**NOTE** The above `Slicer` is representative of one that has knowledge of all your extension modules. If it is a shared 
+`Slicer` not installed in your home directory, then making it knowledgeable of all your extension modules can be a little 
+tricky. You may need something akin to:
+
+    /path/to/Slicer --launcher-additional-settings /path/to/Slicer-12345.ini --launch FiberTractMeasurements
+
+
+# White matter percellation into 800 clusters
+
+The task is performed by `wm_apply_ORG_atlas_to_subject.sh` script from whitematteranalysis package. 
+Details about it can be found [here](https://github.com/pnlbwh/luigi-pnlpipe/blob/769f97184899cc03908ed403ac59051f2cded248/docs/TUTORIAL.md#wma800). 
+Installation instruction can be found [here](https://github.com/pnlbwh/luigi-pnlpipe/blob/769f97184899cc03908ed403ac59051f2cded248/docs/README.md#whitematteranalysis).
+
+Example usage:
+
+    wm_apply_ORG_atlas_to_subject.sh -i tract.vtk -a /path/to/ORG-Atlases-1.2 \
+    -s /path/to/Slicer -m "/path/to/Slicer --launch FiberTractMeasurements" -n 4 \
+    -o /tmp/wma800/ -x 1 -d 1
 
 
 # Additional scripts
