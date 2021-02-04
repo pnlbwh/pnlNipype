@@ -63,11 +63,11 @@ Detailed DAGs are available [here](TUTORIAL.md#pipeline-graphs).
 # Dependencies
 
 * dcm2niix
-* ANTs == 2.3.0
-* UKFTractography == 1.0
-* freesurfer >= 5.0.3 
-* FSL >= 5.0.3
-* python >= 3
+* ANTs >= 2.3.0
+* UKFTractography >= 1.0
+* FreeSurfer >= 5.3.0
+* FSL >= 5.0.11
+* Python >= 3.6
 
 
 # Installation
@@ -88,9 +88,9 @@ a little more programming knowledge.
 
 Install the following software (ignore the one(s) you have already):
 
-* Python 3
-* FreeSurfer>=5.0.3
-* FSL>=5.0.11
+* Python >= 3.6
+* FreeSurfer >= 5.3.0
+* FSL >= 5.0.11
 
     
 #### Check system architecture
@@ -113,7 +113,7 @@ Follow the [instruction](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FslInstallation)
 
 #### FreeSurfer
     
-Follow the [instruction](https://surfer.nmr.mgh.harvard.edu/fswiki/DownloadAndInstall) to download and install FreeSurfer >= 5.0.3
+Follow the [instruction](https://surfer.nmr.mgh.harvard.edu/fswiki/DownloadAndInstall) to download and install FreeSurfer >= 5.3.0
 After installation, you can check FreeSurfer version by typing `freesurfer` on the terminal.
 
 #### pnlpipe software
