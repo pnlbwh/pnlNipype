@@ -462,6 +462,13 @@ rm -r sourcedata/sub-sample/ses-1/Diffusion_b3000
 
 **Note:** REMOVING FILES USING RM IS A PERMANENT ACTION AND IF YOU REMOVE FILES THAT YOU NEED, THEY ARE **GONE**. Because of this be very careful when you remove files and only remove files that you are 100% sure you and nobody else will ever need again. If you don't know what it is, do not remove it. Also, as a good rule of thumb it is best to never remove files that you did not make because you never know what they could be being used for. Basically, the only files we ever remove are ones that are redundant, such as in the example above.
 
+## Unringing
+
+Before beginning quality control for our diffusion image, we want to run a command that will correct for ringing artifacts in our diffusion volumes. Make sure you are in your `dwi` directory in derivatives and type: 
+```
+unring sub-sample_ses-1_desc-Xc_dwi.nii.gz sub-sample_ses-1_desc-UnXc_dwi.nii.gz 8
+```
+The first file is your dwi image, the second is what the output will be named (note the ‘Un’ that was added), and the last is the number of computing processing units used.
 
 ## Quality Control (Parameter, Visual, and Auto)
 
@@ -513,9 +520,9 @@ Before turning now to an automated QC tool, check with your PI about how severe 
 
 Now that you ideally have only the cases and gradients that are usable for further processing (which we'll say is all of them in this example), you can correct for motion and eddy currents. Make sure you are still in your derived `dwi` directory and enter:
 ```
-pnl_eddy --bvals sub-sample_ses-1_desc-Xc_dwi.bval --bvecs sub-sample_ses-1_desc-Xc_dwi.bvec -i sub-sample_ses-1_desc-Xc_dwi.nii.gz -o sub-sample_ses-1_desc-XcEd_dwi
+pnl_eddy --bvals sub-sample_ses-1_desc-Xc_dwi.bval --bvecs sub-sample_ses-1_desc-Xc_dwi.bvec -i sub-sample_ses-1_desc-Xc_dwi.nii.gz -o sub-sample_ses-1_desc-UnXcEd_dwi
 ```
-Running this to completion could take some time (about 30 minutes) and you will see it progress through each gradient. After it is done you will have a file called `sub-sample_ses-1_desc-XcEd_dwi.nii.gz` in the directory as well.
+Running this to completion could take some time (about 30 minutes) and you will see it progress through each gradient. After it is done you will have a file called `sub-sample_ses-1_desc-UnXcEd_dwi.nii.gz` in the directory as well.
 
 Since this takes a long time, it is also available to be copied from the `Other` directory in `sourcedata/sub-sample/ses-1/` into your derived `dwi` directory. You will also need to copy `sub-sample_ses-1_desc-XcEd_dwi.bval` and `sub-sample_ses-1_desc-XcEd_dwi.bvec` along with `sub-sample_ses-1_desc-XcEd_dwi.nii.gz`.
 
