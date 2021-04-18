@@ -126,12 +126,12 @@ The rest of the software can be installed with *pnlpipe* infrastructure:
     wget https://raw.githubusercontent.com/pnlbwh/pnlpipe/master/python_env/environment36.yml
     conda env create -f environment36.yml
     conda activate pnlpipe3
-
-    # define PNLPIPE_SOFT where you would like to install pnlNipype software modules
-    export PNLPIPE_SOFT=/path/to/wherever/you/want/
     
     # define PYTHONPATH so that pnlNipype/cmd/install.py can find relevant installation scripts
     export PYTHONPATH=`pwd`/pnlpipe_software/
+    
+    # define PNLPIPE_SOFT where you would like to install pnlNipype software modules
+    export PNLPIPE_SOFT=/path/to/wherever/you/want/
     
     # https://github.com/pnlbwh/ukftractography
     cmd/install.py UKFTractography
