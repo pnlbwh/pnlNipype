@@ -127,8 +127,8 @@ The rest of the software can be installed with *pnlpipe* infrastructure:
     conda env create -f environment36.yml
     conda activate pnlpipe3
     
-    # define PYTHONPATH so that pnlNipype/cmd/install.py can find relevant installation scripts
-    export PYTHONPATH=`pwd`/pnlpipe_software/
+    # define PYTHONPATH so that pnlNipype/cmd/install.py can find pnlpipe_software/* installation scripts
+    export PYTHONPATH=`pwd`
     
     # define PNLPIPE_SOFT where you would like to install pnlNipype software modules
     export PNLPIPE_SOFT=/path/to/wherever/you/want/
