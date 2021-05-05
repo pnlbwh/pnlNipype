@@ -26,7 +26,7 @@ Table of Contents
       * [Axis Aligning and Centering](#axis-aligning-and-centering-1)
       * [Quality Control (Parameter, Visual, and Auto)](#quality-control-parameter-visual-and-auto)
       * [Motion and Eddy Current Correction](#motion-and-eddy-current-correction)
-      * [Tensor Mask](#tensor-mask)
+      * [Diffusion Masking and Mask QC](#diffusion-mask-and-mask-QC)
       * [EPI Distortion Correction](#epi-distortion-correction)
       * [Two-Tensor Whole Brain Tractography](#two-tensor-whole-brain-tractography)
       * [Finishing the Pipeline](#finishing-the-pipeline)
@@ -526,10 +526,29 @@ Running this to completion could take some time (about 30 minutes) and you will 
 
 Since this takes a long time, it is also available to be copied from the `Other` directory in `sourcedata/sub-sample/ses-1/` into your derived `dwi` directory. You will also need to copy `sub-sample_ses-1_desc-XcEd_dwi.bval` and `sub-sample_ses-1_desc-XcEd_dwi.bvec` along with `sub-sample_ses-1_desc-XcEd_dwi.nii.gz`.
 
-## Tensor Mask
+## Diffusion Masking and Mask QC
 
-To mask a diffusion image, follow the instructions [here](https://confluence.partners.org/pages/viewpage.action?spaceKey=PNL&title=Segment+Editor+Diffusion+Masking) to mask `sub-sample_ses-1_desc-XcEd_dwi.nii.gz` (in the derived `dwi` directory). Be sure to save the output mask into your derived `dwi` directory as `sub-sample_ses-1_desc-dwiXc_mask.nii.gz`. **Note: The structural mask we copied over earlier had a more specific descriptor, specifying it as a mask that was created using Mabs. Since you created this mask manually, there would be no such signifier. 
+Just as we masked the structural image, we will now need to create a mask for our diffusion image. To do this, we first need to make a text file that contains a path to your dwi image. In your `dwi` directory, type `vim dwi.txt`. This will take you to a blank page. Press “i” to insert text and type your path to the dwi image: 
+```
+/data/pnl/home/<username>/Tutorial/PipelineTraining/rawdata/sub-sample/ses-1/dwi/sub-sample_ses-1_desc-UnXc_dwi.nii.gz
+```
+Now let’s return to the terminal: press esc colon wq (esc:wq) and this will save the text you’ve added to your text file.
 
+Now that we have our text file, make sure you’re in your `dwi` directory and enter:
+```
+dwi_masking.py -i `pwd`/dwi.txt -f /data/pnl/soft/pnlpipe3/CNN-Diffusion-MRIBrain-Segmentation/model_folder -p 97 -nproc 4
+```
+  * The `-f` flag references the folder containing the trained models
+  * The `-p` flag is the percentile to normalize image [0,1]
+  * The `-nproc` flag is the number of processes to use
+	
+After this finishes running, you should find `sub-sample_ses-1_desc-dwiUnXc_Mabs_mask.nii.gz` in your `dwi` directory
+Before you begin your visual QC of the diffusion mask, finish watching the masking tutorial video in the Training Materials Dropbox: https://www.dropbox.com/s/6h3dlemx6omlive/QC%20Tutorial.mp4?dl=0
+
+Now that you have a better sense of how to QC diffusion images, we can use Slicer to perform a visual QC of our generated mask, just as we did for our structural masks. In Slicer, load `sub-sample_ses-1_desc-UnXc_dwi.nii.gz` then load `sub-sample_ses-1_desc-dwiUnXc_Mabs_mask.nii.gz` as a labelmap. 
+Again, make sure you are going through each slice in each view. Be sure the mask is not under inclusive, that it does not include parts that are not the brain, and that there are no single-voxel islands. When you have completed your visual QC, save the file as `sub-sample_ses-1_desc-dwiUnXc_MabsQc_mask.nii.gz`.
+ 
+ 
 ## EPI Distortion Correction
 
 To further correct for distortions caused by magnet interactions and magnetic inhomogeneity (which leads to intensity loss and voxel shifts), you will now have to run an EPI correction. This is done by co-registering it with the T2 image, which means that you need to have T2 images for the case to do this step and also that you will need to have masked the T2 file (step 5 of the structural pipeline) so that you can use it for this. If T2 images were not taken for the particular case (they were for this example) then you will have to skip this step. 
@@ -818,6 +837,10 @@ nifti_align -i dwi.nii.gz --bvals dwi.bval --bvecs dwi.bvec --axisAlign --center
 Eddy current correction
 ```
 pnl_eddy -i dwi-xc.nii.gz --bvals dwi-xc.bval --bvecs dwi-xc.bvec -o dwi-xc-ed
+```
+Diffusion Masking with dwimasking.py
+```
+dwi_masking.py -i path/to/dwi.txt -f /data/pnl/soft/pnlpipe3/CNN-Diffusion-MRIBrain-Segmentation/model_folder -p 97 -nproc 4
 ```
 Brain Masking with FSL BET
 ```
