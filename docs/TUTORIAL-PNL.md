@@ -539,7 +539,7 @@ Now that we have our text file, make sure you’re in your `dwi` directory and e
 dwi_masking.py -i `pwd`/dwi.txt -f /data/pnl/soft/pnlpipe3/CNN-Diffusion-MRIBrain-Segmentation/model_folder -p 97 -nproc 4
 ```
   * The `-f` flag references the folder containing the trained models
-  * The `-p` flag is the percentile to normalize image [0,1]
+  * The `-p` flag is the percentile of image intensity value to be used for normalizing the image to [0,1]
   * The `-nproc` flag is the number of processes to use
 	
 After this finishes running, you should find `sub-sample_ses-1_desc-dwiUnXc_Mabs_mask.nii.gz` in your `dwi` directory
