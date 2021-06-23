@@ -263,19 +263,18 @@ There are several fields that you will need to check in the image header. Bear i
 
    * Many of these fields can also be compared between all cases at once by using a `for` loop and `| grep`.
 
-In addition to checking the image header, you need to do a visual QC of the images with **fsleyes**.
+In addition to checking the image header, you need to do a visual QC of the images with **Slicer**.
 
-Before you start QCing your actual data, ask a Research Assistant for a QC tutorial! They can teach you what problems to look for in your structural images.
+Before you start QCing your actual data, watch the first half of this training video (until 32:00):
+https://www.dropbox.com/s/6h3dlemx6omlive/QC%20Tutorial.mp4?dl=0
 
-* To open fsleyes, enter:
+Once you have finished watching, you can now begin your visual QC.
+
+* To open Slicer, enter:
 ```
-fsleyes &
+s10
 ```
-The ampersand (&) allows you to open fsleyes in a separate window, so that you can continue to use your terminal. If you forget to run fsleyes without an ampersand at the end, you can pause it by going back into the terminal and pressing **ctrl+z**, then type `bg` to put it in the background. If you want to kill any process running in the background like this, you will need to bring it back into the foreground with `fg`, and then you can type **ctrl+c** as usual. You can also type **ctrl+shift+t** to open a new tab if you don't want to deal with background/foreground issues.
-
-Note that it may take a while for fsleyes to load.
-
-* To open your sample file go to **File** > **Add from file**. Make sure that `/rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining/derivatives/sub-samples/ses-1/anat` is listed on the top and then select `sub-sample_ses-1_desc-Xc_T1w.nii.gz`.
+* To open your sample file go to **Load Data** > **Choose File(s) to Add**. Make sure that `/rfanfs/pnl-zorro/home/<yourdirectory>/PipelineTraining/derivatives/sub-samples/ses-1/anat` is listed on the top and then select `sub-sample_ses-1_desc-Xc_T1w.nii.gz`.
 
 
 * You will want to examine your images for various potential artifacts and issues, e.g. **motion artifacts**, **ringing**, **ghosting of the skull or eyeballs**, **cut-offs and other artifacts**. If you see any of these problems in the scan, note it in your QC spreadsheet. Be sure to also check with your PI about what qualifies as a failed scan for your dataset.
@@ -296,6 +295,8 @@ An example of ghosting where you can see the back of the skull is shown a second
 Example of ringing. If you look closely at the top of the image you will see ringing forming around the outside of the brain (which has been magnified below)
 
 ![](../Misc/ringing_closeup.png)
+
+To close the Slicer window, choose **File** > **Close Scene** > **Close Scene (Discard Modifications)**
 
 
 ## Brain Masking and Mask QC
@@ -493,6 +494,10 @@ Bear in mind that, unless otherwise specified, the value for each field listed i
 The other half of the QC is the visual and automatic check where you look at the images on FSLEyes.
 
 To open FSLEyes, type `fsleyes &`.
+
+The ampersand (&) allows you to open fsleyes in a separate window, so that you can continue to use your terminal. If you forget to run fsleyes without an ampersand at the end, you can pause it by going back into the terminal and pressing **ctrl+z**, then type `bg` to put it in the background. If you want to kill any process running in the background like this, you will need to bring it back into the foreground with `fg`, and then you can type **ctrl+c** as usual. You can also type **ctrl+shift+t** to open a new tab if you don't want to deal with background/foreground issues.
+
+Note that it may take a while for fsleyes to load.
 
 To open your sample file go to **File** > **Add from File** > and then open `sub-sample_ses-1_desc-Xc_dwi.nii.gz` in the `/rfanfs/pnl-zorro/home/yourdirectory/PipelineTraining/derivatives/sub-sample/ses-1/dwi` directory.
 
