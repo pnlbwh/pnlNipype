@@ -26,7 +26,7 @@ Table of Contents
       * [Axis Aligning and Centering](#axis-aligning-and-centering-1)
       * [Quality Control (Parameter, Visual, and Auto)](#quality-control-parameter-visual-and-auto)
       * [Motion and Eddy Current Correction](#motion-and-eddy-current-correction)
-      * [Diffusion Masking and Mask QC](#diffusion-mask-and-mask-QC)
+      * [Diffusion Masking and Mask QC](#diffusion-masking-and-mask-QC)
       * [EPI Distortion Correction](#epi-distortion-correction)
       * [Two-Tensor Whole Brain Tractography](#two-tensor-whole-brain-tractography)
       * [Finishing the Pipeline](#finishing-the-pipeline)
@@ -467,15 +467,17 @@ rm -r sourcedata/sub-sample/ses-1/Diffusion_b3000
 
 Before beginning quality control for our diffusion image, we want to run a command that will correct for ringing artifacts in our diffusion volumes. Make sure you are in your `dwi` directory in derivatives and type: 
 ```
-unring sub-sample_ses-1_desc-Xc_dwi.nii.gz sub-sample_ses-1_desc-UnXc_dwi.nii.gz 8
+unring sub-sample_ses-1_desc-Xc_dwi.nii.gz sub-sample_ses-1_desc-UnXc_dwi 8
 ```
-The first file is your dwi image, the second is what the output will be named (note the ‘Un’ that was added), and the last is the number of computing processing units used.
+The first file is your dwi image, the second is the prefix for the output name (note the ‘Un’ that was added), and the last is the number of computing processing units used.
+
+You should now have `sub-sample_ses-1_desc-UnXc_dwi.nii.gz, sub-sample_ses-1_desc-UnXc_dwi.bval, sub-sample_ses-1_desc-UnXc_dwi.bvec` files in your `dwi` directory.
 
 ## Quality Control (Parameter, Visual, and Auto)
 
 You will first need to do a parameter check where you are essentially making sure all of the headers look like they should and that all the cases match each other. Whether or not each case passes the different QC checks should be recorded in an **Excel** spreadsheet on **LabArchives** or on **Dropbox**. There are several fields you will need to look at but first to see the header, make sure you are still in the directory with your new `.nii.gz` files and enter:
 ```
-fslhd sub-sample_ses-1_desc-Xc_dwi.nii.gz
+fslhd sub-sample_ses-1_desc-UnXc_dwi.nii.gz
 ```
 Bear in mind that, unless otherwise specified, the value for each field listed is the value that you should see in this example, but it may vary depending on your project.
 
@@ -485,9 +487,9 @@ Bear in mind that, unless otherwise specified, the value for each field listed i
 
 * `sto_xy{1,2,3,4}` (space directions and space origins) should be the same between cases. Small deviations in space directions between cases are okay (e.g. .98877350 instead of 1), but a large difference (e.g. 2 instead of 1) is a problem, as is a difference in sign (e.g. -1 instead of 1). Depending on the situation, the space directions of an image may be corrected via upsampling or downsampling the image. Talk to an RA or your PI about this possibility if you encounter it. In this example it should read (-2, 0, 0, 127.5) (0, 2, 0, -127.5) (0, 0, 2, -69) (0, 0, 0, 1). If a case has a different space origin, it may mean that this case was not axis aligned and centered.
 
-* If you type `cat sub-sample_ses-1_desc-Xc_dwi.bval`, you can see the b-values from all the gradients. The highest should be consistent across all cases, and should be a reasonable value (usually, these tend to be between 2000-3000).
+* If you type `cat sub-sample_ses-1_desc-UnXc_dwi.bval`, you can see the b-values from all the gradients. The highest should be consistent across all cases, and should be a reasonable value (usually, these tend to be between 2000-3000).
 
-* If you type `cat sub-sample_ses-1_desc-Xc_dwi.bvec`, you can see the vectors from each gradient. There should be 73 lines and the three numbers (x,y,z vectors) for each gradient should roughly match between cases.  If either there are not all of the gradients or the numbers don't match in a case, the case is failed.
+* If you type `cat sub-sample_ses-1_desc-UnXc_dwi.bvec`, you can see the vectors from each gradient. There should be 73 lines and the three numbers (x,y,z vectors) for each gradient should roughly match between cases.  If either there are not all of the gradients or the numbers don't match in a case, the case is failed.
 
 * Many of these fields can also be compared between all cases at once using a for loop.
 
@@ -499,7 +501,7 @@ The ampersand (&) allows you to open fsleyes in a separate window, so that you c
 
 Note that it may take a while for fsleyes to load.
 
-To open your sample file go to **File** > **Add from File** > and then open `sub-sample_ses-1_desc-Xc_dwi.nii.gz` in the `/rfanfs/pnl-zorro/home/yourdirectory/PipelineTraining/derivatives/sub-sample/ses-1/dwi` directory.
+To open your sample file go to **File** > **Add from File** > and then open `sub-sample_ses-1_desc-UnXc_dwi.nii.gz` in the `/rfanfs/pnl-zorro/home/yourdirectory/PipelineTraining/derivatives/sub-sample/ses-1/dwi` directory.
 
 You can scroll through each view by clicking and dragging in the window with the left mouse button. The sliders at the top next to brightness and contrast will allow you to adjust how the picture looks. To scroll through the gradient directions, there will be a box labeled **Volume** near the bottom of the screen. You can use your scroll wheel while hovering over this box, click on the up and down arrows, or type in a desired number to go through each gradient. You will probably have to adjust the brightness/contrast for some of these. Have an RA go through a QC tutorial with you to learn more about QCing diffusion scan.
 
@@ -525,33 +527,34 @@ Before turning now to an automated QC tool, check with your PI about how severe 
 
 Now that you ideally have only the cases and gradients that are usable for further processing (which we'll say is all of them in this example), you can correct for motion and eddy currents. Make sure you are still in your derived `dwi` directory and enter:
 ```
-pnl_eddy --bvals sub-sample_ses-1_desc-Xc_dwi.bval --bvecs sub-sample_ses-1_desc-Xc_dwi.bvec -i sub-sample_ses-1_desc-Xc_dwi.nii.gz -o sub-sample_ses-1_desc-UnXcEd_dwi
+pnl_eddy --bvals sub-sample_ses-1_desc-UnXc_dwi.bval --bvecs sub-sample_ses-1_desc-UnXc_dwi.bvec -i sub-sample_ses-1_desc-UnXc_dwi.nii.gz -o sub-sample_ses-1_desc-UnXcEd_dwi
 ```
 Running this to completion could take some time (about 30 minutes) and you will see it progress through each gradient. After it is done you will have a file called `sub-sample_ses-1_desc-UnXcEd_dwi.nii.gz` in the directory as well.
 
-Since this takes a long time, it is also available to be copied from the `Other` directory in `sourcedata/sub-sample/ses-1/` into your derived `dwi` directory. You will also need to copy `sub-sample_ses-1_desc-XcEd_dwi.bval` and `sub-sample_ses-1_desc-XcEd_dwi.bvec` along with `sub-sample_ses-1_desc-XcEd_dwi.nii.gz`.
+Since this takes a long time, it is also available to be copied from the `Other` directory in `sourcedata/sub-sample/ses-1/` into your derived `dwi` directory. You will also need to copy `sub-sample_ses-1_desc-UnXcEd_dwi.bval` and `sub-sample_ses-1_desc-UnXcEd_dwi.bvec` along with `sub-sample_ses-1_desc-UnXcEd_dwi.nii.gz`.
 
 ## Diffusion Masking and Mask QC
 
 Just as we masked the structural image, we will now need to create a mask for our diffusion image. To do this, we first need to make a text file that contains a path to your dwi image. In your `dwi` directory, type `vim dwi.txt`. This will take you to a blank page. Press “i” to insert text and type your path to the dwi image: 
 ```
-/data/pnl/home/<username>/Tutorial/PipelineTraining/rawdata/sub-sample/ses-1/dwi/sub-sample_ses-1_desc-UnXc_dwi.nii.gz
+/rfanfs/pnl-zorro/home/<yourusername>/PipelineTraining/derivatives/sub-sample/ses-1/dwi/sub-sample_ses-1_desc-UnXcEd_dwi.nii.gz
 ```
 Now let’s return to the terminal: press esc colon wq (esc:wq) and this will save the text you’ve added to your text file.
 
 Now that we have our text file, make sure you’re in your `dwi` directory and enter:
 ```
-dwi_masking.py -i `pwd`/dwi.txt -f /data/pnl/soft/pnlpipe3/CNN-Diffusion-MRIBrain-Segmentation/model_folder -p 97 -nproc 4
+dwi_masking.py -i `pwd`/dwi.txt -f /rfanfs/pnl-zorro/software/pnlpipe3/CNN-Diffusion-MRIBrain-Segmentation/model_folder -p 97 -nproc 4
 ```
   * The `-f` flag references the folder containing the trained models
   * The `-p` flag is the percentile of image intensity value to be used for normalizing the image to [0,1]
   * The `-nproc` flag is the number of processes to use
 	
-After this finishes running, you should find `sub-sample_ses-1_desc-dwiUnXc_Mabs_mask.nii.gz` in your `dwi` directory
+After this finishes running, you should find `sub-sample_ses-1_desc-UnXcEd_dwi_bse-multi_BrainMask.nii.gz` in your `dwi` directory.
+
 Before you begin your visual QC of the diffusion mask, finish watching the masking tutorial video in the Training Materials Dropbox: https://www.dropbox.com/s/6h3dlemx6omlive/QC%20Tutorial.mp4?dl=0
 
-Now that you have a better sense of how to QC diffusion images, we can use Slicer to perform a visual QC of our generated mask, just as we did for our structural masks. In Slicer, load `sub-sample_ses-1_desc-UnXc_dwi.nii.gz` then load `sub-sample_ses-1_desc-dwiUnXc_Mabs_mask.nii.gz` as a labelmap. 
-Again, make sure you are going through each slice in each view. Be sure the mask is not under inclusive, that it does not include parts that are not the brain, and that there are no single-voxel islands. When you have completed your visual QC, save the file as `sub-sample_ses-1_desc-dwiUnXc_MabsQc_mask.nii.gz`.
+Now that you have a better sense of how to QC diffusion images, we can use Slicer to perform a visual QC of our generated mask, just as we did for our structural masks. In Slicer, load `sub-sample_ses-1_desc-UnXcEd_dwi.nii.gz` then load `sub-sample_ses-1_desc-UnXcEd_dwi_bse-multi_BrainMask.nii.gz` as a labelmap. 
+Again, make sure you are going through each slice in each view. Be sure the mask is not under inclusive, that it does not include parts that are not the brain, and that there are no single-voxel islands. When you have completed your visual QC, save the file as `sub-sample_ses-1_desc-UnXcEd_dwi_bse-multi_BrainMaskQc.nii.gz`.
  
  
 ## EPI Distortion Correction
