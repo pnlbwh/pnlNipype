@@ -318,7 +318,10 @@ This command will generate a mask for your T2 image, however it takes several ho
 
 [Link to the Manual Here](https://drive.google.com/file/d/0B_CbEBeE5Vr0SEwyS0RNWlJLbWs/view?usp=sharing)
 
-After you run `nifti_atlas`, you need to check the quality of your mask. Open **Slicer** by entering `/rfanfs/pnl-zorro/software/Slicer-4.8.1-linux-amd64/Slicer`.
+Before checking your mask, watch the Masking Tutorial here:
+https://www.dropbox.com/home/Training%20Materials?preview=Masking+Tutorial.mp4
+
+After running `nifti_atlas` and watching the masking tutorial, you are now ready to check the quality of your mask. Open **Slicer** by entering `/rfanfs/pnl-zorro/software/Slicer-4.8.1-linux-amd64/Slicer`.
 
 Open `sub-sample_ses-1_desc-T2wXcMabs_mask.nii.gz` in **Slicer**, which should be in your derived `anat` directory.  Make sure that you select **Show Options** in the upper right corner and then scroll over and select the **Label Map** option. You will also need to open `sub-sample_ses-1_desc-Xc_T2w.nii.gz` (no need to select **Label Map** for this one).
 
@@ -393,7 +396,10 @@ This process will take about 12 hours to run to completion for each case.
 
   * `sample_freesurfer` can also be found in the `Other` directory as part of your `PipelineTraining/sourcedata` directory. Stop **FreeSurfer** from running by entering **Control+c** and you can copy this directory into your derived `anat`. Just remember to use the `-r` option here since there are many directories and files within this.
 
-Once it has completed, you need to quality control your FreeSurfer labelmap. To start that you will need to start by opening it in Slicer. Enter:
+Once it has completed, you need to quality control your FreeSurfer labelmap. Before moving on, watch the Freesurfer quality control tutorial here:
+https://www.dropbox.com/home/Training%20Materials?preview=Freesurfer+QC+Tutorial.mp4
+
+To start quality checking your Freesurfer labelmap, you will need to begin by opening it in Slicer. Enter:
 `/rfanfs/pnl-zorro/software/Slicer-4.8.1/Slicer`to open slicer and then open it going to **File** > **Add Data** > **Choose File** to Add then go to your `sample_freesurfer` directory in strct and then go into `mri` and open `wmparc.mgz`. Before selecting the final **OK** make sure you select **Show Options** and then select **LabelMap**. Also open `brain.mgz`, which can be found in the `sample_freesurfer/mri` directory.
 
 Now in order to actually see your label map transposed on the T1, you need to go to the **Modules** drop-down menu and select **Volumes**. First, make sure the Active Volume is `wmparc`. Then, under the **Volume Information** heading, make sure LabelMap is selected. Last, under the Display heading, for the **Lookup Table** dropdown box, go to **FreeSurfer** > **FreeSurferLabels**. You should end up with something that looks like this:
@@ -493,9 +499,10 @@ Bear in mind that, unless otherwise specified, the value for each field listed i
 
 * Many of these fields can also be compared between all cases at once using a for loop.
 
-The other half of the QC is the visual and automatic check where you look at the images on FSLEyes.
+The other half of the QC is the visual and automatic check where you look at the images on FSLEyes. Before beginning this step, watch the other half of the QC tutorial here (after 32:00):
+https://www.dropbox.com/home/Training%20Materials?preview=QC+Tutorial.mp4
 
-To open FSLEyes, type `fsleyes &`.
+Now that you're familiar with quality controlling diffusion images, you can open FSLEyes by typing `fsleyes &`.
 
 The ampersand (&) allows you to open fsleyes in a separate window, so that you can continue to use your terminal. If you forget to run fsleyes without an ampersand at the end, you can pause it by going back into the terminal and pressing **ctrl+z**, then type `bg` to put it in the background. If you want to kill any process running in the background like this, you will need to bring it back into the foreground with `fg`, and then you can type **ctrl+c** as usual. You can also type **ctrl+shift+t** to open a new tab if you don't want to deal with background/foreground issues.
 
@@ -551,9 +558,7 @@ dwi_masking.py -i `pwd`/dwi.txt -f /rfanfs/pnl-zorro/software/pnlpipe3/CNN-Diffu
 	
 After this finishes running, you should find `sub-sample_ses-1_desc-UnXcEd_dwi_bse-multi_BrainMask.nii.gz` in your `dwi` directory.
 
-Before you begin your visual QC of the diffusion mask, finish watching the masking tutorial video in the Training Materials Dropbox: https://www.dropbox.com/s/6h3dlemx6omlive/QC%20Tutorial.mp4?dl=0
-
-Now that you have a better sense of how to QC diffusion images, we can use Slicer to perform a visual QC of our generated mask, just as we did for our structural masks. In Slicer, load `sub-sample_ses-1_desc-UnXcEd_dwi.nii.gz` then load `sub-sample_ses-1_desc-UnXcEd_dwi_bse-multi_BrainMask.nii.gz` as a labelmap. 
+We can now use Slicer to perform a visual QC of our generated mask, just as we did for our structural masks. In Slicer, load `sub-sample_ses-1_desc-UnXcEd_dwi.nii.gz` then load `sub-sample_ses-1_desc-UnXcEd_dwi_bse-multi_BrainMask.nii.gz` as a labelmap. 
 Again, make sure you are going through each slice in each view. Be sure the mask is not under inclusive, that it does not include parts that are not the brain, and that there are no single-voxel islands. When you have completed your visual QC, save the file as `sub-sample_ses-1_desc-UnXcEd_dwi_bse-multi_BrainMaskQc.nii.gz`.
  
  
