@@ -558,7 +558,7 @@ dwi_masking.py -i `pwd`/dwi.txt -f /rfanfs/pnl-zorro/software/pnlpipe3/CNN-Diffu
 	
 After this finishes running, you should find `sub-sample_ses-1_desc-UnXcEd_dwi_bse-multi_BrainMask.nii.gz` in your `dwi` directory.
 
-We can now use Slicer to perform a visual QC of our generated mask, just as we did for our structural masks. In Slicer, load `sub-sample_ses-1_desc-UnXcEd_dwi.nii.gz` then load `sub-sample_ses-1_desc-UnXcEd_dwi_bse-multi_BrainMask.nii.gz` as a labelmap. 
+We can now use Slicer to perform a visual QC of our generated mask, just as we did for our structural masks. In Slicer, load `sub-sample_ses-1_desc-UnXcEd_dwi_bse.nii.gz` then load `sub-sample_ses-1_desc-UnXcEd_dwi_bse-multi_BrainMask.nii.gz` as a labelmap. 
 Again, make sure you are going through each slice in each view. Be sure the mask is not under inclusive, that it does not include parts that are not the brain, and that there are no single-voxel islands. When you have completed your visual QC, save the file as `sub-sample_ses-1_desc-UnXcEd_dwi_bse-multi_BrainMaskQc.nii.gz`.
  
  
@@ -566,14 +566,14 @@ Again, make sure you are going through each slice in each view. Be sure the mask
 
 To further correct for distortions caused by magnet interactions and magnetic inhomogeneity (which leads to intensity loss and voxel shifts), you will now have to run an EPI correction. This is done by co-registering it with the T2 image, which means that you need to have T2 images for the case to do this step and also that you will need to have masked the T2 file (step 5 of the structural pipeline) so that you can use it for this. If T2 images were not taken for the particular case (they were for this example) then you will have to skip this step. 
 
-In order to run EPI correction, you will need to make sure that you have bval and bvec files whose names match your dwi file. In this case, the prefix will be `sub-sample_ses-1_desc-XcEd_dwi`. You should already have copied these when you copied your files after eddy correction.
+In order to run EPI correction, you will need to make sure that you have bval and bvec files whose names match your dwi file. In this case, the prefix will be `sub-sample_ses-1_desc-UnXcEd_dwi`. You should already have copied these when you copied your files after eddy correction.
 
 Now you can be in `PipelineTraining/derivatives/sub-sample/ses-1`. Enter:
 ```
-pnl_epi --dwi dwi/sub-sample_ses-1_desc-XcEd_dwi.nii.gz --dwimask dwi/sub-sample_ses-1_desc-dwiXc_mask.nii.gz --t2 anat/sub-sample_ses-1_desc-Xc_T2w.nii.gz --t2mask anat/sub-sample_ses-1_desc-T2wXcMabs_mask.nii.gz -o dwi/sub-sample_ses-1_desc-XcEdEp_dwi
+pnl_epi --dwi dwi/sub-sample_ses-1_desc-UnXcEd_dwi.nii.gz --dwimask dwi/sub-sample_ses-1_desc-UnXcEd_dwi_bse-multi_BrainMaskQc.nii.gz --t2 anat/sub-sample_ses-1_desc-Xc_T2w.nii.gz --t2mask anat/sub-sample_ses-1_desc-T2wXcMabs_mask.nii.gz -o dwi/sub-sample_ses-1_desc-UnXcEdEp_dwi
 ```
 
-* Since this takes a long time, `sub-sample_ses-1_desc-XcEdEp_dwi.nii.gz`, and corresponding `bvec` and `bval` files, is also available to be copied from the `Other` directory into your `Diffusion_b3000` directory.
+* Since this takes a long time, `sub-sample_ses-1_desc-UnXcEdEp_dwi.nii.gz`, and corresponding `bvec` and `bval` files, is also available to be copied from the `Other` directory into your `Diffusion_b3000` directory.
 
 * If this is the first case that you are doing in a data set, and for this tutorial we can pretend that it is, you should check the glyphs of the case's DTI because sometimes they are incorrect, which will lead to the tractography being incorrect as well.
 
@@ -582,23 +582,23 @@ pnl_epi --dwi dwi/sub-sample_ses-1_desc-XcEd_dwi.nii.gz --dwimask dwi/sub-sample
 * Since we will be using Slicer for this QC, we will need to convert our data to NHDR format. First, `cd` into your derived `dwi`. Then enter the following to convert the epi-corrected image to NHDR format:
 
 ```
-nhdr_write.py --nifti sub-sample_ses-1_desc-XcEdEp_dwi.nii.gz --bval sub-sample_ses-1_desc-XcEdEp_dwi.bval --bvec sub-sample_ses-1_desc-XcEdEp_dwi.bvec --nhdr sub-sample_ses-1_desc-XcEdEp_dwi.nhdr
+nhdr_write.py --nifti sub-sample_ses-1_desc-UnXcEdEp_dwi.nii.gz --bval sub-sample_ses-1_desc-UnXcEdEp_dwi.bval --bvec sub-sample_ses-1_desc-UnXcEdEp_dwi.bvec --nhdr sub-sample_ses-1_desc-UnXcEdEp_dwi.nhdr
 ```
 We will also need to convert the mask to NHDR format with the following:
 
 ```
-nhdr_write.py --nifti sub-sample_ses-1_desc-dwiXc_mask.nii.gz --nhdr sub-sample_ses-1_desc-dwiXc_mask.nhdr
+nhdr_write.py --nifti sub-sample_ses-1_desc-UnXcEd_dwi_bse-multi_BrainMaskQc.nii.gz --nhdr sub-sample_ses-1_desc-UnXcEd_dwi_bse-multi_BrainMaskQc.nhdr
 ```
 
 
-* Open Slicer using `/rfanfs/pnl-zorro/software/pnlpipe3/Slicer-4.8.4-linux-amd64/Slicer` and open `sub-sample_ses-1_desc-XcEdEp_dwi.nhdr`. The first thing you need to do is generate a DTI (Diffusion Tensor Image). This will show the orientation of the fibers in each voxel using color coding (red is left to right, blue is up and down, and green is forward to backward). Under Modules, go to **Diffusion** > **Process** > **Diffusion Tensor Estimation**.
+* Open Slicer using `/rfanfs/pnl-zorro/software/pnlpipe3/Slicer-4.8.4-linux-amd64/Slicer` and open `sub-sample_ses-1_desc-UnXcEdEp_dwi.nhdr`. The first thing you need to do is generate a DTI (Diffusion Tensor Image). This will show the orientation of the fibers in each voxel using color coding (red is left to right, blue is up and down, and green is forward to backward). Under Modules, go to **Diffusion** > **Process** > **Diffusion Tensor Estimation**.
 
-  * For **Input DWI Volume**, select **sub-sample_ses-1_desc-XcEdEp_dwi**.
-  * For **Output DTI Volume**, you can create a new volume as **sub-sample_ses-1_desc-XcEdEp_dti.nhdr**.
-  * For **Output Baseline Volume** you can create a new volume as **sub-sample_ses-1_desc-dwiXcEdEp_bse**.
+  * For **Input DWI Volume**, select **sub-sample_ses-1_desc-UnXcEdEp_dwi**.
+  * For **Output DTI Volume**, you can create a new volume as **sub-sample_ses-1_desc-UnXcEdEp_dti.nhdr**.
+  * For **Output Baseline Volume** you can create a new volume as **sub-sample_ses-1_desc-dwiUnXcEdEp_bse**.
   * Select **Apply**.
 
-* Going to the drop-down pin in the top left corner of a viewing window and the the double chevrons under that, you will have to change the bottom right box from the baseline to **sub-sample_ses-1_desc-XcEdEp_dti**. Select the rings next to the chevrons to do this for all views.  You will get an image that looks like this:
+* Going to the drop-down pin in the top left corner of a viewing window and the the double chevrons under that, you will have to change the bottom right box from the baseline to **sub-sample_ses-1_desc-UnXcEdEp_dti**. Select the rings next to the chevrons to do this for all views.  You will get an image that looks like this:
 
 ![](../Misc/dti.png)
 
@@ -607,7 +607,7 @@ nhdr_write.py --nifti sub-sample_ses-1_desc-dwiXc_mask.nii.gz --nhdr sub-sample_
 ![](../Misc/dti_corpus.png)
 
 
-* Then go to the **Volumes** module and make sure that the **Active Volume** is **sub-sample_ses-1_desc-XcEdEp_dti**.
+* Then go to the **Volumes** module and make sure that the **Active Volume** is **sub-sample_ses-1_desc-UnXcEdEp_dti**.
 
 * Scroll down on the sidebar to the **Glyphs on Slices Display** and choose **Green** for **Slice Visibility**. Then for **Glyph Type** choose **Lines** as this will allow Slicer to run faster.
 
@@ -628,7 +628,7 @@ nhdr_write.py --nifti sub-sample_ses-1_desc-dwiXc_mask.nii.gz --nhdr sub-sample_
 ![](../Misc/glyph_corpus_sagit.png)
 * This is how the corpus callosum should look in the sagittal view (yellow) if you are looking at around the middle slice. The glyphs should look like they are more or less arranged straight in and out parallel with your view:
 
-* They should all look correct in this sample case, but if it doesn't look correct, you can fix it by changing the header of the epi-corrected file. To do that, back in the terminal, enter `gedit sub-sample_ses-1_desc-XcEdEp_dwi.nii.gz`. The header will come up in a text editor. You are interested in the **measurement frame**. The first thing you can try is changing any non-zero numbers in the first set of coordinates to negative. Then save and load the epi-corrected image in Slicer again and do the whole process over again.
+* They should all look correct in this sample case, but if it doesn't look correct, you can fix it by changing the header of the epi-corrected file. To do that, back in the terminal, enter `gedit sub-sample_ses-1_desc-UnXcEdEp_dwi.nii.gz`. The header will come up in a text editor. You are interested in the **measurement frame**. The first thing you can try is changing any non-zero numbers in the first set of coordinates to negative. Then save and load the epi-corrected image in Slicer again and do the whole process over again.
 
 If this time the glyphs look correct in the corpus callosum, you have fixed it for that case. If they still don't look correct, change the first set of coordinates back to positive and make the second set negative. There are 7 possible permutations of negatives that you can try if necessary. It is usually the case that the proper measurement frame is the same for every case in a dataset, but this is not always the case, especially if the data was acquired on more than one scanner or over a long period of time. Because of that, before you then make this change to the header of every epi-corrected dwi for every case in the dataset, you should check this on a handful of other cases as well. 
 
@@ -641,9 +641,9 @@ It is now time to generate a tractography image, which creates images that look 
 
 We will be using UKF Tractography to generate this image. In the derived `dwi` directory, make a new directory called `Tractography/`
 
-UKF Tractography works best for b-values where **700 <= b <= 3000**. These can be found in the `sub-sample_ses-1_desc-XcEdEp_dwi.bval` file, which you can see with `cat sub-sample_ses-1_desc-XcEdEp_dwi.bval`. Make sure you check with your PI that UKF Tractography will work well for your dataset. Our b-value is acceptable for the current example. When you are in the derived `dwi` directory, enter:
+UKF Tractography works best for b-values where **700 <= b <= 3000**. These can be found in the `sub-sample_ses-1_desc-UnXcEdEp_dwi.bval` file, which you can see with `cat sub-sample_ses-1_desc-UnXcEdEp_dwi.bval`. Make sure you check with your PI that UKF Tractography will work well for your dataset. Our b-value is acceptable for the current example. When you are in the derived `dwi` directory, enter:
 ```
-ukf -i sub-sample_ses-1_desc-XcEdEp_dwi.nii.gz --bvals sub-sample_ses-1_desc-XcEdEp_dwi.bval --bvecs sub-sample_ses-1_desc-XcEdEp_dwi.bvec  -m sub-sample_ses-1_desc-dwiXc_mask.nii.gz -o Tractography/sub-sample_ses-1_desc-XcEdEp_tracts.vtk --params --numThreads,8,--recordTensors
+ukf -i sub-sample_ses-1_desc-UnXcEdEp_dwi.nii.gz --bvals sub-sample_ses-1_desc-UnXcEdEp_dwi.bval --bvecs sub-sample_ses-1_desc-UnXcEdEp_dwi.bvec  -m sub-sample_ses-1_desc-UnXcEd_dwi_bse-multi_BrainMaskQc.nii.gz -o Tractography/sub-sample_ses-1_desc-XcEdEp_tracts.vtk --params --numThreads,8,--recordTensors
 ```
 Be warned that depending on the computing power you are using this process could take anywhere from a few hours to several days.
 
@@ -673,7 +673,7 @@ To continue on from this point you will need to have both the diffusion and the 
 
 The first step of post-processing involves registering the FreeSurfer labelmap that you made to the diffusion image since they don't have the same resolution and aren't in the same space. First, make sure you are in the `PipelineTraining/derivatives/sub-sample/ses-1` directory and enter:
 ```
-nifti_fs2dwi --dwi dwi/sub-sample_ses-1_desc-XcEdEp_dwi.nii.gz --dwimask dwi/sub-sample_ses-1_desc-dwiXc_mask.nii.gz -f anat/sample_freesurfer -o anat/sample_fs2dwi witht2 --t2 anat/sub-sample_ses-1_desc-Xc_T2w.nii.gzz --t2mask anat/sub-sample_ses-1_desc-T2wXcMabs_mask.nii.gz
+nifti_fs2dwi --dwi dwi/sub-sample_ses-1_desc-UnXcEdEp_dwi.nii.gz --dwimask dwi/sub-sample_ses-1_desc-UnXcEd_dwi_bse-multi_BrainMaskQc.nii.gz -f anat/sample_freesurfer -o anat/sample_fs2dwi witht2 --t2 anat/sub-sample_ses-1_desc-Xc_T2w.nii.gzz --t2mask anat/sub-sample_ses-1_desc-T2wXcMabs_mask.nii.gz
 ```
 It will take about 6 hours to run to completion, so type **Ctrl+c**.
 
@@ -684,7 +684,7 @@ Note: If you do not have T2s as part of the case you are working with you will h
 nifti_fs2dwi --dwi <dwi_Ed> --dwimask <tensor_mask> -f <freesurfer_directory> -o <output_directory> direct
 ```
 
-Once the script has finished running, you will find that there is a file called `wmparcInDwi.nii.gz` in the `sample_fs2dwi` directory. Open this file along with `sub-sample_ses-1_desc-XcEdEp_dwi.nii.gz` in Slicer to see if they are registered well. Make sure that `wmparcInDwi.nii.gz` is checked for Label Map.
+Once the script has finished running, you will find that there is a file called `wmparcInDwi.nii.gz` in the `sample_fs2dwi` directory. Open this file along with `sub-sample_ses-1_desc-UnXcEdEp_dwi.nii.gz` in Slicer to see if they are registered well. Make sure that `wmparcInDwi.nii.gz` is checked for Label Map.
 
 When it opens, it will probably not appear as it should, and to fix this go to the **Volumes** module and for the **Active Volume** select `wmparcInDwi`. Then, under the **Display** heading, change Lookup Table to **FreeSurfer** > **FreeSurferLabels**. You should open up `b0masked.nii.gz` as well (as a normal Volume). It will look something like this:
 
