@@ -2,7 +2,7 @@
 
 from maskfilter import single_scale
 from plumbum import cli, FG, local
-from plumbum.cmd import topup, applytopup, fslmaths, rm, fslmerge, cat, bet, gzip
+from plumbum.cmd import topup, applytopup, fslmaths, rm, fslmerge, cat, bet, gzip, rm
 from util import BET_THRESHOLD, logfmt, load_nifti, FILEDIR, \
     REPOL_BSHELL_GREATER, save_nifti, B0_THRESHOLD
 from tempfile import TemporaryDirectory
@@ -170,6 +170,10 @@ class TopupEddyEpi(cli.Application):
                         eddy_openmp_params.split()] & FG
 
 
+            # free space, see https://github.com/pnlbwh/pnlNipype/issues/82
+            if '--repol' in eddy_openmp_params:
+                rm[f'{outPrefix}.eddy_outlier_free_data.nii.gz'] & FG
+                    
             bvals = np.array(read_bvals(modBvals))
             ind= [i for i in range(len(bvals)) if bvals[i]>B0_THRESHOLD and bvals[i]<= REPOL_BSHELL_GREATER]
 
@@ -214,6 +218,9 @@ class TopupEddyEpi(cli.Application):
                 # copy bval,bvec to have same prefix as that of eddy corrected volume
                 write_bvecs(outPrefix + '.bvec', merged_bvecs)
                 copyfile(modBvals, outPrefix + '.bval')
+                
+                # clean up
+                rm[f'-r {wo_repol_outDir}'] & FG
 
             else:
                 # copy bval,bvec to have same prefix as that of eddy corrected volume
