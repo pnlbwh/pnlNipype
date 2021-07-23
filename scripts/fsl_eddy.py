@@ -91,7 +91,7 @@ class Eddy(cli.Application):
                 from plumbum.cmd import nvcc
                 nvcc['--version'] & FG
                 
-                print('\nCUDA found, looking for evailable GPU')
+                print('\nCUDA found, looking for available GPU\n')
                 from GPUtil import getFirstAvailable
                 getFirstAvailable()
                 
@@ -100,7 +100,7 @@ class Eddy(cli.Application):
                       'https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/eddy/UsersGuide')
                 from plumbum.cmd import eddy_cuda as eddy_openmp
 
-                print('\neddy_cuda executable found\n')
+                print('eddy_cuda executable found\n')
             except:
                 print('nvcc, available GPU, and/or eddy_cuda was not found, using eddy_openmp')
 
