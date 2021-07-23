@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from plumbum import cli, FG
+from plumbum.cmd import rm
 
 from bet_mask import bet_mask
 from util import BET_THRESHOLD, logfmt, pjoin, B0_THRESHOLD, REPOL_BSHELL_GREATER
@@ -134,6 +135,10 @@ class Eddy(cli.Application):
                     '--verbose',
                     eddy_openmp_params.split()] & FG
         
+        # free space, see https://github.com/pnlbwh/pnlNipype/issues/82
+        if '--repol' in eddy_openmp_params:
+            rm[f'{outPrefix}.eddy_outlier_free_data.nii.gz'] & FG
+        
         
         bvals= np.array(read_bvals(self.bvals_file))
         ind= [i for i in range(len(bvals)) if bvals[i]>B0_THRESHOLD and bvals[i]<= REPOL_BSHELL_GREATER]
@@ -178,7 +183,10 @@ class Eddy(cli.Application):
             # copy bval,bvec to have same prefix as that of eddy corrected volume
             write_bvecs(outPrefix + '.bvec', merged_bvecs)
             copyfile(self.bvals_file, outPrefix + '.bval')
-
+            
+            # clean up
+            rm[f'-r {wo_repol_outDir}'] & FG
+            
         else:
             # copy bval,bvec to have same prefix as that of eddy corrected volume
             copyfile(outPrefix + '.eddy_rotated_bvecs', outPrefix + '.bvec')
