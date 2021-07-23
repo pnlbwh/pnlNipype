@@ -44,7 +44,7 @@ class TopupEddyEpi(cli.Application):
 
     dwi_file= cli.SwitchAttr(
         ['--imain'],
-        help='''--dwi primary4D,secondary4D/3D
+        help='''--imain primary4D,secondary4D/3D
                 primary: one 4D volume input, should be PA;
                 secondary: another 3D/4D volume input, should be AP, which is opposite of primary 4D volume''',
         mandatory=True)
