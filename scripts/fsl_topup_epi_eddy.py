@@ -137,13 +137,19 @@ class TopupEddyEpi(cli.Application):
             try:
                 from plumbum.cmd import nvcc
                 nvcc['--version'] & FG
-                print('CUDA found, looking for eddy_cuda executable '
+
+                print('\nCUDA found, looking for evailable GPU')
+                from GPUtil import getFirstAvailable
+                getFirstAvailable()
+
+                print('available GPU found, looking for eddy_cuda executable\n'
                       'make sure you have created a softlink according to '
                       'https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/eddy/UsersGuide')
                 from plumbum.cmd import eddy_cuda as eddy_openmp
-                print('eddy_cuda executable found')
+
+                print('\neddy_cuda executable found\n')
             except:
-                print('nvcc and/or eddy_cuda was not found, using eddy_openmp')
+                print('nvcc, available GPU, and/or eddy_cuda was not found, using eddy_openmp')
 
 
 
