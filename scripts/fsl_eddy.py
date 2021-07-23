@@ -10,7 +10,6 @@ from nibabel import load
 from util import save_nifti
 from conversion import read_bvals, read_bvecs, write_bvecs
 import numpy as np
-import GPUtil
 
 import logging
 logger = logging.getLogger()
@@ -91,19 +90,19 @@ class Eddy(cli.Application):
             try:
                 from plumbum.cmd import nvcc
                 nvcc['--version'] & FG
-                print('\nCUDA found, looking for eddy_cuda executable\n'
-                      'make sure you have created a softlink according to '
-                      'https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/eddy/UsersGuide')
-
-                from plumbum.cmd import eddy_cuda as eddy_openmp
-                print('\neddy_cuda executable found\n'
-                      'looking for available GPU')
-
+                
+                print('\nCUDA found, looking for evailable GPU')
                 from GPUtil import getFirstAvailable
                 getFirstAvailable()
-                print('available GPU found')
+                
+                print('available GPU found, looking for eddy_cuda executable\n'
+                      'make sure you have created a softlink according to '
+                      'https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/eddy/UsersGuide')
+                from plumbum.cmd import eddy_cuda as eddy_openmp
+
+                print('\neddy_cuda executable found\n')
             except:
-                print('nvcc, eddy_cuda, or available GPU  was not found, using eddy_openmp')
+                print('nvcc, available GPU, and/or eddy_cuda was not found, using eddy_openmp')
 
 
         prefix= self.dwi_file.name.split('.')[0]
