@@ -7,8 +7,7 @@ from bet_mask import bet_mask
 from util import BET_THRESHOLD, logfmt, pjoin, B0_THRESHOLD, REPOL_BSHELL_GREATER
 from shutil import copyfile
 from _eddy_config import obtain_fsl_eddy_params
-from nibabel import load
-from util import save_nifti
+from util import save_nifti, load_nifti
 from conversion import read_bvals, read_bvecs, write_bvecs
 import numpy as np
 
@@ -171,8 +170,8 @@ class Eddy(cli.Application):
             merged_bvecs= repol_bvecs.copy()
             merged_bvecs[ind,: ]= wo_repol_bvecs[ind,: ]
 
-            repol_data= load(outPrefix + '.nii.gz')
-            wo_repol_data= load(wo_repol_outPrefix + '.nii.gz')
+            repol_data= load_nifti(outPrefix + '.nii.gz')
+            wo_repol_data= load_nifti(wo_repol_outPrefix + '.nii.gz')
             merged_data= repol_data.get_fdata().copy()
             merged_data[...,ind]= wo_repol_data.get_fdata()[...,ind]
 
@@ -183,7 +182,7 @@ class Eddy(cli.Application):
             copyfile(self.bvals_file, outPrefix + '.bval')
             
             # clean up
-            rm[f'-r {wo_repol_outDir}'] & FG
+            rm['-r', wo_repol_outDir] & FG
             
         else:
             # copy bval,bvec to have same prefix as that of eddy corrected volume
