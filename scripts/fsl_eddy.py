@@ -101,7 +101,7 @@ class Eddy(cli.Application):
                       'https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/eddy/UsersGuide')
                 from plumbum.cmd import eddy_cuda as eddy_openmp
 
-                print('eddy_cuda executable found\n')
+                print('\neddy_cuda executable found\n')
             except:
                 print('nvcc, available GPU, and/or eddy_cuda was not found, using eddy_openmp')
 
@@ -132,7 +132,6 @@ class Eddy(cli.Application):
                     f'--bvecs={self.bvecs_file}',
                     f'--bvals={self.bvals_file}',
                     f'--out={outPrefix}',
-                    '--verbose',
                     eddy_openmp_params.split()] & FG
         
         # free space, see https://github.com/pnlbwh/pnlNipype/issues/82
@@ -163,7 +162,6 @@ class Eddy(cli.Application):
                         f'--bvecs={self.bvecs_file}',
                         f'--bvals={self.bvals_file}',
                         f'--out={wo_repol_outPrefix}',
-                        '--verbose',
                         eddy_openmp_params] & FG
 
 
