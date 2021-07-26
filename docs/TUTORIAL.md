@@ -689,7 +689,7 @@ Epi and Eddy distortions.
         --eddy-cuda                      use eddy_cuda instead of eddy_openmp, requires
                                          fsl/bin/eddy_cuda and nvcc in PATH 
         -f VALUE:str                     threshold for fsl bet mask; the default is 0.25
-        --imain VALUE:str                --dwi primary4D,secondary4D/3D primary: one 4D volume input,
+        --imain VALUE:str                --imain primary4D,secondary4D/3D primary: one 4D volume input,
                                          should be PA; secondary: another 3D/4D volume input, should
                                          be AP, which is opposite of primary 4D volume; required
         --mask VALUE:str                 --mask primaryB0mask,secondaryB0mask

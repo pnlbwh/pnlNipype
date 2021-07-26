@@ -2,7 +2,7 @@
 
 from maskfilter import single_scale
 from plumbum import cli, FG, local
-from plumbum.cmd import topup, applytopup, fslmaths, rm, fslmerge, cat, bet, gzip
+from plumbum.cmd import topup, applytopup, fslmaths, rm, fslmerge, cat, bet, gzip, rm
 from util import BET_THRESHOLD, logfmt, load_nifti, FILEDIR, \
     REPOL_BSHELL_GREATER, save_nifti, B0_THRESHOLD
 from tempfile import TemporaryDirectory
@@ -44,7 +44,7 @@ class TopupEddyEpi(cli.Application):
 
     dwi_file= cli.SwitchAttr(
         ['--imain'],
-        help='''--dwi primary4D,secondary4D/3D
+        help='''--imain primary4D,secondary4D/3D
                 primary: one 4D volume input, should be PA;
                 secondary: another 3D/4D volume input, should be AP, which is opposite of primary 4D volume''',
         mandatory=True)
@@ -137,13 +137,19 @@ class TopupEddyEpi(cli.Application):
             try:
                 from plumbum.cmd import nvcc
                 nvcc['--version'] & FG
-                print('CUDA found, looking for eddy_cuda executable '
+
+                print('\nCUDA found, looking for available GPU\n')
+                from GPUtil import getFirstAvailable
+                getFirstAvailable()
+
+                print('available GPU found, looking for eddy_cuda executable\n'
                       'make sure you have created a softlink according to '
                       'https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/eddy/UsersGuide')
                 from plumbum.cmd import eddy_cuda as eddy_openmp
-                print('eddy_cuda executable found')
+
+                print('\neddy_cuda executable found\n')
             except:
-                print('nvcc and/or eddy_cuda was not found, using eddy_openmp')
+                print('nvcc, available GPU, and/or eddy_cuda was not found, using eddy_openmp')
 
 
 
@@ -164,6 +170,10 @@ class TopupEddyEpi(cli.Application):
                         eddy_openmp_params.split()] & FG
 
 
+            # free space, see https://github.com/pnlbwh/pnlNipype/issues/82
+            if '--repol' in eddy_openmp_params:
+                rm[f'{outPrefix}.eddy_outlier_free_data.nii.gz'] & FG
+                    
             bvals = np.array(read_bvals(modBvals))
             ind= [i for i in range(len(bvals)) if bvals[i]>B0_THRESHOLD and bvals[i]<= REPOL_BSHELL_GREATER]
 
@@ -198,8 +208,8 @@ class TopupEddyEpi(cli.Application):
                 merged_bvecs = repol_bvecs.copy()
                 merged_bvecs[ind, :] = wo_repol_bvecs[ind, :]
 
-                repol_data = load(outPrefix + '.nii.gz')
-                wo_repol_data = load(wo_repol_outPrefix + '.nii.gz')
+                repol_data = load_nifti(outPrefix + '.nii.gz')
+                wo_repol_data = load_nifti(wo_repol_outPrefix + '.nii.gz')
                 merged_data = repol_data.get_fdata().copy()
                 merged_data[..., ind] = wo_repol_data.get_fdata()[..., ind]
 
@@ -208,6 +218,9 @@ class TopupEddyEpi(cli.Application):
                 # copy bval,bvec to have same prefix as that of eddy corrected volume
                 write_bvecs(outPrefix + '.bvec', merged_bvecs)
                 copyfile(modBvals, outPrefix + '.bval')
+                
+                # clean up
+                rm['-r', wo_repol_outDir] & FG
 
             else:
                 # copy bval,bvec to have same prefix as that of eddy corrected volume

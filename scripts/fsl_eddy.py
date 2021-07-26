@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
 from plumbum import cli, FG
+from plumbum.cmd import rm
 
 from bet_mask import bet_mask
 from util import BET_THRESHOLD, logfmt, pjoin, B0_THRESHOLD, REPOL_BSHELL_GREATER
 from shutil import copyfile
 from _eddy_config import obtain_fsl_eddy_params
-from nibabel import load
-from util import save_nifti
+from util import save_nifti, load_nifti
 from conversion import read_bvals, read_bvecs, write_bvecs
 import numpy as np
 
@@ -90,13 +90,19 @@ class Eddy(cli.Application):
             try:
                 from plumbum.cmd import nvcc
                 nvcc['--version'] & FG
-                print('\nCUDA found, looking for eddy_cuda executable\n'
+                
+                print('\nCUDA found, looking for available GPU\n')
+                from GPUtil import getFirstAvailable
+                getFirstAvailable()
+                
+                print('available GPU found, looking for eddy_cuda executable\n'
                       'make sure you have created a softlink according to '
                       'https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/eddy/UsersGuide')
                 from plumbum.cmd import eddy_cuda as eddy_openmp
-                print('eddy_cuda executable found\n')
+
+                print('\neddy_cuda executable found\n')
             except:
-                print('nvcc and/or eddy_cuda was not found, using eddy_openmp')
+                print('nvcc, available GPU, and/or eddy_cuda was not found, using eddy_openmp')
 
 
         prefix= self.dwi_file.name.split('.')[0]
@@ -125,8 +131,11 @@ class Eddy(cli.Application):
                     f'--bvecs={self.bvecs_file}',
                     f'--bvals={self.bvals_file}',
                     f'--out={outPrefix}',
-                    '--verbose',
                     eddy_openmp_params.split()] & FG
+        
+        # free space, see https://github.com/pnlbwh/pnlNipype/issues/82
+        if '--repol' in eddy_openmp_params:
+            rm[f'{outPrefix}.eddy_outlier_free_data.nii.gz'] & FG
         
         
         bvals= np.array(read_bvals(self.bvals_file))
@@ -152,7 +161,6 @@ class Eddy(cli.Application):
                         f'--bvecs={self.bvecs_file}',
                         f'--bvals={self.bvals_file}',
                         f'--out={wo_repol_outPrefix}',
-                        '--verbose',
                         eddy_openmp_params] & FG
 
 
@@ -162,8 +170,8 @@ class Eddy(cli.Application):
             merged_bvecs= repol_bvecs.copy()
             merged_bvecs[ind,: ]= wo_repol_bvecs[ind,: ]
 
-            repol_data= load(outPrefix + '.nii.gz')
-            wo_repol_data= load(wo_repol_outPrefix + '.nii.gz')
+            repol_data= load_nifti(outPrefix + '.nii.gz')
+            wo_repol_data= load_nifti(wo_repol_outPrefix + '.nii.gz')
             merged_data= repol_data.get_fdata().copy()
             merged_data[...,ind]= wo_repol_data.get_fdata()[...,ind]
 
@@ -172,7 +180,10 @@ class Eddy(cli.Application):
             # copy bval,bvec to have same prefix as that of eddy corrected volume
             write_bvecs(outPrefix + '.bvec', merged_bvecs)
             copyfile(self.bvals_file, outPrefix + '.bval')
-
+            
+            # clean up
+            rm['-r', wo_repol_outDir] & FG
+            
         else:
             # copy bval,bvec to have same prefix as that of eddy corrected volume
             copyfile(outPrefix + '.eddy_rotated_bvecs', outPrefix + '.bvec')
