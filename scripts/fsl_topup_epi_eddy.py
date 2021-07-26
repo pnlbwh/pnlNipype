@@ -147,7 +147,7 @@ class TopupEddyEpi(cli.Application):
                       'https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/eddy/UsersGuide')
                 from plumbum.cmd import eddy_cuda as eddy_openmp
 
-                print('eddy_cuda executable found\n')
+                print('\neddy_cuda executable found\n')
             except:
                 print('nvcc, available GPU, and/or eddy_cuda was not found, using eddy_openmp')
 
@@ -208,8 +208,8 @@ class TopupEddyEpi(cli.Application):
                 merged_bvecs = repol_bvecs.copy()
                 merged_bvecs[ind, :] = wo_repol_bvecs[ind, :]
 
-                repol_data = load(outPrefix + '.nii.gz')
-                wo_repol_data = load(wo_repol_outPrefix + '.nii.gz')
+                repol_data = load_nifti(outPrefix + '.nii.gz')
+                wo_repol_data = load_nifti(wo_repol_outPrefix + '.nii.gz')
                 merged_data = repol_data.get_fdata().copy()
                 merged_data[..., ind] = wo_repol_data.get_fdata()[..., ind]
 
@@ -220,7 +220,7 @@ class TopupEddyEpi(cli.Application):
                 copyfile(modBvals, outPrefix + '.bval')
                 
                 # clean up
-                rm[f'-r {wo_repol_outDir}'] & FG
+                rm['-r', wo_repol_outDir] & FG
 
             else:
                 # copy bval,bvec to have same prefix as that of eddy corrected volume
