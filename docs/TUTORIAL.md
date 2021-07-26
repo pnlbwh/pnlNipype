@@ -41,6 +41,7 @@ Table of Contents
       * [ii. Using FSL topup and eddy](#ii-using-fsl-topup-and-eddy)
    * [UKFTractography](#ukftractography)
    * [FreeSurfer](#freesurfer)
+   * [FreeSurfer segmentation in T1w space](#freesurfer-segmentation-in-t1w-space)
    * [FreeSurfer segmentation in DWI space](#freesurfer-segmentation-in-dwi-space)
       * [i. Direct registration](#i-direct-registration)
       * [ii. Through T2 registration](#ii-through-t2-registration)
@@ -890,11 +891,24 @@ segmentation [here](https://surfer.nmr.mgh.harvard.edu/fswiki/ReleaseNotes/#what
 
 
 
-# FreeSurfer segmentation in DWI space
-
+# FreeSurfer segmentation in T1w space
 
 During FreeSurfer segmentation, `mri/brain.mgz` and `mri/wmparc.mgz` are created in the FreeSurfer `SUBJECTS_DIR`. 
-These files are in *.mgz* format. We would like to view the white matter percellation (*wmparc.mgz*) in DWI space. 
+These files are in *.mgz* format. They are in 1mm<sup>3</sup> 256x256x256 space. To obtain the results in original 
+anatomical i.e. T1w space:
+
+    cd $SUBJECTS_DIR/<subjid>/mri
+    mri_vol2vol --mov brain.mgz --targ rawavg.mgz --regheader --o brain-in-t1w.mgz --no-save-reg
+    mri_vol2vol --mov wmparc.mgz --targ rawavg.mgz --regheader --o wmparc-in-t1w.mgz --no-save-reg
+
+You can read more about it [here](https://surfer.nmr.mgh.harvard.edu/fswiki/FsAnat-to-NativeAnat).
+
+
+# FreeSurfer segmentation in DWI space
+
+During FreeSurfer segmentation, `mri/brain.mgz` and `mri/wmparc.mgz` are created in the FreeSurfer `SUBJECTS_DIR`. 
+These files are in *.mgz* format. They are in 1mm<sup>3</sup> 256x256x256 space. 
+We would like to view the white matter percellation (*wmparc.mgz*) in DWI space. 
 
 To warp *wmparc.mgz* to DWI space, first we need to compute registration between FreeSurfer space and DWI space. This 
 registration can be done in two ways [Direct registration](#-i-direct-registration) and  [Through T2 registration](#-ii-through-t2-registration).
