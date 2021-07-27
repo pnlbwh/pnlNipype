@@ -158,7 +158,11 @@ class TopupEddyEpi(cli.Application):
             print('eddy_openmp/cuda parameters')
             print(eddy_openmp_params)
             print('')
-
+            
+            # eddy_openmp yields as many volumes as there are input volumes
+            # this is the main output and consists of the input data after correction for
+            # eddy currents, subject movement, and susceptibility if --topup was specified
+            
             eddy_openmp[f'--imain={modData}',
                         f'--mask={topupMask}',
                         f'--acqp={self.acqparams_file}',
@@ -180,7 +184,7 @@ class TopupEddyEpi(cli.Application):
             if '--repol' in eddy_openmp_params and len(ind):
 
                 print('\nDoing eddy_openmp/cuda again without --repol option '
-                      'to obtain eddy correction w/o outlier replacement for b<=500 shells\n')
+                      f'to obtain eddy correction w/o outlier replacement for b<={REPOL_BSHELL_GREATER} shells\n')
 
                 eddy_openmp_params = eddy_openmp_params.split()
                 eddy_openmp_params.remove('--repol')
@@ -326,7 +330,9 @@ class TopupEddyEpi(cli.Application):
 
             B0_PA_AP_merged = 'B0_PA_AP_merged.nii.gz'
             with open(self.acqparams_file._path) as f:
-                acqp= f.read().split('\n')
+                acqp= f.read().strip().split('\n')
+                if len(acqp)!=2:
+                    raise ValueError('The acquisition parameter file must have exactly two lines')
 
             logging.info('Writing acqparams.txt for topup')
 
@@ -363,6 +369,9 @@ class TopupEddyEpi(cli.Application):
             topup_results= 'topup_out'
             topupOut= 'topup_out.nii.gz'
             
+            # topup --iout yields as many volumes as there are input volumes
+            # --iout specifies the name of a 4D image file that contains unwarped and movement corrected images.
+            # each volume in the --imain will have a corresponding corrected volume in --iout.
 
             # --iout is used for creating modified mask only
             # when primary4D,secondary4D/3D are already masked, this will be useful
@@ -379,6 +388,10 @@ class TopupEddyEpi(cli.Application):
             
             logging.info('Running applytopup')
 
+            # applytopup always yields one output file regardless of one or two input files
+            # if two input files are provided, the resulting undistorted file will be a combination of the two
+            # containing only as many volumes as there are in one file
+            
             # B0_PA_correct, B0_AP_correct are for quality checking only
             # primaryMaskCorrect, secondaryMaskCorrect will be associated masks
             B0_PA_correct= 'B0_PA_corrected.nii.gz'
