@@ -158,7 +158,11 @@ class TopupEddyEpi(cli.Application):
             print('eddy_openmp/cuda parameters')
             print(eddy_openmp_params)
             print('')
-
+            
+            # eddy_openmp yields as many volumes as there are input volumes
+            # this is the main output and consists of the input data after correction for
+            # eddy currents, subject movement, and for susceptibility if --topup was specified
+            
             eddy_openmp[f'--imain={modData}',
                         f'--mask={topupMask}',
                         f'--acqp={self.acqparams_file}',
@@ -365,6 +369,9 @@ class TopupEddyEpi(cli.Application):
             topup_results= 'topup_out'
             topupOut= 'topup_out.nii.gz'
             
+            # topup --iout yields as many volumes as there are input volumes
+            # --iout specifies the name of a 4D image file that contains unwarped and movement corrected images.
+            # each volume in the --imain will have a corresponding corrected volume in --iout.
 
             # --iout is used for creating modified mask only
             # when primary4D,secondary4D/3D are already masked, this will be useful
@@ -381,6 +388,10 @@ class TopupEddyEpi(cli.Application):
             
             logging.info('Running applytopup')
 
+            # applytopup always yields one output file regardless of one or two input files
+            # if two input files are provided, the resulting undistorted file will be a combination of the two
+            # containing only as many volumes as there are in one file
+            
             # B0_PA_correct, B0_AP_correct are for quality checking only
             # primaryMaskCorrect, secondaryMaskCorrect will be associated masks
             B0_PA_correct= 'B0_PA_corrected.nii.gz'
