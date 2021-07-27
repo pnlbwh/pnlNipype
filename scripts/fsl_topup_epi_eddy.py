@@ -326,7 +326,9 @@ class TopupEddyEpi(cli.Application):
 
             B0_PA_AP_merged = 'B0_PA_AP_merged.nii.gz'
             with open(self.acqparams_file._path) as f:
-                acqp= f.read().split('\n')
+                acqp= f.read().strip().split('\n')
+                if len(acqp)!=2:
+                    raise ValueError('The acquisition parameter file must have exactly two lines')
 
             logging.info('Writing acqparams.txt for topup')
 
