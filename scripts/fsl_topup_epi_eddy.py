@@ -180,7 +180,7 @@ class TopupEddyEpi(cli.Application):
             if '--repol' in eddy_openmp_params and len(ind):
 
                 print('\nDoing eddy_openmp/cuda again without --repol option '
-                      'to obtain eddy correction w/o outlier replacement for b<=500 shells\n')
+                      f'to obtain eddy correction w/o outlier replacement for b<={REPOL_BSHELL_GREATER} shells\n')
 
                 eddy_openmp_params = eddy_openmp_params.split()
                 eddy_openmp_params.remove('--repol')
