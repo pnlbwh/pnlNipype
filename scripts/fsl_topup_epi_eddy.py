@@ -161,7 +161,7 @@ class TopupEddyEpi(cli.Application):
             
             # eddy_openmp yields as many volumes as there are input volumes
             # this is the main output and consists of the input data after correction for
-            # eddy currents, subject movement, and for susceptibility if --topup was specified
+            # eddy currents, subject movement, and susceptibility if --topup was specified
             
             eddy_openmp[f'--imain={modData}',
                         f'--mask={topupMask}',
