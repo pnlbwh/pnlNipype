@@ -481,7 +481,7 @@ class TopupEddyEpi(cli.Application):
                 # if --mask is not provided at all, this block creates a crude mask
                 # apply bet on the mean of topup output to obtain modified mask
                 # use that mask for eddy_openmp
-                bet[topupOutMean, topupMask._path.split('_mask.nii.gz')[0], '-m', '-n'] & FG
+                bet[topupOutMean, topupMask.split('_mask.nii.gz')[0], '-m', '-n'] & FG
                 
 
                 
