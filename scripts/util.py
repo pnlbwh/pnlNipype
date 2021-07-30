@@ -115,10 +115,14 @@ class TemporaryDirectory(object):
         if self._finalizer.detach():
             self._rmtree(self.name)
 
-def _mask_name(mask_prefix, mask_qc=None):
+def _mask_name(mask_name, mask_qc=True):
 
     if mask_qc:
-        return local.path(mask_prefix._path + 'Qc_mask.nii.gz')
+        qc_mask= local.path(mask_name.replace('_mask.nii.gz', 'Qc_mask.nii.gz'))
+        if not mask_name.exist():
+            print('\n\n** Check quality of created mask {} . Once you are done, save the (edited) mask as {} **\n\n'
+                  .format(mask_name, qc_mask))
+        return qc_mask
     else:
-        return local.path(mask_prefix._path + '_mask.nii.gz')
+        return mask_name
 
