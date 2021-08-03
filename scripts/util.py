@@ -119,7 +119,7 @@ def _mask_name(mask_name, mask_qc=True):
 
     if mask_qc:
         qc_mask= local.path(mask_name.replace('_mask.nii.gz', 'Qc_mask.nii.gz'))
-        if not mask_name.exist():
+        if not qc_mask.exists():
             print('\n\n** Check quality of created mask {} . Once you are done, save the (edited) mask as {} **\n\n'
                   .format(mask_name, qc_mask))
         return qc_mask
