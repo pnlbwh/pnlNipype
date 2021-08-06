@@ -121,7 +121,7 @@ def _mask_name(mask_name, mask_qc=True):
     if 'To' not in mask_name:
         # for MABS/CNN mask
         if not qc_mask.exists():
-            print('\n\n** Quality checked mask is not found\n'
+            print('\n\n** Quality checked mask not found\n'
                   'You may want to check the quality of created mask {} . '
                   'Once you are done, save the (edited) mask as {} .\n'
                   'Continuing with the automated mask ... **\n\n'
