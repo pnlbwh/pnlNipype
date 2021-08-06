@@ -118,10 +118,13 @@ class TemporaryDirectory(object):
 def _mask_name(mask_name, mask_qc=True):
 
     qc_mask= local.path(mask_name.replace('_mask.nii.gz', 'Qc_mask.nii.gz'))
-    if 'Qc' not in mask_name:
+    if 'To' not in mask_name:
         # for MABS/CNN mask
         if not qc_mask.exists():
-            print('\n\n** You may want to check quality of created mask {} . Once you are done, save the (edited) mask as {} **\n\n'
+            print('\n\n** Quality checked mask is not found\n'
+                  'You may want to check the quality of created mask {} . '
+                  'Once you are done, save the (edited) mask as {} .\n'
+                  'Continuing with the automated mask ... **\n\n'
                   .format(mask_name, qc_mask))
             return mask_name
         else:
