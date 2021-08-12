@@ -501,15 +501,9 @@ class TopupEddyEpi(cli.Application):
             outPrefix= outPrefix.replace('_acq-AP','')
 
             # find dir field
-            try:
-                dir = re.search('_dir-(.+?)_', outPrefix).group(1)
-                if self.whichVol == '1,2':
-                    dir = 2 * int(dir)
-                    outPrefix= local.path(re.sub('_dir-(.+?)_', f'_dir-{dir}_', outPrefix))
-            # dir field may not exist
-            # AttributeError: 'NoneType' object has no attribute 'group'
-            except AttributeError:
-                pass
+            if '_dir-' in primaryVol and '_dir-' in secondaryVol and self.whichVol == '1,2':
+                dir= load_nifti(primaryVol).shape[3]+ load_nifti(secondaryVol).shape[3]
+                outPrefix= local.path(re.sub('_dir-(.+?)_', f'_dir-{dir}_', outPrefix))
 
 
             outPrefix = outPrefix + '_EdEp'
@@ -568,7 +562,6 @@ class TopupEddyEpi(cli.Application):
 
             else:
                 raise ValueError('Invalid --whichVol')
-
 
             # rename topupMask to have same prefix as that of eddy corrected volume
             move(topupMask, outPrefix + '_mask.nii.gz')
