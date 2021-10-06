@@ -239,8 +239,10 @@ Resampling is done at 3D level. If an image is 4D, it is split into 3D volumes, 
 
 Example usage:
     
-    resample dwiNifti dwiReNifti 8
-    resample t1Nifti t1ReNifti --order 1
+    # resample to dimension 256x256x128
+    resample -i dwiNifti -o dwiReNifti --ncpu 8 --size 256x256x128
+    # resample to resolution 2 mm3
+    resample -i t1Nifti -o t1ReNifti --order 1 --size 2x2x2
 
 
 
