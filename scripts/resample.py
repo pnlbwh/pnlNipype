@@ -105,7 +105,7 @@ if all of M,N,O<5, it is interpreted as resolution""")
 
     parser.add_argument('--order', default=4,
                         help="""For details about order of interpolation, see ResampleImage --help, 
-the default for masks is 0 (nearest neighbor) while for all other images it is 4 (Bspline [order=5])""")
+the default for masks is 1 (nearest neighbor) while for all other images it is 4 (Bspline [order=5])""")
 
     args = parser.parse_args()
 
