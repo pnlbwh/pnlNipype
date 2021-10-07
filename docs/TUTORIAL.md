@@ -232,7 +232,7 @@ Resampling is done at 3D level. If an image is 4D, it is split into 3D volumes, 
       --size SIZE           resample to MxNxO size or resolution, if all of
                             M,N,O<5, it is interpreted as resolution
       --order ORDER         For details about order of interpolation, see
-                            ResampleImage --help, the default for masks is 0
+                            ResampleImage --help, the default for masks is 1
                             (nearest neighbor) while for all other images it is 4
                             (Bspline [order=5])
 
