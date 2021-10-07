@@ -242,7 +242,7 @@ Example usage:
     # resample to dimension 256x256x128
     resample -i dwiNifti -o dwiReNifti --ncpu 8 --size 256x256x128
     # resample to resolution 2 mm3
-    resample -i t1Nifti -o t1ReNifti --order 1 --size 2x2x2
+    resample -i t1Nifti -o t1ReNifti --order 0 --size 2x2x2
 
 
 
