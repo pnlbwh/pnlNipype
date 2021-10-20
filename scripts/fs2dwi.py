@@ -35,7 +35,7 @@ def registerFs2Dwi(tmpdir, namePrefix, b0masked, brain, wmparc, wmparc_out):
 # The functions registerFs2Dwi and registerFs2Dwi_T2 differ by the use of t2masked, T2toBrainAffine, and a print statement
 
 
-def registerFs2Dwi_T2(tmpdir, namePrefix, b0masked, t2masked, T2toBrainAffine, wmparc, wmparc_out):
+def registerFs2Dwi_T2(tmpdir, namePrefix, b0masked, t2masked, BrainToT2Affine, wmparc, wmparc_out):
 
     pre = tmpdir / namePrefix
     affine = pre + '0GenericAffine.mat'
@@ -46,7 +46,7 @@ def registerFs2Dwi_T2(tmpdir, namePrefix, b0masked, t2masked, T2toBrainAffine, w
                            ]), shell=True)
 
     print('Applying warp to wmparc.nii.gz to create (resampled) wmparcindwi.nii.gz')
-    antsApplyTransforms('-d', '3', '-i', wmparc, '-t', warp, affine, T2toBrainAffine,
+    antsApplyTransforms('-d', '3', '-i', wmparc, '-t', warp, affine, BrainToT2Affine,
                         '-r', b0masked, '-o', wmparc_out,
                         '--interpolation', 'NearestNeighbor')
 
@@ -255,7 +255,7 @@ class WithT2(cli.Application):
                 self.parent.bse.copy(b0masked)
 
 
-            # rigid registration from t2 to brain.nii.gz
+            # rigid registration from brain.nii.gz to t2
             pre = tmpdir / 'BrainToT2'
             BrainToT2Affine = pre + '0GenericAffine.mat'
 
