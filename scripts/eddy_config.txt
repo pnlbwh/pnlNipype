@@ -33,7 +33,7 @@ $ topup: --verbose --config=b02b0.cnf
 
 # provide one of the advanced arguments for applytopup in one line
 # Example:
-# applytoup: --method jac --interp spline ...
+# applytoup: --method=jac --interp=spline ...
 
 
 '''
