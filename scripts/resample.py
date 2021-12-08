@@ -77,12 +77,12 @@ def main():
     else:
         # mask
         if sum(np.unique(img.get_fdata()))==1:
-            ResampleImage('3', args.input, outPrefix+'.nii.gz', args.size, size_spacing,
+            ResampleImage('3', args.input, outPrefix+'.nii.gz', args.size, args.size_spacing,
                           '1', '2')
 
         # T1w/T2w
         else:
-            ResampleImage('3', args.input, outPrefix+'.nii.gz', args.size, size_spacing,
+            ResampleImage('3', args.input, outPrefix+'.nii.gz', args.size, args.size_spacing,
                           args.order, '5' if args.order==4 else '')
 
 
