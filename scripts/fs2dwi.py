@@ -110,6 +110,10 @@ class FsToDwi(cli.Application):
             print('Set FREESURFER_HOME first.')
             sys.exit(1)
 
+        if not (self.bse or self.bvals_file):
+            print('--bvals file is required for extracting B0')
+            sys.exit(1)
+
         print('Making output directory')
         self.out= local.path(self.out)
         if self.out.exists() and self.force:
