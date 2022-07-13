@@ -53,30 +53,39 @@ Compulsory arguments:
 
      -d:  ImageDimension: 2 or 3 (for 2 or 3 dimensional registration of single volume)
 
-     -f:  Fixed image or source image or reference image
+     -f:  Fixed image(s) or source image(s) or reference image(s)
 
-     -m:  Moving image or target image
+     -m:  Moving image(s) or target image(s)
 
      -o:  OutputPrefix: A prefix that is prepended to all output files.
 
 Optional arguments:
 
-     -n:  Number of threads (default = 1)
+     -n:  Number of threads (default = ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS if defined, otherwise 1)
+
+     -i:  initial transform(s) --- order specified on the command line matters
 
      -t:  transform type (default = 's')
-        t: translation
-        r: rigid
-        a: rigid + affine
-        s: rigid + affine + deformable syn
-        sr: rigid + deformable syn
-        so: deformable syn only
-        b: rigid + affine + deformable b-spline syn
-        br: rigid + deformable b-spline syn
-        bo: deformable b-spline syn only
+        t: translation (1 stage)
+        r: rigid (1 stage)
+        a: rigid + affine (2 stages)
+        s: rigid + affine + deformable syn (3 stages)
+        sr: rigid + deformable syn (2 stages)
+        so: deformable syn only (1 stage)
+        b: rigid + affine + deformable b-spline syn (3 stages)
+        br: rigid + deformable b-spline syn (2 stages)
+        bo: deformable b-spline syn only (1 stage)
+
+     -r:  radius for cross correlation metric used during SyN stage (default = 4)
 
      -s:  spline distance for deformable B-spline SyN transform (default = 26)
 
-     -x:  mask for the fixed image space, applied only in the last stage
+     -g:  gradient step size for SyN and B-spline SyN (default = 0.1)
+
+     -x:  mask(s) for the fixed image space.  Should specify either a single image to be used for
+          all stages or one should specify a mask image for each "stage" (cf -t option).  If
+          no mask is to be used for a particular stage, the keyword 'NULL' should be used
+          in place of a file name.
 
      -p:  precision type (default = 'd')
         f: float
@@ -86,10 +95,19 @@ Optional arguments:
         0: false
         1: true
 
+     -y:  use 'repro' mode for exact reproducibility of output.  Uses GC metric for linear
+          stages and a fixed random seed (default = 0).
+        0: false
+        1: true
+
+     -z:  collapse output transforms (default = 1)
+
+     -e:  Fix random seed to an int value
+
      NB:  Multiple image pairs can be specified for registration during the SyN stage.
           Specify additional images using the '-m' and '-f' options.  Note that image
           pair correspondence is given by the order specified on the command line.
-          Only the first fixed and moving image pair is used for the linear resgitration
+          Only the first fixed and moving image pair is used for the linear registration
           stages.
 
 Example:
@@ -112,9 +130,6 @@ USAGE
 function Help {
     cat <<HELP
 
-(Ryan's mod: The last stage has been modified to use MI instead of CC, so all
-stages now use MI. Useful for Freesurfer brain.mgz to DWI registration.)
-
 Usage:
 
 `basename $0` -d ImageDimension -f FixedImage -m MovingImage -o OutputPrefix
@@ -127,30 +142,39 @@ Compulsory arguments:
 
      -d:  ImageDimension: 2 or 3 (for 2 or 3 dimensional registration of single volume)
 
-     -f:  Fixed image or source image or reference image
+     -f:  Fixed image(s) or source image(s) or reference image(s)
 
-     -m:  Moving image or target image
+     -m:  Moving image(s) or target image(s)
 
      -o:  OutputPrefix: A prefix that is prepended to all output files.
 
 Optional arguments:
 
-     -n:  Number of threads (default = 1)
+     -n:  Number of threads (default = ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS if defined, otherwise 1)
+
+     -i:  initial transform(s) --- order specified on the command line matters
 
      -t:  transform type (default = 's')
-        t: translation
-        r: rigid
-        a: rigid + affine
-        s: rigid + affine + deformable syn
-        sr: rigid + deformable syn
-        so: deformable syn only
-        b: rigid + affine + deformable b-spline syn
-        br: rigid + deformable b-spline syn
-        bo: deformable b-spline syn only
+        t: translation (1 stage)
+        r: rigid (1 stage)
+        a: rigid + affine (2 stages)
+        s: rigid + affine + deformable syn (3 stages)
+        sr: rigid + deformable syn (2 stages)
+        so: deformable syn only (1 stage)
+        b: rigid + affine + deformable b-spline syn (3 stages)
+        br: rigid + deformable b-spline syn (2 stages)
+        bo: deformable b-spline syn only (1 stage)
+
+     -r:  radius for cross correlation metric used during SyN stage (default = 4)
 
      -s:  spline distance for deformable B-spline SyN transform (default = 26)
 
-     -x:  mask for the fixed image space
+     -g:  gradient step size for SyN and B-spline SyN (default = 0.1)
+
+     -x:  mask(s) for the fixed image space.  Should specify either a single image to be used for
+          all stages or one should specify a mask image for each "stage" (cf -t option).  If
+          no mask is to be used for a particular stage, the keyword 'NULL' should be used
+          in place of a file name.
 
      -p:  precision type (default = 'd')
         f: float
@@ -159,6 +183,17 @@ Optional arguments:
      -j:  use histogram matching (default = 0)
         0: false
         1: true
+
+     -y:  use 'repro' mode for exact reproducibility of output.  Uses GC metric for linear
+          stages and a fixed random seed (default = 0).
+        0: false
+        1: true
+
+     -z:  collapse output transforms (default = 1)
+        0: false
+        1: true
+
+     -e:  Fix random seed to an int value
 
      NB:  Multiple image pairs can be specified for registration during the SyN stage.
           Specify additional images using the '-m' and '-f' options.  Note that image
@@ -169,7 +204,7 @@ Optional arguments:
 --------------------------------------------------------------------------------------
 Get the latest ANTs version at:
 --------------------------------------------------------------------------------------
-https://github.com/stnava/ANTs/
+https://github.com/ANTsX/ANTs/
 
 --------------------------------------------------------------------------------------
 Read the ANTS documentation at:
@@ -206,11 +241,16 @@ function reportMappingParameters {
  Output name prefix:       $OUTPUTNAME
  Fixed images:             ${FIXEDIMAGES[@]}
  Moving images:            ${MOVINGIMAGES[@]}
+ Mask images:              ${MASKIMAGES[@]}
+ Initial transforms:       ${INITIALTRANSFORMS[@]}
  Number of threads:        $NUMBEROFTHREADS
  Spline distance:          $SPLINEDISTANCE
+ SyN gradient step:        $SYNGRADIENTSTEP
  Transform type:           $TRANSFORMTYPE
+ CC radius:                $CCRADIUS
  Precision:                $PRECISIONTYPE
  Use histogram matching    $USEHISTOGRAMMATCHING
+ Repro                     $REPRO
 ======================================================================================
 REPORTMAPPINGPARAMETERS
 }
@@ -254,16 +294,22 @@ if [[ "$1" == "-h" || $# -eq 0 ]];
 DIM=3
 FIXEDIMAGES=()
 MOVINGIMAGES=()
+INITIALTRANSFORMS=()
 OUTPUTNAME=output
-NUMBEROFTHREADS=1
+NUMBEROFTHREADS=0
 SPLINEDISTANCE=26
+SYNGRADIENTSTEP=0.1
 TRANSFORMTYPE='s'
 PRECISIONTYPE='d'
-MASK=0
+CCRADIUS=4
+MASKIMAGES=()
 USEHISTOGRAMMATCHING=0
+COLLAPSEOUTPUTTRANSFORMS=1
+RANDOMSEED=0
+REPRO=0
 
 # reading command line arguments
-while getopts "d:f:h:m:j:n:o:p:r:s:t:x:" OPT
+while getopts "d:e:f:g:h:i:m:j:n:o:p:r:s:t:x:y:z:" OPT
   do
   case $OPT in
       h) #help
@@ -273,17 +319,26 @@ while getopts "d:f:h:m:j:n:o:p:r:s:t:x:" OPT
       d)  # dimensions
    DIM=$OPTARG
    ;;
+      e)  # seed
+   RANDOMSEED=$OPTARG
+   ;;
       x)  # inclusive mask
-   MASK=$OPTARG
+   MASKIMAGES[${#MASKIMAGES[@]}]=$OPTARG
    ;;
       f)  # fixed image
    FIXEDIMAGES[${#FIXEDIMAGES[@]}]=$OPTARG
+   ;;
+      g)  # SyN gradient step
+   SYNGRADIENTSTEP=$OPTARG
    ;;
       j)  # histogram matching
    USEHISTOGRAMMATCHING=$OPTARG
    ;;
       m)  # moving image
    MOVINGIMAGES[${#MOVINGIMAGES[@]}]=$OPTARG
+   ;;
+      i)  # initial transform
+   INITIALTRANSFORMS[${#INITIALTRANSFORMS[@]}]=$OPTARG
    ;;
       n)  # number of threads
    NUMBEROFTHREADS=$OPTARG
@@ -294,11 +349,20 @@ while getopts "d:f:h:m:j:n:o:p:r:s:t:x:" OPT
       p)  # precision type
    PRECISIONTYPE=$OPTARG
    ;;
+      r)  # cc radius
+   CCRADIUS=$OPTARG
+   ;;
       s)  # spline distance
    SPLINEDISTANCE=$OPTARG
    ;;
       t)  # transform type
    TRANSFORMTYPE=$OPTARG
+   ;;
+      y)  # reproducibility
+   REPRO=$OPTARG
+   ;;
+      z)  # collapse output transforms
+   COLLAPSEOUTPUTTRANSFORMS=$OPTARG
    ;;
      \?) # getopts issues an error message
    echo "$USAGE" >&2
@@ -332,6 +396,23 @@ for(( i=0; i<${#FIXEDIMAGES[@]}; i++ ))
       fi
   done
 
+##############################
+#
+# Mask stuff
+#
+##############################
+
+NUMBEROFMASKIMAGES=${#MASKIMAGES[@]}
+
+MASKCALL=""
+if [[ ${#MASKIMAGES[@]} -gt 0 ]];
+  then
+    for (( i = 0; i < ${#MASKIMAGES[@]}; i++ ))
+      do
+        MASKCALL="${MASKCALL} -x [ ${MASKIMAGES[$i]}, NULL ]"
+      done
+  fi
+
 ###############################
 #
 # Set number of threads
@@ -339,6 +420,19 @@ for(( i=0; i<${#FIXEDIMAGES[@]}; i++ ))
 ###############################
 
 ORIGINALNUMBEROFTHREADS=${ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS}
+
+# NUMBEROFTHREADS is > 0 if the option has been set to a positive value
+if [[ $NUMBEROFTHREADS -lt 1 ]];
+  then
+    # Number of threads not set on the command line, try ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS
+    if [[ $ORIGINALNUMBEROFTHREADS -gt 0 ]];
+      then
+	NUMBEROFTHREADS=$ORIGINALNUMBEROFTHREADS
+      else
+	NUMBEROFTHREADS=1
+      fi
+  fi
+
 ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=$NUMBEROFTHREADS
 export ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS
 
@@ -349,23 +443,6 @@ export ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS
 ##############################
 
 reportMappingParameters
-
-##############################
-#
-# Mask stuff
-#
-##############################
-
-if [[ ${#MASK} -lt 3 ]];
-  then
-    NULLMASK=""
-    MASK=""
-    HAVEMASK=0
-  else
-    NULLMASK=" -x [NULL,NULL] "
-    MASK=" -x [$MASK, NULL] "
-    HAVEMASK=1
-  fi
 
 ##############################
 #
@@ -395,31 +472,66 @@ for (( i=0; i<${#SIZE[@]}; i++ ))
 #
 ##############################
 
-RIGIDCONVERGENCE="[1000x500x250x100,1e-6,10]"
+RIGIDCONVERGENCE="[ 1000x500x250x100,1e-6,10 ]"
 RIGIDSHRINKFACTORS="8x4x2x1"
 RIGIDSMOOTHINGSIGMAS="3x2x1x0vox"
 
-AFFINECONVERGENCE="[1000x500x250x100,1e-6,10]"
+AFFINECONVERGENCE="[ 1000x500x250x100,1e-6,10 ]"
 AFFINESHRINKFACTORS="8x4x2x1"
 AFFINESMOOTHINGSIGMAS="3x2x1x0vox"
 
-SYNCONVERGENCE="[100x70x50x20,1e-6,10]"
+SYNCONVERGENCE="[ 100x70x50x20,1e-6,10 ]"
 SYNSHRINKFACTORS="8x4x2x1"
 SYNSMOOTHINGSIGMAS="3x2x1x0vox"
 
 if [[ $ISLARGEIMAGE -eq 1 ]];
   then
-    RIGIDCONVERGENCE="[1000x500x250x100,1e-6,10]"
+    RIGIDCONVERGENCE="[ 1000x500x250x100,1e-6,10 ]"
     RIGIDSHRINKFACTORS="12x8x4x2"
     RIGIDSMOOTHINGSIGMAS="4x3x2x1vox"
 
-    AFFINECONVERGENCE="[1000x500x250x100,1e-6,10]"
+    AFFINECONVERGENCE="[ 1000x500x250x100,1e-6,10 ]"
     AFFINESHRINKFACTORS="12x8x4x2"
     AFFINESMOOTHINGSIGMAS="4x3x2x1vox"
 
-    SYNCONVERGENCE="[100x100x70x50x20,1e-6,10]"
+    SYNCONVERGENCE="[ 100x100x70x50x20,1e-6,10 ]"
     SYNSHRINKFACTORS="10x6x4x2x1"
     SYNSMOOTHINGSIGMAS="5x3x2x1x0vox"
+  fi
+
+LINEARMETRIC="MI"
+LINEARMETRICPARAMETER=32
+
+# Precedence for random seeding
+# 1. Command line option -e
+# 2. Environment variable ANTS_RANDOM_SEED
+# 3. Fixed seed = 1 if run in repro mode
+# 4. ITK default (system time)
+
+if [[ -n ${ANTS_RANDOM_SEED} ]] && [[ ${RANDOMSEED} -eq 0 ]];
+  then
+    RANDOMSEED=${ANTS_RANDOM_SEED}
+  fi
+
+if [[ $REPRO -eq 1 ]];
+  then
+    LINEARMETRIC="GC"
+    LINEARMETRICPARAMETER=1
+    if [[ ${RANDOMSEED} -eq 0 ]];
+      then
+        RANDOMSEED=1
+      fi
+  fi
+
+INITIALSTAGE="--initial-moving-transform [ ${FIXEDIMAGES[0]},${MOVINGIMAGES[0]},1 ]"
+
+if [[ ${#INITIALTRANSFORMS[@]} -gt 0 ]];
+  then
+    INITIALSTAGE=""
+    for(( i=0; i<${#INITIALTRANSFORMS[@]}; i++ ))
+      do
+        INITIALSTAGE="$INITIALSTAGE --initial-moving-transform ${INITIALTRANSFORMS[$i]}"
+      done
   fi
 
 tx=Rigid
@@ -427,16 +539,14 @@ if [[ $TRANSFORMTYPE == 't' ]] ; then
   tx=Translation
 fi
 
-INITIALSTAGE="--initial-moving-transform [${FIXEDIMAGES[0]},${MOVINGIMAGES[0]},1]"
-
-RIGIDSTAGE="--transform ${tx}[0.1] \
-            --metric MI[${FIXEDIMAGES[0]},${MOVINGIMAGES[0]},1,32,Regular,0.25] \
+RIGIDSTAGE="--transform ${tx}[ 0.1 ] \
+            --metric MI[ ${FIXEDIMAGES[0]},${MOVINGIMAGES[0]},1,${LINEARMETRICPARAMETER},Regular,0.25 ] \
             --convergence $RIGIDCONVERGENCE \
             --shrink-factors $RIGIDSHRINKFACTORS \
             --smoothing-sigmas $RIGIDSMOOTHINGSIGMAS"
 
-AFFINESTAGE="--transform Affine[0.1] \
-             --metric MI[${FIXEDIMAGES[0]},${MOVINGIMAGES[0]},1,32,Regular,0.25] \
+AFFINESTAGE="--transform Affine[ 0.1 ] \
+             --metric MI[ ${FIXEDIMAGES[0]},${MOVINGIMAGES[0]},1,${LINEARMETRICPARAMETER},Regular,0.25 ] \
              --convergence $AFFINECONVERGENCE \
              --shrink-factors $AFFINESHRINKFACTORS \
              --smoothing-sigmas $AFFINESMOOTHINGSIGMAS"
@@ -444,7 +554,7 @@ AFFINESTAGE="--transform Affine[0.1] \
 SYNMETRICS=''
 for(( i=0; i<${#FIXEDIMAGES[@]}; i++ ))
   do
-    SYNMETRICS="$SYNMETRICS --metric MI[${FIXEDIMAGES[$i]},${MOVINGIMAGES[$i]},1,32,Regular,0.25]"
+    SYNMETRICS="$SYNMETRICS --metric MI[ ${FIXEDIMAGES[$i]},${MOVINGIMAGES[$i]},1,${CCRADIUS} ]"
   done
 
 SYNSTAGE="${SYNMETRICS} \
@@ -454,7 +564,7 @@ SYNSTAGE="${SYNMETRICS} \
 
 if [[ $TRANSFORMTYPE == 'sr' ]] || [[ $TRANSFORMTYPE == 'br' ]];
   then
-    SYNCONVERGENCE="[50x0,1e-6,10]"
+    SYNCONVERGENCE="[ 50x20,1e-6,10 ]"
     SYNSHRINKFACTORS="2x1"
     SYNSMOOTHINGSIGMAS="1x0vox"
           SYNSTAGE="${SYNMETRICS} \
@@ -465,53 +575,50 @@ if [[ $TRANSFORMTYPE == 'sr' ]] || [[ $TRANSFORMTYPE == 'br' ]];
 
 if [[ $TRANSFORMTYPE == 'b' ]] || [[ $TRANSFORMTYPE == 'br' ]] || [[ $TRANSFORMTYPE == 'bo' ]];
   then
-    SYNSTAGE="--transform BSplineSyN[0.1,${SPLINEDISTANCE},0,3] \
+    SYNSTAGE="--transform BSplineSyN[ ${SYNGRADIENTSTEP},${SPLINEDISTANCE},0,3 ] \
              $SYNSTAGE"
   fi
 
 if [[ $TRANSFORMTYPE == 's' ]] || [[ $TRANSFORMTYPE == 'sr' ]] || [[ $TRANSFORMTYPE == 'so' ]];
   then
-    SYNSTAGE="--transform SyN[0.1,3,0] \
+    SYNSTAGE="--transform SyN[ ${SYNGRADIENTSTEP},3,0 ] \
              $SYNSTAGE"
   fi
 
+NUMBEROFREGISTRATIONSTAGES=0
 STAGES=''
 case "$TRANSFORMTYPE" in
 "r" | "t")
   STAGES="$INITIALSTAGE $RIGIDSTAGE"
-  if [[ $HAVEMASK -eq 1 ]] ; then
-    $STAGES=" $INITIALSTAGE $RIGIDSTAGE $MASK "
-  fi
+  NUMBEROFREGISTRATIONSTAGES=1
   ;;
 "a")
   STAGES="$INITIALSTAGE $RIGIDSTAGE $AFFINESTAGE"
-  if [[ $HAVEMASK -eq 1 ]] ; then
-    STAGES="$INITIALSTAGE $RIGIDSTAGE $NULLMASK $AFFINESTAGE $MASK "
-  fi
+  NUMBEROFREGISTRATIONSTAGES=2
   ;;
 "b" | "s")
   STAGES="$INITIALSTAGE $RIGIDSTAGE $AFFINESTAGE $SYNSTAGE"
-  if [[ $HAVEMASK -eq 1 ]] ; then
-    STAGES="$INITIALSTAGE $RIGIDSTAGE $NULLMASK $AFFINESTAGE $NULLMASK $SYNSTAGE $MASK "
-  fi
+  NUMBEROFREGISTRATIONSTAGES=3
   ;;
 "br" | "sr")
   STAGES="$INITIALSTAGE $RIGIDSTAGE  $SYNSTAGE"
-  if [[ $HAVEMASK -eq 1 ]] ; then
-    STAGES="$INITIALSTAGE $RIGIDSTAGE $NULLMASK $SYNSTAGE $MASK "
-  fi
+  NUMBEROFREGISTRATIONSTAGES=2
   ;;
 "bo" | "so")
   STAGES="$INITIALSTAGE $SYNSTAGE"
-  if [[ $HAVEMASK -eq 1 ]] ; then
-    $STAGES=" $INITIALSTAGE $SYNSTAGE $MASK "
-  fi
+  NUMBEROFREGISTRATIONSTAGES=1
   ;;
 *)
   echo "Transform type '$TRANSFORMTYPE' is not an option.  See usage: '$0 -h 1'"
   exit
   ;;
 esac
+
+if [[ $NUMBEROFMASKIMAGES -ne 0 && $NUMBEROFMASKIMAGES -ne 1 && $NUMBEROFMASKIMAGES -ne $NUMBEROFREGISTRATIONSTAGES ]];
+  then
+    echo "The specified number of mask images is not correct.  Please see help menu."
+    exit
+  fi
 
 PRECISION=''
 case "$PRECISIONTYPE" in
@@ -527,12 +634,20 @@ case "$PRECISIONTYPE" in
   ;;
 esac
 
-COMMAND="${ANTS} --verbose 1 \
+RANDOMOPT=""
+
+if [[ ! $RANDOMSEED -eq 0 ]]; then
+    RANDOMOPT=" --random-seed $RANDOMSEED "
+fi
+
+COMMAND="${ANTS} --verbose 1 $RANDOMOPT \
                  --dimensionality $DIM $PRECISION \
-                 --output [$OUTPUTNAME,${OUTPUTNAME}Warped.nii.gz,${OUTPUTNAME}InverseWarped.nii.gz] \
+                 --collapse-output-transforms $COLLAPSEOUTPUTTRANSFORMS \
+                 --output [ $OUTPUTNAME,${OUTPUTNAME}Warped.nii.gz,${OUTPUTNAME}InverseWarped.nii.gz ] \
                  --interpolation Linear \
                  --use-histogram-matching ${USEHISTOGRAMMATCHING} \
-                 --winsorize-image-intensities [0.005,0.995] \
+                 --winsorize-image-intensities [ 0.005,0.995 ] \
+                 $MASKCALL \
                  $STAGES"
 
 echo " antsRegistration call:"
