@@ -90,7 +90,7 @@ In order to practice each step in the pipeline, we will use a sample case locate
 
 Before beginning this tutorial, you will need to copy the directory with the sample case in it into a directory in your own "home" directory.
 
-After logging into your account on a lab computer, go to the **Applications** drop-down menu > **System Tools** > **Terminal** to open the Linux terminal. You don't need to do this if you've connected through shh.
+After logging into your account on a lab computer, go to the **Applications** drop-down menu > **System Tools** > **Terminal** to open the Linux terminal. You don't need to do this if you've connected through ssh.
  
 Before we begin, we'll need to make sure that your bashrc is sourced. This sets up an environment that allows you to readily access the scripts we will be using in this tutorial. You can check if you've set up your bashrc already by typing:
 ``` 
