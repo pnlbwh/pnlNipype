@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If this software is useful in your research, please cite as below."
+authors:
+- family-names: "Billah"
+  given-names: "Tashrif"
+- family-names: "Bouix"
+  given-names: "Sylvain"
+- family-names: "Rathi"
+  given-names: "Yogesh"
+title: "NIFTI MRI processing pipeline"
+version: 1.1
+doi: 10.5281/zenodo.3258854
+date-released: 2020-10-22
+url: "https://github.com/pnlbwh/pnlNipype"
