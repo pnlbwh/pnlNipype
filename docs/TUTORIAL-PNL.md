@@ -570,7 +570,7 @@ In order to run EPI correction, you will need to make sure that you have bval an
 
 Now you can be in `PipelineTraining/derivatives/sub-sample/ses-1`. Enter:
 ```
-pnl_epi --dwi dwi/sub-sample_ses-1_desc-UnXcEd_dwi.nii.gz --dwimask dwi/sub-sample_ses-1_desc-UnXcEd_dwi_bse-multi_BrainMaskQc.nii.gz --t2 anat/sub-sample_ses-1_desc-Xc_T2w.nii.gz --t2mask anat/sub-sample_ses-1_desc-T2wXcMabs_mask.nii.gz -o dwi/sub-sample_ses-1_desc-UnXcEdEp_dwi
+pnl_epi --dwi dwi/sub-sample_ses-1_desc-UnXcEd_dwi.nii.gz --dwimask dwi/sub-sample_ses-1_desc-UnXcEd_dwi_bse-multi_BrainMaskQc.nii.gz --t2 anat/sub-sample_ses-1_desc-Xc_T2w.nii.gz --t2mask anat/sub-sample_ses-1_desc-T2wXcMabs_mask.nii.gz --bvec dwi/sub-sample_ses-1_desc_UnXcEd_dwi.bvec --bval dwi/sub-sample_ses-1_desc_UnXcEd_dwi.bval -o dwi/sub-sample_ses-1_desc-UnXcEdEp_dwi
 ```
 
 * Since this takes a long time, `sub-sample_ses-1_desc-UnXcEdEp_dwi.nii.gz`, and corresponding `bvec` and `bval` files, is also available to be copied from the `Other` directory into your `Diffusion_b3000` directory.
