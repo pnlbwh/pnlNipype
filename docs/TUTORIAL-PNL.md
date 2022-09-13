@@ -673,7 +673,7 @@ To continue on from this point you will need to have both the diffusion and the 
 
 The first step of post-processing involves registering the FreeSurfer labelmap that you made to the diffusion image since they don't have the same resolution and aren't in the same space. First, make sure you are in the `PipelineTraining/derivatives/sub-sample/ses-1` directory and enter:
 ```
-nifti_fs2dwi --dwi dwi/sub-sample_ses-1_desc-UnXcEdEp_dwi.nii.gz --dwimask dwi/sub-sample_ses-1_desc-UnXcEd_dwi_bse-multi_BrainMaskQc.nii.gz -f anat/sample_freesurfer -o anat/sample_fs2dwi witht2 --t2 anat/sub-sample_ses-1_desc-Xc_T2w.nii.gzz --t2mask anat/sub-sample_ses-1_desc-T2wXcMabs_mask.nii.gz
+nifti_fs2dwi --dwi dwi/sub-sample_ses-1_desc-UnXcEdEp_dwi.nii.gz --dwimask dwi/sub-sample_ses-1_desc-UnXcEd_dwi_bse-multi_BrainMaskQc.nii.gz -f anat/sample_freesurfer -o anat/sample_fs2dwi witht2 --t2 anat/sub-sample_ses-1_desc-Xc_T2w.nii.gz --t2mask anat/sub-sample_ses-1_desc-T2wXcMabs_mask.nii.gz
 ```
 It will take about 6 hours to run to completion, so type **Ctrl+c**.
 
