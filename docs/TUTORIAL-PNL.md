@@ -698,7 +698,7 @@ This step is not a part of the figure on the first page of this tutorial, but it
 
 Go into the derived `dwi` directory and enter:
 ```
-wm_quality_control_tractography Tractography/ tractQC/
+wm_quality_control_tractography.py Tractography/ tractQC/
 ```
 
 Next, go into your new `tractQC` directory. To do a visual QC, enter `gio open view_<area>.html`. There are 6 different areas that you can look at (**ant**, **inf**, **left**, **post**, **right**, and **sup**) and you should inspect each of them carefully.
