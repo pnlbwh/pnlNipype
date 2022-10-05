@@ -27,7 +27,7 @@ Table of Contents
       * [1. Structural mask](#1-structural-mask)
          * [i. Mask from training data](#i-mask-from-training-data)
          * [ii. Mask using FSL Bet](#ii-mask-using-fsl-bet)
-         * [ii. Mask through registration](#ii-mask-through-registration)
+         * [iii. Mask through registration](#iii-mask-through-registration)
       * [2. Diffusion mask](#2-diffusion-mask)
          * [i. Baseline image](#i-baseline-image)
          * [ii. FSL Bet](#ii-fsl-bet)
@@ -365,7 +365,7 @@ For 4D diffusion weighted image, bet mask is created from first B0 image image. 
 it is created directly.
 
 
-### ii. Mask through registration
+### iii. Mask through registration
 
 Sometimes, you have a batch of structural images (T1/T2) for all of which you do not want to create (computationally 
 expensive mask)[#i-mask-from-training-data]. In that case, you can create mask from training data for only one subject 
