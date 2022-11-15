@@ -677,7 +677,7 @@ Epi and Eddy distortions.
         fsl_topup_epi_eddy [SWITCHES] 
     
     Switches:
-        --acqp VALUE:ExistingFile        acuisition parameters file (.txt) containing TWO lines, first
+        --acqp VALUE:ExistingFile        acquisition parameters file (.txt) containing TWO lines, first
                                          for primary4D (PA), second for secondary4D/3D(AP); required
         --bvals VALUE:str                --bvals primaryBval,secondaryBval --bvals primaryBval if only
                                          one bval file is provided, the second bval file is either
