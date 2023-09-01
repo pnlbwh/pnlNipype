@@ -62,16 +62,23 @@ class App(cli.Application):
 
                 bhigh_prefix= tmpdir / self.dwi.stem+ f'_bhigh_{self.bhigh}'
                 bhigh_dwi= bhigh_prefix+'.nii.gz'
-                grad_remove(shortdwi._path, bhigh_dwi, interval=[int(self.bhigh)+50,1e6], bvalFile=self.bvalFile, bvecFile=self.bvecFile)
+                try:
+                    grad_remove(shortdwi._path, bhigh_dwi, interval=[int(self.bhigh)+50,1e6],
+                        bvalFile=self.bvalFile, bvecFile=self.bvecFile)
 
-                shortdwi= local.path(bhigh_dwi)
-                self.bvalFile = local.path(bhigh_prefix + '.bval')
-                self.bvecFile = local.path(bhigh_prefix + '.bvec')
+                    shortdwi= local.path(bhigh_dwi)
+                    self.bvalFile = local.path(bhigh_prefix + '.bval')
+                    self.bvecFile = local.path(bhigh_prefix + '.bvec')
 
-                # preserve the filtered attributes in case the user wants to run UKFTractography separately in future
-                shortdwi.copy(self.dwi.dirname)
-                self.bvalFile.copy(self.dwi.dirname)
-                self.bvecFile.copy(self.dwi.dirname)
+                    # do not overwrite the original dwi in case user wants to run UKFTractography on the whole dwi in future
+                    # instead, copy the filtered attributes to the original's directory
+                    shortdwi.copy(self.dwi.dirname)
+                    self.bvalFile.copy(self.dwi.dirname)
+                    self.bvecFile.copy(self.dwi.dirname)
+                    
+                except ValueError:
+                    # grad_remove raises ValueError if no gradient falls within the interval
+                    pass
 
 
             # convert the dwi to NRRD
