@@ -8,6 +8,8 @@ from util import load_nifti, save_nifti
 
 from conversion.bval_bvec_io import bvec_rotate
 
+import warnings
+
 precision= 17
 
 
@@ -35,11 +37,6 @@ def axis_align_dwi(hdr_in, bvec_file, bval_file, out_prefix):
     spcdir_new, R= get_spcdir_new(hdr_in)
 
     # bvecs are in IJK space, so no change due to axis alignment
-    # rename the bvec file
-    bvec_file.copy(out_prefix+'.bvec')
-
-    # rename the bval file
-    bval_file.copy(out_prefix+'.bval')
 
     return spcdir_new
 
@@ -117,8 +114,8 @@ class Xalign(cli.Application):
 
         if dim == 4:
             if not self.bvec_file and not self.bval_file:
-                print('bvec and bvals files not specified, exiting ...')
-                exit(1)
+                # fMRI will not have bvec/bval, so only raise a warning
+                warnings.warn('Seems like a DWI but bvec/bval files not specified')
 
         elif dim == 3:
             spcdir_new= axis_align_3d(hdr)
@@ -154,12 +151,6 @@ class Xalign(cli.Application):
             hdr_out = update_hdr(hdr, spcdir_orig, offset_new)
 
 
-            # rename the bval file
-            self.bval_file.copy(self.out_prefix + '.bval')
-            # rename the bvec file
-            self.bvec_file.copy(self.out_prefix + '.bvec')
-
-
         else: # self.axisAlign and self.center:
             # pass spcdir_new and offset_new
 
@@ -172,6 +163,18 @@ class Xalign(cli.Application):
             offset_new = -spcdir_new @ matrix((hdr['dim'][1:4] - 1) / 2).T
             hdr_out = update_hdr(hdr, spcdir_new, offset_new)
 
+
+        # Goldstein's data has one b0 but accompanying bval and bvec
+        # That means any 3D image can come with bval and bvec
+        # Since axis alignment and centering do not affect bval and bvec
+        # copy them whenever provided
+        try:
+            # rename the bval file
+            self.bval_file.copy(self.out_prefix + '.bval')
+            # rename the bvec file
+            self.bvec_file.copy(self.out_prefix + '.bvec')
+        except:
+            pass
 
 
         # write out the modified image
