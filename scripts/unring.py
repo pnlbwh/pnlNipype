@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import sys
-from dipy.denoise.gibbs import gibbs_removal
+from gibbs import gibbs_removal
 from nibabel import load, save, Nifti1Image
 # from util import save_nifti
 from os.path import abspath, isfile
