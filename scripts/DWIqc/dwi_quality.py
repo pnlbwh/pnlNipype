@@ -155,7 +155,7 @@ class quality(cli.Application):
             outFormat='.nii.gz'
 
             img= nib.load(self.imgFile)
-            data = img.get_data()
+            data = img.get_fdata()
 
             affine= img.affine
             grad_axis= 3
@@ -179,7 +179,7 @@ class quality(cli.Application):
 
         # provide the user a liberty to specify different file formats for dwi and mask
         if self.maskFile.endswith('.nii.gz') or self.maskFile.endswith('.nii'):
-            mask_data = nib.load(self.maskFile).get_data()
+            mask_data = nib.load(self.maskFile).get_fdata()
 
         elif self.maskFile.endswith('.nrrd') or self.maskFile.endswith('.nhdr'):
             mask_data = nrrd.read(self.maskFile)[0]
@@ -313,7 +313,7 @@ class quality(cli.Application):
             rm(warp, trans,
                   outPrefix+'Warped.nii.gz', outPrefix+'1InverseWarp.nii.gz', outPrefix+'InverseWarped.nii.gz')
 
-            outLabelMap = nib.load(outLabelMapFile).get_data()
+            outLabelMap = nib.load(outLabelMapFile).get_fdata()
             labels = np.unique(outLabelMap)[1:]
             label2name = parse_labels(labels, self.lut._path if self.lut else None)
 

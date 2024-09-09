@@ -178,7 +178,7 @@ class Xalign(cli.Application):
 
 
         # write out the modified image
-        save_nifti(self.out_prefix+'.nii.gz', mri.get_data(), hdr_out.get_best_affine(), hdr_out)
+        save_nifti(self.out_prefix+'.nii.gz', mri.get_fdata(), hdr_out.get_best_affine(), hdr_out)
 
 
 if __name__ == '__main__':

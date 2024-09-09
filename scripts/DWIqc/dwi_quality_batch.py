@@ -36,7 +36,7 @@ def summarize_csvs(imgs, labelMapFile, lut, qcDir, labelName, out_csv):
         cases.append(basename(imgPath).split('.')[0])
 
     # extract region names from labelMap
-    outLabelMap = nib.load(labelMapFile).get_data()
+    outLabelMap = nib.load(labelMapFile).get_fdata()
     labels = np.unique(outLabelMap)[1:]
     regions = parse_labels(labels, lut).values()
 
