@@ -84,7 +84,7 @@ class Eddy(cli.Application):
 
     def main(self):
 
-        from plumbum.cmd import eddy_openmp
+        from plumbum.cmd import eddy_cpu as eddy_openmp
         
         if self.useGpu:
             try:
