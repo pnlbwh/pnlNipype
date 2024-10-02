@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.DEBUG, format=logfmt(__file__))
 # default UKFTractography parameters
 ukfdefaults = ['--numTensor', 2, '--stoppingFA', 0.15, '--seedingThreshold', 0.18, '--Qm', 0.001, '--Ql', 70,
                '--Rs', 0.015, '--stepLength', 0.3, '--recordLength', 1.7, '--stoppingThreshold', 0.1,
-               '--seedsPerVoxel', 10, '--recordTensors', '--numThreads', 8]
+               '--seedsPerVoxel', 3, '--recordTensors', '--numThreads', 8]
 
 
 class App(cli.Application):
