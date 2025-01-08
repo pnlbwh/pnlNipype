@@ -92,7 +92,7 @@ class App(cli.Application):
                     # Load the given dwi to get image data
                     dwi= load_nifti(self.dwi._path)
                     hdr= dwi.header
-                    mri= dwi.get_data()
+                    mri= dwi.get_fdata()
 
                     avg_bse= np.mean(mri[:,:,:,idx], axis= 3)
 

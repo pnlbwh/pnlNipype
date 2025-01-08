@@ -105,7 +105,7 @@ def fuseWeightedAvg(labels, weights, out, target_header):
     print("Apply weights to warped training {} et al., fuse, and threshold".format(labels[0]))
     data= np.zeros(target_header['dim'][1:4], dtype= 'float32')
     for label, w in zip(labels, weights):
-        data+= load_nifti(label._path).get_data()*w
+        data+= load_nifti(label._path).get_fdata()*w
 
 
     # out is {labelname}.nii.gz
@@ -143,7 +143,7 @@ def fuseAvg(labels, out, target_header):
         img= load_nifti(nii._path)
         # Binary operation, if out>0.5, pipe the output and save as {labelname}.nii.gz
         # out is {labelname}.nii.gz
-        save_nifti(out, ((img.get_data()>0.5)*1).astype('uint8'), target_header.get_best_affine(), target_header)
+        save_nifti(out, ((img.get_fdata()>0.5)*1).astype('uint8'), target_header.get_best_affine(), target_header)
 
 
     print("Made labelmap: " + out)
@@ -163,11 +163,11 @@ def train2target(itr):
     # warp is computed among the first column images and the target image
     # then that warp is applied to images in other columns
     # assuming first column of the dictionary contains moving images
-    computeWarp(r[0], target, warp)  # first column of each row is used here
-    applyWarp(r[0], warp, target, atlas)  # first column of each row is used here
+    computeWarp(r.iloc[0], target, warp)  # first column of each row is used here
+    applyWarp(r.iloc[0], warp, target, atlas)  # first column of each row is used here
 
     # labelname is the column header and label is the image in the csv file
-    for labelname, label in r.iloc[1:].iteritems():  # rest of the columns of each row are used here
+    for labelname, label in r.iloc[1:].items():  # rest of the columns of each row are used here
         atlaslabel = outdir / '{}{}.nii.gz'.format(labelname,idx)
         logging.info('Making {}'.format(atlaslabel))
 
@@ -194,12 +194,17 @@ def makeAtlases(target, trainingTable, outPrefix, fusion, threads, debug):
 
         logging.info('Create {} atlases: compute transforms from images to target and apply over images'.format(L))
 
-        pool = multiprocessing.Pool(threads)  # Use all available cores, otherwise specify the number you want as an argument
+        
+        if threads==1:
+            for itr in multiDataFrame.iterrows():
+                train2target(itr)
+        else:
+            pool = multiprocessing.Pool(threads)  # Use all available cores, otherwise specify the number you want as an argument
 
-        pool.map_async(train2target, multiDataFrame.iterrows())
+            pool.map_async(train2target, multiDataFrame.iterrows())
 
-        pool.close()
-        pool.join()
+            pool.close()
+            pool.join()
 
         logging.info('Fuse warped labelmaps to compute output labelmaps')
         atlasimages = tmpdir // 'atlas*.nii.gz'
@@ -211,14 +216,21 @@ def makeAtlases(target, trainingTable, outPrefix, fusion, threads, debug):
             ALPHA_DEFAULT= 0.45
 
             logging.info('Compute MI between warped images and target')
-            pool = multiprocessing.Pool(threads)
-            for img in atlasimages:
-                print('MI between {} and target'.format(img))
-                miFile= img+'.txt'
-                pool.apply_async(func= computeMI, args= (target, img, miFile, ))
+            if threads==1:
+                for img in atlasimages:
+                    print('MI between {} and target'.format(img))
+                    miFile= img+'.txt'
+                    computeMI(target, img, miFile)
+                    
+            else:
+                pool = multiprocessing.Pool(threads)
+                for img in atlasimages:
+                    print('MI between {} and target'.format(img))
+                    miFile= img+'.txt'
+                    pool.apply_async(func= computeMI, args= (target, img, miFile, ))
 
-            pool.close()
-            pool.join()
+                pool.close()
+                pool.join()
 
             mis= []
             with open(tmpdir+'/MI.txt','w') as fw:
@@ -232,40 +244,65 @@ def makeAtlases(target, trainingTable, outPrefix, fusion, threads, debug):
             weights = weightsFromMIExp(mis, ALPHA_DEFAULT)
 
         target_header= load_nifti(target._path).header
-        pool = multiprocessing.Pool(threads)  # Use all available cores, otherwise specify the number you want as an argument
-        for labelname in list(trainingTable)[1:]:  # list(d) gets column names
+        if threads==1:
+            for labelname in list(trainingTable)[1:]:  # list(d) gets column names
 
-            out = os.path.abspath(outPrefix+ f'_{labelname}.nii.gz')
-            if os.path.exists(out):
-                os.remove(out)
-            labelmaps = tmpdir // (labelname + '*')
-            labelmaps.sort()
+                out = os.path.abspath(outPrefix+ f'_{labelname}.nii.gz')
+                if os.path.exists(out):
+                    os.remove(out)
+                labelmaps = tmpdir // (labelname + '*')
+                labelmaps.sort()
 
-            if fusion.lower() == 'avg':
-                print(' ')
-                # parellelize
-                # fuseAvg(labelmaps, out, target_header)
-                pool.apply_async(func= fuseAvg, args= (labelmaps, out, target_header, ))
+                if fusion.lower() == 'avg':
+                    print(' ')
+                    fuseAvg(labelmaps, out, target_header)
 
-            elif fusion.lower() == 'antsjointfusion':
-                print(' ')
-                # atlasimages are the warped images
-                # labelmaps are the warped labels
-                # parellelize
-                # fuseAntsJointFusion(target, atlasimages, labelmaps, out)
-                pool.apply_async(func= fuseAntsJointFusion, args= (target, atlasimages, labelmaps, out, ))
+                elif fusion.lower() == 'antsjointfusion':
+                    print(' ')
+                    # atlasimages are the warped images
+                    # labelmaps are the warped labels
+                    fuseAntsJointFusion(target, atlasimages, labelmaps, out)
 
-            elif fusion.lower() == 'wavg':
-                print(' ')
-                # parellelize
-                # fuseWeightedAvg(labelmaps, weights, out, target_header)
-                pool.apply_async(func= fuseWeightedAvg, args= (labelmaps, weights, out, target_header, ))
+                elif fusion.lower() == 'wavg':
+                    print(' ')
+                    fuseWeightedAvg(labelmaps, weights, out, target_header)
 
-            else:
-                print('Unrecognized fusion option: {}. Skipping.'.format(fusion))
+                else:
+                    print('Unrecognized fusion option: {}. Skipping.'.format(fusion))
 
-        pool.close()
-        pool.join()
+            
+        else:
+            pool = multiprocessing.Pool(threads)  # Use all available cores, otherwise specify the number you want as an argument
+            for labelname in list(trainingTable)[1:]:  # list(d) gets column names
+
+                out = os.path.abspath(outPrefix+ f'_{labelname}.nii.gz')
+                if os.path.exists(out):
+                    os.remove(out)
+                labelmaps = tmpdir // (labelname + '*')
+                labelmaps.sort()
+
+                if fusion.lower() == 'avg':
+                    print(' ')
+                    # parellelize
+                    pool.apply_async(func= fuseAvg, args= (labelmaps, out, target_header, ))
+
+                elif fusion.lower() == 'antsjointfusion':
+                    print(' ')
+                    # atlasimages are the warped images
+                    # labelmaps are the warped labels
+                    # parellelize
+                    pool.apply_async(func= fuseAntsJointFusion, args= (target, atlasimages, labelmaps, out, ))
+
+                elif fusion.lower() == 'wavg':
+                    print(' ')
+                    # parellelize
+                    pool.apply_async(func= fuseWeightedAvg, args= (labelmaps, weights, out, target_header, ))
+
+                else:
+                    print('Unrecognized fusion option: {}. Skipping.'.format(fusion))
+
+            pool.close()
+            pool.join()
 
         if debug:
             tmpdir.copy(pjoin(dirname(outPrefix), 'atlas-debug-' + str(os.getpid())))

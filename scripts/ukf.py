@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.DEBUG, format=logfmt(__file__))
 # default UKFTractography parameters
 ukfdefaults = ['--numTensor', 2, '--stoppingFA', 0.15, '--seedingThreshold', 0.18, '--Qm', 0.001, '--Ql', 70,
                '--Rs', 0.015, '--stepLength', 0.3, '--recordLength', 1.7, '--stoppingThreshold', 0.1,
-               '--seedsPerVoxel', 10, '--recordTensors']
+               '--seedsPerVoxel', 1, '--recordTensors', '--numThreads', 8]
 
 
 class App(cli.Application):
@@ -51,10 +51,10 @@ class App(cli.Application):
             # TODO when UKFTractography supports float32, it should be removed
             # typecast to short
             short= load_nifti(self.dwi._path)
-            save_nifti(shortdwi._path, short.get_data().astype('int16'), short.affine, short.header)
+            save_nifti(shortdwi._path, short.get_fdata().astype('int16'), short.affine, short.header)
 
             short= load_nifti(self.dwimask._path)
-            save_nifti(shortmask._path, short.get_data().astype('int16'), short.affine, short.header)
+            save_nifti(shortmask._path, short.get_fdata().astype('int16'), short.affine, short.header)
 
 
             if self.bhigh:

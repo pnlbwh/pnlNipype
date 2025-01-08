@@ -128,7 +128,7 @@ class TopupEddyEpi(cli.Application):
 
     def main(self):
 
-        from plumbum.cmd import eddy_openmp
+        from plumbum.cmd import eddy_cpu as eddy_openmp
 
         # cli.NonexistentPath is already making sure it does not exist
         self.outDir.mkdir()
