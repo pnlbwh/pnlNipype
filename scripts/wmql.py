@@ -15,7 +15,10 @@ def nrrd(f):
 
 def _activateTensors_py(vtk):
     vtknew = vtk.dirname / (vtk.stem[2:] + ''.join(vtk.suffixes))
-    check_call((' ').join([pjoin(FILEDIR,'activateTensors.py'), vtk, vtknew]), shell= True)
+    # _activateTensors.py is a script, defined outside pnlNipype, that uses
+    # whitematteranalysis' python to call activateTensors.py
+    # https://github.com/pnlbwh/pnlNipype/wiki/activateTensors.py
+    check_call((' ').join(['_activateTensors.py', vtk, vtknew]), shell= True)
     vtk.delete()
 
 
