@@ -119,22 +119,27 @@ The rest of the software can be installed with *pnlpipe* infrastructure:
     conda env create -f environment36.yml
     conda activate pnlpipe3
     
+
+#### T1 and T2 training masks
+
+(Optional) In the past, we used MABS (Multi Atlas Brain Segmentation) method to generate T1 and T2 masks.
+But now we use [HD-BET](https://github.com/pnlbwh/HD-BET) to generate those. Hence, this step remains optional. But if you want,
+you can 'install' our training masks:
+
     # define PYTHONPATH so that pnlNipype/cmd/install.py can find pnlpipe_software/* installation scripts
     export PYTHONPATH=`pwd`
     
-    # define PNLPIPE_SOFT where you would like to install pnlNipype software modules
+    # define PNLPIPE_SOFT as the destination of training masks
     export PNLPIPE_SOFT=/path/to/wherever/you/want/
     
-    # https://github.com/pnlbwh
+    # training data for MABS mask
     cmd/install.py trainingDataT1AHCC
     cmd/install.py trainingDataT2Masks
-        
+
+    unset PYTHONPATH
 
 
-Detailed instruction can be found [here](https://github.com/pnlbwh/pnlpipe_software).
-
-
-You may also build the following from source:
+However, other external software should be built from respective sources:
 
 * ANTs
 
