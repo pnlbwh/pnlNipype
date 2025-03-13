@@ -108,10 +108,10 @@ Follow the [instruction](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FslInstallation)
 Follow the [instruction](https://surfer.nmr.mgh.harvard.edu/fswiki/DownloadAndInstall) to download and install FreeSurfer >= 5.3.0
 After installation, you can check FreeSurfer version by typing `freesurfer` on the terminal.
 
-#### pnlpipe software
+#### Conda environment
 
-The rest of the software can be installed with *pnlpipe* infrastructure:
-    
+(TBD)
+
     git clone --recurse-submodules https://github.com/pnlbwh/pnlNipype.git && cd pnlNipype
     
     # install the python packages required to run pnlNipype
