@@ -74,17 +74,9 @@ Detailed DAGs are available [here](TUTORIAL.md#pipeline-graphs).
 
 ## 1. Install prerequisites
 
-### i. With pnlpipe
-
-*pnlNipype* depends on the above software modules. It is recommended to follow *pnlpipe* installation [instruction](https://github.com/pnlbwh/pnlpipe#installation).
-Most of the requisite software modules will be installed with *pnlpipe*. In addition, you should also learn 
-how to [configure your environment](https://github.com/pnlbwh/pnlpipe#1-configure-your-environment) and [source individual software module](https://github.com/pnlbwh/pnlpipe#2-source-individual-software-module).
-
-### ii. Independently
-
-Installing *pnlNipype* independently should require you to install each of the dependencies separately. 
-This way, you can have more control upon the requisite software modules. The independent installation is for users with 
-a little more programming knowledge.
+Installing *pnlNipype* requires you to install each of the dependencies independently.
+This way, you can have more control over the requisite software modules. The independent installation is for users with
+intermediate programming knowledge.
 
 Install the following software (ignore the one(s) you have already):
 
