@@ -125,18 +125,6 @@ The rest of the software can be installed with *pnlpipe* infrastructure:
     # define PNLPIPE_SOFT where you would like to install pnlNipype software modules
     export PNLPIPE_SOFT=/path/to/wherever/you/want/
     
-    # https://github.com/pnlbwh/ukftractography
-    cmd/install.py UKFTractography
-    
-    # https://github.com/rordenlab/dcm2niix
-    cmd/install.py dcm2niix
-    
-    # https://github.com/ANTsX/ANTs
-    cmd/install.py ANTs
-    
-    # https://github.com/demianw/tract_querier
-    cmd/install.py tract_querier
-    
     # https://github.com/pnlbwh
     cmd/install.py trainingDataT1AHCC
     cmd/install.py trainingDataT2Masks
@@ -166,6 +154,22 @@ Building of dcm2niix is very straightforward and reliable. Follow [this](https:/
 
 Follow this [instruction](https://github.com/pnlbwh/ukftractography/blob/master/README.md) to download and install UKFTractography.
 
+
+* tract_querier & whitematteranalysis
+
+We found that [tract_querier](https://github.com/demianw/tract_querier/)
+and [whitematteranalysis](https://github.com/SlicerDMRI/whitematteranalysis) dependencies
+do not quite agree with simpler *pnlNipype* dependecies. Hence, you may want to install them within
+a separate Python environment outside of *pnlpipe3*. Individual repository instructions can be
+followed to install them. It will be something in line of:
+
+    git clone http://github.com/demianw/tract_querier.git
+    cd tract_querier
+    pip install .
+
+
+Special care has to be taken so that *tract_querier*'s and *whitematteranalysis*'s executables are
+in `PATH` environment variable.
 
 
 ## 2. Configure your environment
