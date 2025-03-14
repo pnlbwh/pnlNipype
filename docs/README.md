@@ -112,9 +112,9 @@ After installation, you can check FreeSurfer version by typing `freesurfer` on t
     git clone --recurse-submodules https://github.com/pnlbwh/pnlNipype.git && cd pnlNipype
     
     # install the python packages required to run pnlNipype
-    wget https://raw.githubusercontent.com/pnlbwh/pnlpipe/master/python_env/environment36.yml
-    conda env create -f environment36.yml
-    conda activate pnlpipe3
+    conda create -y -n pnlpipe9 -c conda-forge --override-channels python
+    conda activate pnlpipe9
+    pip install -r requirements.txt
     
 
 #### T1 and T2 training masks
