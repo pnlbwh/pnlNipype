@@ -10,19 +10,17 @@ This pipeline is also available as Docker and Singularity containers. See [pnlpi
 Table of Contents
 =================
 
-   * [Table of Contents](#table-of-contents)
    * [Citation](#citation)
    * [Introduction](#introduction)
    * [Dependencies](#dependencies)
    * [Installation](#installation)
       * [1. Install prerequisites](#1-install-prerequisites)
-         * [i. With pnlpipe](#i-with-pnlpipe)
-         * [ii. Independently](#ii-independently)
             * [Check system architecture](#check-system-architecture)
             * [Python 3](#python-3)
             * [FSL](#fsl)
             * [FreeSurfer](#freesurfer)
-            * [pnlpipe software](#pnlpipe-software)
+            * [Conda environment](#conda-environment)
+            * [T1 and T2 training masks](#t1-and-t2-training-masks)
       * [2. Configure your environment](#2-configure-your-environment)
       * [3. Temporary directory](#3-temporary-directory)
       * [4. Tests](#4-tests)
@@ -30,10 +28,9 @@ Table of Contents
          * [ii. Detailed](#ii-detailed)
    * [Multiprocessing](#multiprocessing)
    * [Pipeline scripts overview](#pipeline-scripts-overview)
-   * [Global bashrc](#global-bashrc)
    * [Tutorial](#tutorial)
    * [Support](#support)
-   
+
    
 Table of Contents created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
