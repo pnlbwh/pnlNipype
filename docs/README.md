@@ -191,7 +191,7 @@ It is hard to definitively suggest how to configure your environment. But it sho
     # source external software
     ANTSDIR=/path/to/ANTs
     ANTSPATH=$ANTSDIR/build/ANTS-build/Examples
-    PATH=$ANTSPATH:$ANTSDIR/Scripts:$PATH
+    PATH=$ANTSPATH:$ANTSDIR/Scripts:$PATH            # define ANTSPATH and export ANTs scripts in your path
     PATH=/path/to/dcm2niix/build/bin:$PATH
     PATH=/path/to/ukftractography/build/UKFTractography-build/UKFTractography/bin:$PATH
     PATH=/path/to/pnlNipype/exec:$PATH
@@ -199,7 +199,7 @@ It is hard to definitively suggest how to configure your environment. But it sho
 
 
     
-*(If you would like, you may edit your [bashrc](#global-bashrc) to have environment automatically setup
+*(If you would like, you may include the above in your `bashrc` to have environment automatically setup
 every time you open a new terminal)*
 
 ## 3. Temporary directory
@@ -334,25 +334,6 @@ For example, to execute axis alignment script, you can do either of the followin
     pnlNipype/exec/nifti_align -h
     pnlNipype/scripts/align.py -h
     
-
-
-# Global bashrc
-
-If you want your terminal to have the scripts automatically discoverable and environment ready to go,
-you may put the following lines in your bashrc:
-
-
-    source ~/miniconda3/bin/activate                 # should intoduce '(base)' in front of each line
-    export FSLDIR=/path/to/fsl                       # you may specify another directory where FreeSurfer is installed
-    export PATH=$PATH:$FSLDIR/bin
-    source $FSLDIR/etc/fslconf/fsl.sh
-    export FREESURFER_HOME=/path/to/freesurfer       # you may specify another directory where FreeSurfer is installed
-    source $FREESURFER_HOME/SetUpFreeSurfer.sh
-    export PATH=/path/to/pnlNipype/exec:$PATH
-    export ANTSPATH=/path/to/ANTs/bin/
-    export PATH=$ANTSPATH:ANTs/Scripts:$PATH         # define ANTSPATH and export ANTs scripts in your path
-    export PATH=/path/to/dcm2niix/build/bin:$PATH
-
 
 
 # Tutorial
