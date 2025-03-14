@@ -179,8 +179,7 @@ in `PATH` environment variable.
 
 ## 2. Configure your environment
 
-If you have already configured your environment following *pnlpipe*, you may pass the instruction below:
-
+It is hard to definitively suggest how to configure your environment. But it should be something akin to:
 
     source ~/miniconda3/bin/activate                 # should introduce '(base)' in front of each line
     export FSLDIR=/path/to/fsl/                      # setup fsl environment
@@ -189,12 +188,14 @@ If you have already configured your environment following *pnlpipe*, you may pas
     export FREESURFER_HOME=/path/to/freesurfer       # you may specify another directory where FreeSurfer is installed
     source $FREESURFER_HOME/SetUpFreeSurfer.sh
     
-    # source PNLPIPE_SOFT environments
-    source ${PNLPIPE_SOFT}/ANTs-bin-*/env.sh
-    source ${PNLPIPE_SOFT}/UKFTractography-*/env.sh
-    source ${PNLPIPE_SOFT}/dcm2niix-*/env.sh
-    source ${PNLPIPE_SOFT}/tract_querier-*/env.sh
-    export PATH=/path/to/pnlNipype/exec:$PATH
+    # source external software
+    ANTSDIR=/path/to/ANTs
+    ANTSPATH=$ANTSDIR/build/ANTS-build/Examples
+    PATH=$ANTSPATH:$ANTSDIR/Scripts:$PATH
+    PATH=/path/to/dcm2niix/build/bin:$PATH
+    PATH=/path/to/ukftractography/build/UKFTractography-build/UKFTractography/bin:$PATH
+    PATH=/path/to/pnlNipype/exec:$PATH
+    export ANTSPATH PATH
 
 
     
