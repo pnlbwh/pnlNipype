@@ -15,24 +15,20 @@ Table of Contents
    * [Dependencies](#dependencies)
    * [Installation](#installation)
       * [1. Install prerequisites](#1-install-prerequisites)
-            * [Check system architecture](#check-system-architecture)
-            * [Python 3](#python-3)
-            * [FSL](#fsl)
-            * [FreeSurfer](#freesurfer)
-            * [Conda environment](#conda-environment)
-            * [T1 and T2 training masks](#t1-and-t2-training-masks)
+          * [Check system architecture](#check-system-architecture)
+          * [Python 3](#python-3)
+          * [FSL](#fsl)
+          * [FreeSurfer](#freesurfer)
+          * [Conda environment](#conda-environment)
+          * [T1 and T2 training masks](#t1-and-t2-training-masks)
       * [2. Configure your environment](#2-configure-your-environment)
       * [3. Temporary directory](#3-temporary-directory)
       * [4. Tests](#4-tests)
-         * [i. Preliminary](#i-preliminary)
-         * [ii. Detailed](#ii-detailed)
    * [Multiprocessing](#multiprocessing)
    * [Pipeline scripts overview](#pipeline-scripts-overview)
    * [Tutorial](#tutorial)
    * [Support](#support)
 
-   
-Table of Contents created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 
 # Citation
@@ -46,7 +42,7 @@ https://github.com/pnlbwh/pnlNipype, 2019, DOI: 10.5281/zenodo.3258854
 # Introduction
 
 *pnlNipype* is a Python-based framework for processing anatomical (T1, T2) and diffusion weighted images.
-It comprises some of the [PNL](http://pnl.bwh.harvard.edu)'s neuroimaging pipelines. 
+It comprises some of the [PNL](https://pnl.bwh.harvard.edu)'s neuroimaging pipelines. 
 A pipeline is a directed acyclic graph (DAG) of dependencies.
 The following diagram depicts functionality of the NIFTI pipeline, where
 each node represents an output, and the arrows represent dependencies:
@@ -106,8 +102,6 @@ Follow the [instruction](https://surfer.nmr.mgh.harvard.edu/fswiki/DownloadAndIn
 After installation, you can check FreeSurfer version by typing `freesurfer` on the terminal.
 
 #### Conda environment
-
-(TBD)
 
     git clone --recurse-submodules https://github.com/pnlbwh/pnlNipype.git && cd pnlNipype
     
@@ -210,8 +204,6 @@ temporary directory with environment variable `PNLPIPE_TMPDIR`:
 
 ## 4. Tests
 
-### i. Preliminary
-
 Upon successful installation, you should be able to see help message of each script in the pipeline:
     
     cd lib
@@ -219,11 +211,6 @@ Upon successful installation, you should be able to see help message of each scr
     scripts/fs2dwi.py --help
     ...
 
-
-### ii. Detailed
-
-This section will be elaborated in future.
-    
 
 
 # Multiprocessing
