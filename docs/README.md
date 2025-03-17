@@ -10,32 +10,25 @@ This pipeline is also available as Docker and Singularity containers. See [pnlpi
 Table of Contents
 =================
 
-   * [Table of Contents](#table-of-contents)
    * [Citation](#citation)
    * [Introduction](#introduction)
    * [Dependencies](#dependencies)
    * [Installation](#installation)
       * [1. Install prerequisites](#1-install-prerequisites)
-         * [i. With pnlpipe](#i-with-pnlpipe)
-         * [ii. Independently](#ii-independently)
-            * [Check system architecture](#check-system-architecture)
-            * [Python 3](#python-3)
-            * [FSL](#fsl)
-            * [FreeSurfer](#freesurfer)
-            * [pnlpipe software](#pnlpipe-software)
+          * [Check system architecture](#check-system-architecture)
+          * [Python 3](#python-3)
+          * [FSL](#fsl)
+          * [FreeSurfer](#freesurfer)
+          * [Conda environment](#conda-environment)
+          * [T1 and T2 training masks](#t1-and-t2-training-masks)
       * [2. Configure your environment](#2-configure-your-environment)
       * [3. Temporary directory](#3-temporary-directory)
       * [4. Tests](#4-tests)
-         * [i. Preliminary](#i-preliminary)
-         * [ii. Detailed](#ii-detailed)
    * [Multiprocessing](#multiprocessing)
    * [Pipeline scripts overview](#pipeline-scripts-overview)
-   * [Global bashrc](#global-bashrc)
    * [Tutorial](#tutorial)
    * [Support](#support)
-   
-   
-Table of Contents created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
+
 
 
 # Citation
@@ -49,7 +42,7 @@ https://github.com/pnlbwh/pnlNipype, 2019, DOI: 10.5281/zenodo.3258854
 # Introduction
 
 *pnlNipype* is a Python-based framework for processing anatomical (T1, T2) and diffusion weighted images.
-It comprises some of the [PNL](http://pnl.bwh.harvard.edu)'s neuroimaging pipelines. 
+It comprises some of the [PNL](https://pnl.bwh.harvard.edu)'s neuroimaging pipelines. 
 A pipeline is a directed acyclic graph (DAG) of dependencies.
 The following diagram depicts functionality of the NIFTI pipeline, where
 each node represents an output, and the arrows represent dependencies:
@@ -74,17 +67,9 @@ Detailed DAGs are available [here](TUTORIAL.md#pipeline-graphs).
 
 ## 1. Install prerequisites
 
-### i. With pnlpipe
-
-*pnlNipype* depends on the above software modules. It is recommended to follow *pnlpipe* installation [instruction](https://github.com/pnlbwh/pnlpipe#installation).
-Most of the requisite software modules will be installed with *pnlpipe*. In addition, you should also learn 
-how to [configure your environment](https://github.com/pnlbwh/pnlpipe#1-configure-your-environment) and [source individual software module](https://github.com/pnlbwh/pnlpipe#2-source-individual-software-module).
-
-### ii. Independently
-
-Installing *pnlNipype* independently should require you to install each of the dependencies separately. 
-This way, you can have more control upon the requisite software modules. The independent installation is for users with 
-a little more programming knowledge.
+Installing *pnlNipype* requires you to install each of the dependencies independently.
+This way, you can have more control over the requisite software modules. The independent installation is for users with
+intermediate programming knowledge.
 
 Install the following software (ignore the one(s) you have already):
 
@@ -116,45 +101,36 @@ Follow the [instruction](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FslInstallation)
 Follow the [instruction](https://surfer.nmr.mgh.harvard.edu/fswiki/DownloadAndInstall) to download and install FreeSurfer >= 5.3.0
 After installation, you can check FreeSurfer version by typing `freesurfer` on the terminal.
 
-#### pnlpipe software
+#### Conda environment
 
-The rest of the software can be installed with *pnlpipe* infrastructure:
-    
     git clone --recurse-submodules https://github.com/pnlbwh/pnlNipype.git && cd pnlNipype
     
     # install the python packages required to run pnlNipype
-    wget https://raw.githubusercontent.com/pnlbwh/pnlpipe/master/python_env/environment36.yml
-    conda env create -f environment36.yml
-    conda activate pnlpipe3
+    conda create -y -n pnlpipe9 -c conda-forge --override-channels python
+    conda activate pnlpipe9
+    pip install -r requirements.txt
     
+
+#### T1 and T2 training masks
+
+(Optional) In the past, we used MABS (Multi Atlas Brain Segmentation) method to generate T1 and T2 masks.
+But now we use [HD-BET](https://github.com/pnlbwh/HD-BET) to generate those. Hence, this step remains optional. But if you want,
+you can 'install' our training masks:
+
     # define PYTHONPATH so that pnlNipype/cmd/install.py can find pnlpipe_software/* installation scripts
     export PYTHONPATH=`pwd`
     
-    # define PNLPIPE_SOFT where you would like to install pnlNipype software modules
+    # define PNLPIPE_SOFT as the destination of training masks
     export PNLPIPE_SOFT=/path/to/wherever/you/want/
     
-    # https://github.com/pnlbwh/ukftractography
-    cmd/install.py UKFTractography
-    
-    # https://github.com/rordenlab/dcm2niix
-    cmd/install.py dcm2niix
-    
-    # https://github.com/ANTsX/ANTs
-    cmd/install.py ANTs
-    
-    # https://github.com/demianw/tract_querier
-    cmd/install.py tract_querier
-    
-    # https://github.com/pnlbwh
+    # training data for MABS mask
     cmd/install.py trainingDataT1AHCC
     cmd/install.py trainingDataT2Masks
-        
+
+    unset PYTHONPATH
 
 
-Detailed instruction can be found [here](https://github.com/pnlbwh/pnlpipe_software).
-
-
-You may also build the following from source:
+However, other external software should be built from respective sources:
 
 * ANTs
 
@@ -175,11 +151,26 @@ Building of dcm2niix is very straightforward and reliable. Follow [this](https:/
 Follow this [instruction](https://github.com/pnlbwh/ukftractography/blob/master/README.md) to download and install UKFTractography.
 
 
+* tract_querier & whitematteranalysis
+
+We found that [tract_querier](https://github.com/demianw/tract_querier/)
+and [whitematteranalysis](https://github.com/SlicerDMRI/whitematteranalysis) dependencies
+do not quite agree with simpler *pnlNipype* dependecies. Hence, you may want to install them within
+a separate Python environment outside of *pnlpipe3*. Individual repository instructions can be
+followed to install them. It will be something in line of:
+
+    git clone http://github.com/demianw/tract_querier.git
+    cd tract_querier
+    pip install .
+
+
+Special care has to be taken so that *tract_querier*'s and *whitematteranalysis*'s executables are
+in `PATH` environment variable.
+
 
 ## 2. Configure your environment
 
-If you have already configured your environment following *pnlpipe*, you may pass the instruction below:
-
+It is hard to definitively suggest how to configure your environment. But it should be something akin to:
 
     source ~/miniconda3/bin/activate                 # should introduce '(base)' in front of each line
     export FSLDIR=/path/to/fsl/                      # setup fsl environment
@@ -188,16 +179,18 @@ If you have already configured your environment following *pnlpipe*, you may pas
     export FREESURFER_HOME=/path/to/freesurfer       # you may specify another directory where FreeSurfer is installed
     source $FREESURFER_HOME/SetUpFreeSurfer.sh
     
-    # source PNLPIPE_SOFT environments
-    source ${PNLPIPE_SOFT}/ANTs-bin-*/env.sh
-    source ${PNLPIPE_SOFT}/UKFTractography-*/env.sh
-    source ${PNLPIPE_SOFT}/dcm2niix-*/env.sh
-    source ${PNLPIPE_SOFT}/tract_querier-*/env.sh
-    export PATH=/path/to/pnlNipype/exec:$PATH
+    # source external software
+    ANTSDIR=/path/to/ANTs
+    ANTSPATH=$ANTSDIR/build/ANTS-build/Examples
+    PATH=$ANTSPATH:$ANTSDIR/Scripts:$PATH            # define ANTSPATH and export ANTs scripts in your path
+    PATH=/path/to/dcm2niix/build/bin:$PATH
+    PATH=/path/to/ukftractography/build/UKFTractography-build/UKFTractography/bin:$PATH
+    PATH=/path/to/pnlNipype/exec:$PATH
+    export ANTSPATH PATH
 
 
     
-*(If you would like, you may edit your [bashrc](#global-bashrc) to have environment automatically setup
+*(If you would like, you may include the above in your `bashrc` to have environment automatically setup
 every time you open a new terminal)*
 
 ## 3. Temporary directory
@@ -211,8 +204,6 @@ temporary directory with environment variable `PNLPIPE_TMPDIR`:
 
 ## 4. Tests
 
-### i. Preliminary
-
 Upon successful installation, you should be able to see help message of each script in the pipeline:
     
     cd lib
@@ -220,11 +211,6 @@ Upon successful installation, you should be able to see help message of each scr
     scripts/fs2dwi.py --help
     ...
 
-
-### ii. Detailed
-
-This section will be elaborated in future.
-    
 
 
 # Multiprocessing
@@ -332,25 +318,6 @@ For example, to execute axis alignment script, you can do either of the followin
     pnlNipype/exec/nifti_align -h
     pnlNipype/scripts/align.py -h
     
-
-
-# Global bashrc
-
-If you want your terminal to have the scripts automatically discoverable and environment ready to go,
-you may put the following lines in your bashrc:
-
-
-    source ~/miniconda3/bin/activate                 # should intoduce '(base)' in front of each line
-    export FSLDIR=/path/to/fsl                       # you may specify another directory where FreeSurfer is installed
-    export PATH=$PATH:$FSLDIR/bin
-    source $FSLDIR/etc/fslconf/fsl.sh
-    export FREESURFER_HOME=/path/to/freesurfer       # you may specify another directory where FreeSurfer is installed
-    source $FREESURFER_HOME/SetUpFreeSurfer.sh
-    export PATH=/path/to/pnlNipype/exec:$PATH
-    export ANTSPATH=/path/to/ANTs/bin/
-    export PATH=$ANTSPATH:ANTs/Scripts:$PATH         # define ANTSPATH and export ANTs scripts in your path
-    export PATH=/path/to/dcm2niix/build/bin:$PATH
-
 
 
 # Tutorial
