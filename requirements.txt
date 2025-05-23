@@ -8,7 +8,6 @@ pyyaml
 matplotlib
 luigi
 sqlalchemy
-statsmodels
 scikit-image
 git+https://github.com/mhe/pynrrd.git
 git+https://github.com/pnlbwh/conversion.git
