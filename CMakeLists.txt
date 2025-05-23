@@ -27,4 +27,4 @@ ExternalProject_Add(${proj}
 
 ExternalProject_Get_Property(${proj} STAMP_DIR)
 
-install: ""
+install(FILES "")
