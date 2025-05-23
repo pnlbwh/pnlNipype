@@ -13,7 +13,7 @@ execute_process(COMMAND bash Miniforge3-Linux-x86_64.sh -b -p ${CMAKE_BINARY_DIR
 
 set(PYTHON_DIR ${CMAKE_BINARY_DIR}/miniconda3/bin)
 execute_process(COMMAND ${PYTHON_DIR}/pip install git+https://github.com/pnlbwh/conversion.git)
-execute_process(COMMAND sed -i "1s+/usr/bin/env +${PYTHON_DIR}+g" ${CMAKE_BINARY_DIR}/pnlNipype/scripts/ukf.py)
+execute_process(COMMAND sed -i "1s+/usr/bin/env +${PYTHON_DIR}+g" ${CMAKE_SOURCE_DIR}/scripts/ukf.py)
 
 ExternalProject_Add(${proj}
     ${${proj}_EP_ARGS}
