@@ -27,7 +27,4 @@ ExternalProject_Add(${proj}
 
 ExternalProject_Get_Property(${proj} STAMP_DIR)
 
-mark_as_superbuild(
-  VARS PYTHON_DIR:PATH
-  LABELS "FIND_PACKAGE"
-  )
+install: ""
