@@ -1,4 +1,8 @@
+project(pnlNipype)
+
 set(proj pnlNipype)
+
+cmake_minimum_required(VERSION 3.29)
 
 set(${proj}_DEPENDENCIES "")
 
