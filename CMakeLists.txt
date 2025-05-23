@@ -24,8 +24,4 @@ ExternalProject_Add(${proj}
         ${${proj}_DEPENDENCIES}
     )
 
-mark_as_superbuild(
-    LABELS "PYTHON"
-    )
-
 ExternalProject_Get_Property(${proj} STAMP_DIR)
