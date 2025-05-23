@@ -1,8 +1,8 @@
+cmake_minimum_required(VERSION 3.20)
+
 project(pnlNipype)
 
 set(proj pnlNipype)
-
-cmake_minimum_required(VERSION 3.29)
 
 set(${proj}_DEPENDENCIES "")
 
@@ -24,10 +24,8 @@ ExternalProject_Add(${proj}
         ${${proj}_DEPENDENCIES}
     )
 
-ExternalProject_GenerateProjectDescription_Step(${proj})
-
 mark_as_superbuild(
-    LABELS "PYTHONPATH_LAUNCHER_BUILD"
+    LABELS "PYTHON"
     )
 
 ExternalProject_Get_Property(${proj} STAMP_DIR)
