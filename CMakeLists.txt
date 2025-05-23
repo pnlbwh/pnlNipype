@@ -8,10 +8,16 @@ set(${proj}_DEPENDENCIES "")
 
 include(ExternalProject)
 
+execute_process(COMMAND wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh)
+execute_process(COMMAND bash Miniforge3-Linux-x86_64.sh -b -p ${CMAKE_BINARY_DIR}/miniconda3)
+
+set(PYTHON_DIR ${CMAKE_BINARY_DIR}/miniconda3/bin)
+execute_process(COMMAND ${PYTHON_DIR}/pip install git+https://github.com/pnlbwh/conversion.git)
+execute_process(COMMAND sed -i "1s+/usr/bin/env +${PYTHON_DIR}+g" scripts/ukf.py)
+
 ExternalProject_Add(${proj}
     ${${proj}_EP_ARGS}
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/scripts
-    BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
     INSTALL_COMMAND ""
