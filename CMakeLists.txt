@@ -2,10 +2,11 @@ set(proj pnlNipype)
 
 set(${proj}_DEPENDENCIES "")
 
+include(ExternalProject)
+
 set(_install_deps COMMAND ${CMAKE_COMMAND}
     ${PYTHON_EXECUTABLE} -m pip install git+https://github.com/pnlbwh/conversion.git
     )
-
 
 ExternalProject_Add(${proj}
     ${${proj}_EP_ARGS}
