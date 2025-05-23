@@ -5,12 +5,9 @@ pandas
 nibabel
 nilearn
 pyyaml
-psutil
 matplotlib
 luigi
 sqlalchemy
-statsmodels
 scikit-image
-git+https://github.com/dstrohl/Python_log_indenter.git
 git+https://github.com/mhe/pynrrd.git
 git+https://github.com/pnlbwh/conversion.git

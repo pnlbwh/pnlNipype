@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from plumbum import local, cli
-import sys, os, tempfile, psutil, warnings
+import sys, os, tempfile, warnings
 from plumbum.cmd import ResampleImageBySpacing, antsApplyTransforms, ImageMath
 from subprocess import check_call
 
