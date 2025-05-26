@@ -27,4 +27,7 @@ ExternalProject_Add(${proj}
 
 ExternalProject_Get_Property(${proj} STAMP_DIR)
 
-install(FILES "")
+# This is for satisfying make requirement only.
+# It does not do anything but checks if the file exists.
+install(FILES ${CMAKE_BINARY_DIR}/Miniforge3-Linux-x86_64.sh DESTINATION ${CMAKE_BINARY_DIR})
+
