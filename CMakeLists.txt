@@ -1,3 +1,5 @@
+# This file only supports integration of pnlNipype into UKFTractography
+
 cmake_minimum_required(VERSION 3.20)
 
 project(pnlNipype)
