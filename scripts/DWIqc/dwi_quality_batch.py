@@ -5,7 +5,6 @@ from plumbum import cli
 from os.path import dirname, join, basename, abspath, isdir
 from os import mkdir
 from shutil import rmtree
-import psutil
 import multiprocessing
 import pandas as pd
 import nibabel as nib
@@ -123,7 +122,7 @@ class quality_batch(cli.Application):
         imgs, masks = read_imgs_masks(self.imagelist)
 
         if int(self.N_proc)==-1:
-            self.N_proc= psutil.cpu_count()
+            self.N_proc= multiprocessing.cpu_count()
 
         pool= multiprocessing.Pool(int(self.N_proc))
         for imgPath, maskPath in zip(imgs, masks):
