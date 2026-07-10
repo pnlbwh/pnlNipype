@@ -139,8 +139,8 @@ class TopupEddyEpi(cli.Application):
                 nvcc['--version'] & FG
 
                 print('\nCUDA found, looking for available GPU\n')
-                from GPUtil import getFirstAvailable
-                getFirstAvailable()
+                from plumbum.cmd import nvidia_smi
+                nvidia_smi['-L'] & FG
 
                 print('available GPU found, looking for eddy_cuda executable\n'
                       'make sure you have created a softlink according to '
